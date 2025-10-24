@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CodeBase.Configs;
 using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
+using CodeBase.EntryPoints;
 using CodeBase.GameLogic.Components;
 using CodeBase.GameLogic.Components.Attacks;
 using CodeBase.GameLogic.Components.Enemy;
@@ -19,23 +20,23 @@ namespace CodeBase.GameLogic
 {
     public class GameFactory : IService
     {
-        public event Action<GameObject> onHeroCreated;
-        public readonly List<Transform> heroActiveInstances = new List<Transform>();
-        
         private readonly HeroesModel _heroes;
         private readonly EnemiesModel _enemies;
         private readonly AssetProvider _assetProvider;
-        
+        private readonly RectTransform _uiPlaceholder;
+        private readonly HeroesInstanceProvider _instanceProvider;
+
         private ServiceLocator serviceLocator => ServiceLocator.instance;
 
-        public GameFactory(HeroesModel heroes, EnemiesModel enemies, AssetProvider assetProvider)
+        public GameFactory(HeroesModel heroes, EnemiesModel enemies, AssetProvider assetProvider,
+            HeroesInstanceProvider instanceProvider, RectTransform uiPlaceholder)
         {
             _heroes = heroes;
             _enemies = enemies;
+            _instanceProvider = instanceProvider;
             _assetProvider = assetProvider;
+            _uiPlaceholder = uiPlaceholder;
         }
-
-        public void Dispose() => heroActiveInstances.Clear();
 
         public GameObject CreateEnemy(EnemyType type, Vector3 spawnPoint)
         {
@@ -45,14 +46,14 @@ namespace CodeBase.GameLogic
             GameObject newInstance = Object.Instantiate(prefab, spawnPoint, Quaternion.identity);
 
             newInstance.GetComponent<Identifier>()?.Setup(id);
-            newInstance.GetComponent<HeroChaser>()?.Setup(model.speed, this, heroActiveInstances);
+            newInstance.GetComponent<HeroChaser>()?.Setup(model.speed, _instanceProvider);
             newInstance.GetComponent<LootSpawner>()?.Setup(model, serviceLocator.Get<LootSpawnService>());
             newInstance.GetComponent<MeleeAttack>()?.Setup(id, model.attackCooldown, serviceLocator.Get<AttackService>());
             newInstance.GetComponent<EnemyDeathHandler>()?.Setup(model);
             return newInstance;
         }
 
-        public GameObject CreateHero(HeroType type, RectTransform hudParent, Vector3 spawnPoint)
+        public GameObject CreateHero(HeroType type, Vector3 spawnPoint)
         {
             var id = Guid.NewGuid();
             HeroModel model = _heroes.Add(id, type);
@@ -62,19 +63,28 @@ namespace CodeBase.GameLogic
             newInstance.GetComponent<Identifier>()?.Setup(id);
             newInstance.GetComponent<PlayerMovement>()?.Setup(serviceLocator.Get<PlayerInputService>(), model);
             newInstance.GetComponent<RemoteAttack>()?.Setup(id, model, this);
-            newInstance.GetComponent<HeroDeathHandler>()?.Setup(model);
-            heroActiveInstances.Add(newInstance.transform);
-            onHeroCreated?.Invoke(newInstance);
-            CreateUserHud(model, hudParent);
+            newInstance.GetComponent<HeroDeathHandler>()?.Setup(model, this);
+            
+            _instanceProvider.AddHero(id, newInstance);
+            CreateUserHud(model);
             return newInstance;
         }
         
-        public GameObject CreateUserHud(HeroModel model, RectTransform hudParent)
+        public GameObject CreateUserHud(HeroModel model)
         {
             GameObject prefab = _assetProvider.GetUserHud();
-            GameObject newInstance = Object.Instantiate(prefab, hudParent);
+            GameObject newInstance = Object.Instantiate(prefab, _uiPlaceholder);
             
             newInstance.GetComponent<UserHud>()?.Setup(model);
+            return newInstance;
+        }
+        
+        public GameObject CreateGameOverScreen()
+        {
+            GameObject prefab = _assetProvider.GetGameOverScreen();
+            GameObject newInstance = Object.Instantiate(prefab, _uiPlaceholder);
+            
+            newInstance.GetComponent<GameOverScreen>()?.Setup(serviceLocator.Get<LoadSceneService>());
             return newInstance;
         }
 
@@ -99,5 +109,7 @@ namespace CodeBase.GameLogic
             newInstance.GetComponent<CollectableItem>()?.Setup(item, serviceLocator.Get<ItemsService>());
             return newInstance;
         }
+        
+        public void Dispose() { }
     }
 }

@@ -7,10 +7,12 @@ namespace CodeBase.GameLogic.Components.Hero
     public class HeroDeathHandler : MonoBehaviour
     {
         private HeroModel _model;
+        private GameFactory _gameFactory;
 
-        public void Setup(HeroModel model)
+        public void Setup(HeroModel model, GameFactory gameFactory)
         {
             _model = model;
+            _gameFactory = gameFactory;
             model.onHealthChanged += OnHealthChanged;
         }
 
@@ -18,8 +20,11 @@ namespace CodeBase.GameLogic.Components.Hero
         
         private void OnHealthChanged(Guid _)
         {
-            if (_model.currentHealth <= 0) 
+            if (_model.currentHealth <= 0)
+            {
+                _gameFactory.CreateGameOverScreen();
                 Destroy(gameObject);
+            } 
         }
     }
 }

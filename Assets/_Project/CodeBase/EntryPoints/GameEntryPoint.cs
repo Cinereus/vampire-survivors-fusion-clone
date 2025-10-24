@@ -15,9 +15,9 @@ namespace CodeBase.EntryPoints
     {
         [SerializeField] 
         private Camera _camera;
-
+        
         [SerializeField]
-        private RectTransform _hudPlaceholder;
+        private RectTransform _uiPlaceholder;
         
         [SerializeField] 
         private EnemySpawner _spawner;
@@ -38,31 +38,39 @@ namespace CodeBase.EntryPoints
             InitializeGame(services);
         }
 
+        private void RegisterDependencies(ServiceLocator services)
+        {
+            services.Register(new HeroesModel(_heroesConfig), ServiceContext.Game);
+            
+            services.Register(new EnemiesModel(_enemiesConfig), ServiceContext.Game);
+            
+            services.Register(new HeroesInstanceProvider(services.Get<HeroesModel>()), ServiceContext.Game);
+            
+            services.Register(new GameFactory(services.Get<HeroesModel>(), services.Get<EnemiesModel>(),
+                services.Get<AssetProvider>(), services.Get<HeroesInstanceProvider>(),
+                _uiPlaceholder), ServiceContext.Game);
+            
+            services.Register(new PlayerInputService(), ServiceContext.Game);
+            
+            services.Register(new ItemsService(services.Get<HeroesModel>()), ServiceContext.Game);
+            
+            services.Register(new AttackService(services.Get<HeroesModel>(), services.Get<EnemiesModel>()),
+                ServiceContext.Game);
+            
+            services.Register(new LootSpawnService(services.Get<GameFactory>()), ServiceContext.Game);
+            
+            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(),
+                services.Get<HeroesInstanceProvider>(), services.Get<EnemiesModel>()),
+                ServiceContext.Game);
+        }
+        
         private void InitializeGame(ServiceLocator services)
         {
-            var hero = services.Get<GameFactory>().CreateHero(_heroType, _hudPlaceholder, Vector3.zero);
+            var hero = services.Get<GameFactory>().CreateHero(_heroType, Vector3.zero);
             _camera.GetComponent<CameraFollow>()?.SetTarget(hero.transform);
             _spawner.Setup(services.Get<EnemySpawnService>());
         }
 
-        private void OnDestroy()
-        {
-            ServiceLocator.instance.ClearContext(ServiceContext.Game);
-        }
-
-        private void RegisterDependencies(ServiceLocator services)
-        {
-            services.Register(new HeroesModel(_heroesConfig));
-            services.Register(new EnemiesModel(_enemiesConfig));
-            services.Register(new GameFactory(services.Get<HeroesModel>(), services.Get<EnemiesModel>(),
-                services.Get<AssetProvider>()));
-            services.Register(new PlayerInputService(), ServiceContext.Game);
-            services.Register(new ItemsService(services.Get<HeroesModel>()), ServiceContext.Game);
-            services.Register(new AttackService(services.Get<HeroesModel>(), services.Get<EnemiesModel>()),
-                ServiceContext.Game);
-            services.Register(new LootSpawnService(services.Get<GameFactory>()), ServiceContext.Game);
-            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(), services.Get<EnemiesModel>()),
-                ServiceContext.Game);
-        }
+        private void OnDestroy() => ServiceLocator.instance.ClearContext(ServiceContext.Game);
     }
 }

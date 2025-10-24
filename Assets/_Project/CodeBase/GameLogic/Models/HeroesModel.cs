@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
 using CodeBase.Infrastructure.Services;
 using UnityEngine;
@@ -58,7 +57,7 @@ namespace CodeBase.GameLogic.Models
             if (_heroes[id].currentHealth <= 0)
             {
                 _heroes[id].onHealthChanged -= OnHealthChanged;
-                _heroes.Remove(id);    
+                _heroes.Remove(id);  
             }
         }
     }

@@ -1,31 +1,26 @@
-using System.Collections.Generic;
+using CodeBase.EntryPoints;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components.Enemy
 {
     public class HeroChaser : MonoBehaviour
     {
-        [SerializeField] private Rigidbody2D _rb;
+        [SerializeField] 
+        private Rigidbody2D _rb;
 
-        [SerializeField] private SpriteRenderer _renderer;
-
-        private readonly List<Transform> _heroesTransforms = new List<Transform>();
+        [SerializeField] 
+        private SpriteRenderer _renderer;
+        
+        private HeroesInstanceProvider _instanceProvider;
         private float _speed;
-        private GameFactory _factory;
 
-        public void Setup(float speed, GameFactory factory, List<Transform> heroesTransforms)
+        public void Setup(float speed, HeroesInstanceProvider instanceProvider)
         {
             _speed = speed;
-            _factory = factory;
-            _heroesTransforms.AddRange(heroesTransforms);
-            _factory.onHeroCreated += OnHeroCreated;
+            _instanceProvider = instanceProvider;
         }
         
         public void FixedUpdate() => ChaseTarget();
-
-        private void OnDestroy() => _factory.onHeroCreated -= OnHeroCreated;
-        
-        private void OnHeroCreated(GameObject hero) => _heroesTransforms.Add(hero.transform);
 
         private void ChaseTarget()
         {
@@ -38,9 +33,9 @@ namespace CodeBase.GameLogic.Components.Enemy
         {
             var lastSavedDistance = 0f;
             Vector2 result = default;
-            foreach (var heroTr in _heroesTransforms)
+            foreach (var heroTr in _instanceProvider.GetAll())
             {
-                Vector2 heroPos = heroTr.position;
+                Vector2 heroPos = heroTr.transform.position;
                 float sqrDistance = (heroPos - _rb.position).sqrMagnitude;
                 if (lastSavedDistance == 0 || sqrDistance < lastSavedDistance)
                 {

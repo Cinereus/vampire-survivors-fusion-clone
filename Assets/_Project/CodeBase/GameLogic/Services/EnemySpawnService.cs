@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeBase.Configs.Enemies;
+using CodeBase.EntryPoints;
 using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure.Services;
 using UnityEngine;
@@ -9,23 +10,20 @@ namespace CodeBase.GameLogic.Services
     public class EnemySpawnService : IService
     {
         private readonly Camera _camera;
-        private readonly GameFactory _factory;
         private readonly List<EnemyData> _enemies;
-        private readonly List<Transform> _heroesTransforms;
+        private readonly HeroesInstanceProvider _instanceProvider;
+        private readonly GameFactory _factory;
 
-        public EnemySpawnService(Camera camera, GameFactory factory, EnemiesModel enemies)
+        public EnemySpawnService(Camera camera, GameFactory factory, HeroesInstanceProvider instanceProvider,
+            EnemiesModel enemies)
         {
             _camera = camera;
             _factory = factory;
+            _instanceProvider = instanceProvider;
             _enemies = enemies.GetAvailableEnemyData();
-            _factory.onHeroCreated += OnHeroCreated;
-            _heroesTransforms = _factory.heroActiveInstances;
         }
         
-        public void Dispose()
-        {
-            _factory.onHeroCreated -= OnHeroCreated;
-        }
+        public void Dispose() { }
         
         public void SpawnEnemyWave()
         {
@@ -36,17 +34,16 @@ namespace CodeBase.GameLogic.Services
                     _factory.CreateEnemy(enemy.type, GetSpawnPosition());
             }
         }
-
-        private void OnHeroCreated(GameObject hero) => _heroesTransforms.Add(hero.transform);
-
-        private Vector3 GetSpawnPosition()
+        
+        private Vector2 GetSpawnPosition()
         {
-            Vector3 min = _camera.ViewportToWorldPoint(new Vector3(0, 0, _camera.nearClipPlane));
-            Vector3 max = _camera.ViewportToWorldPoint(new Vector3(1, 1, _camera.nearClipPlane));
+            float height = _camera.orthographicSize * 2f;
+            float width = height * _camera.aspect;
             var outsideOffset = 4f;
-            float randHorizontalSide = Random.Range(min.x - outsideOffset, max.x + outsideOffset);
-            float randVerticalSide = Random.Range(min.y - outsideOffset, max.y + outsideOffset);
-            var result = new Vector3(randHorizontalSide, randVerticalSide, 0);
+            float randHorizontalSide = Random.Range(-width / 2f - outsideOffset, width / 2f + outsideOffset);
+            float randVerticalSide = Random.Range(-height / 2f - outsideOffset, height / 2f + outsideOffset);
+            var camPos = _camera.transform.position;
+            var result = new Vector2(camPos.x + randHorizontalSide, camPos.y + randVerticalSide);
             if (CheckPositionFarFromHeroes(result))
                 return result;
             
@@ -55,10 +52,10 @@ namespace CodeBase.GameLogic.Services
 
         private bool CheckPositionFarFromHeroes(Vector2 pos)
         {
-            foreach (var heroPos in _heroesTransforms)
+            foreach (var heroPos in _instanceProvider.GetAll())
             {
                 const float EPSILON = 0.01f;
-                float distance = (pos - (Vector2) heroPos.position).sqrMagnitude;
+                float distance = (pos - (Vector2) heroPos.transform.position).sqrMagnitude;
                 if (distance <= EPSILON)
                     return false;
             }

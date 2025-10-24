@@ -12,6 +12,7 @@ namespace CodeBase.Infrastructure
         private const string GAME_PREFABS_PATH = "Prefabs/Game/";
         private const string UI_PREFABS_PATH = "Prefabs/UI/";
         private const string USER_HUD_PATH = UI_PREFABS_PATH + "UserHud";
+        private const string GAME_OVER_SCREEN_PATH = UI_PREFABS_PATH + "GameOverScreen";
         private const string ENEMY_MODELS_PATH = GAME_PREFABS_PATH + "Enemies/";
         private const string HERO_MODELS_PATH = GAME_PREFABS_PATH + "Heroes/";
         private const string ITEM_MODELS_PATH = GAME_PREFABS_PATH + "Items/";
@@ -22,6 +23,7 @@ namespace CodeBase.Infrastructure
         private readonly Dictionary<HeroType, GameObject> _heroProjectilePrefabs = new Dictionary<HeroType, GameObject>();
         private readonly Dictionary<EnemyType, GameObject> _enemyPrefabs = new Dictionary<EnemyType, GameObject>();
         private GameObject _userHudPrefab;
+        private GameObject _gameOverScreenPrefab;
 
         public void Dispose()
         {
@@ -74,6 +76,14 @@ namespace CodeBase.Infrastructure
             
             return _userHudPrefab;
         }
+        
+        public GameObject GetGameOverScreen()
+        {
+            if (_gameOverScreenPrefab == null)
+                _gameOverScreenPrefab = LoadGameOverScreen();
+            
+            return _gameOverScreenPrefab;
+        }
 
         private GameObject LoadEnemy(EnemyType type)
         {
@@ -114,6 +124,15 @@ namespace CodeBase.Infrastructure
         private GameObject LoadUserHud()
         {
             var result = Resources.Load(USER_HUD_PATH);
+            if (!result)
+                Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
+            
+            return (GameObject) result;
+        }
+        
+        private GameObject LoadGameOverScreen()
+        {
+            var result = Resources.Load(GAME_OVER_SCREEN_PATH);
             if (!result)
                 Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
             

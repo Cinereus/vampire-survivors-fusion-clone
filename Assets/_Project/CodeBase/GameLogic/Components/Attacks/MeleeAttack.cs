@@ -46,7 +46,7 @@ namespace CodeBase.GameLogic.Components.Attacks
         private void OnVictimEntered(Collider2D victim)
         {
             var victimId = victim.transform.root.GetComponent<Identifier>()?.id;
-            if (victimId.HasValue && !_victims.Contains(victimId.Value)) 
+            if (victimId.HasValue && !_victims.Contains(victimId.Value))
                 _victims.Add(victimId.Value); 
         }
 
