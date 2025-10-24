@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3b817795ebe446081de76dfc8b72bd3, type: 3}
+  m_Name: EnemiesConfig
+  m_EditorClassIdentifier: 
+  enemies:
+  - type: 2
+    health: 2
+    damage: 2
+    attackCooldown: 1.5
+    speed: 0.2
+    lootProbability: 15
+    spawnProbability: 50
+  - type: 8
+    health: 10
+    damage: 25
+    attackCooldown: 3
+    speed: 0.04
+    lootProbability: 50
+    spawnProbability: 15
+  - type: 22
+    health: 8
+    damage: 15
+    attackCooldown: 2
+    speed: 0.08
+    lootProbability: 80
+    spawnProbability: 15
+  - type: 37
+    health: 1
+    damage: 1
+    attackCooldown: 1.5
+    speed: 0.3
+    lootProbability: 15
+    spawnProbability: 50
+  - type: 67
+    health: 4
+    damage: 2
+    attackCooldown: 1.5
+    speed: 0.1
+    lootProbability: 30
+    spawnProbability: 40

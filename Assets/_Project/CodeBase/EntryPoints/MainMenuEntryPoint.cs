@@ -7,14 +7,14 @@ namespace CodeBase.EntryPoints
     {
         private LoadSceneService _loadSceneService;
 
-        private void Awake()
-        {
-            _loadSceneService = ServiceLocator.instance.GetService<LoadSceneService>();
-        }
-
         public void StartGame()
         {
             _loadSceneService.LoadScene(SceneNames.GAME);
+        }
+        
+        private void Awake()
+        {
+            _loadSceneService = ServiceLocator.instance.Get<LoadSceneService>();
         }
     }
 }

@@ -1,3 +1,4 @@
+using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services;
 using UnityEngine;
 
@@ -8,8 +9,9 @@ namespace CodeBase.EntryPoints
         private void Awake()
         {
             var services = ServiceLocator.instance;
-            services.RegisterService(new LoadSceneService());
-            services.GetService<LoadSceneService>().LoadScene(SceneNames.MAIN_MENU);
+            services.Register(new LoadSceneService());
+            services.Register(new AssetProvider());
+            services.Get<LoadSceneService>().LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }

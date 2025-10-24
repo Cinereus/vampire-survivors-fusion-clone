@@ -1,0 +1,40 @@
+﻿using System;
+using CodeBase.Configs.Enemies;
+
+namespace CodeBase.GameLogic.Models
+{
+    public class EnemyModel : IAttackData
+    {
+        public Guid id { get; private set; }
+        public EnemyType type { get; private set; }
+        public float maxHealth { get; private set; }
+        public float currentHealth { get; private set; }
+        public float damage { get; private set; }
+        public float speed { get; private set; }
+        public float lootProbability { get; private set; }
+        public float spawnProbability { get; private set; }
+        public float attackCooldown { get; private set; }
+
+        public event Action<Guid> onDeath;
+
+        public EnemyModel(Guid id, EnemyData data)
+        {
+            this.id = id;
+            type = data.type;
+            maxHealth = data.health;
+            currentHealth = data.health;
+            damage = data.damage;
+            speed = data.speed;
+            attackCooldown = data.attackCooldown;
+            lootProbability = data.lootProbability;
+            spawnProbability = data.spawnProbability;
+        }
+        
+        public void TakeDamage(float damageTaken)
+        {
+            currentHealth -= damageTaken;
+            if (currentHealth <= 0)
+                onDeath?.Invoke(id);
+        }
+    }
+}
