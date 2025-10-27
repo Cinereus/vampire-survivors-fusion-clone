@@ -1,5 +1,4 @@
-﻿using System;
-using CodeBase.Configs;
+﻿using CodeBase.Configs;
 using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure.Services;
 
@@ -16,7 +15,7 @@ namespace CodeBase.GameLogic.Services
         
         public void Dispose() { }
 
-        public bool TryPickUpItem(Guid id, ItemType item, float count)
+        public bool TryPickUpItem(uint id, ItemType item, float count)
         {
             if (_heroes.TryGetHeroBy(id, out var hero))
             {

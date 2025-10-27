@@ -11,7 +11,7 @@ namespace CodeBase.GameLogic.Models
         public event Action<HeroModel> onHealthChanged;
         
         private readonly Dictionary<HeroType, HeroData> _dataMap = new Dictionary<HeroType, HeroData>();
-        private readonly Dictionary<Guid, HeroModel> _heroes = new Dictionary<Guid, HeroModel>();
+        private readonly Dictionary<uint, HeroModel> _heroes = new Dictionary<uint, HeroModel>();
 
         public HeroesModel(HeroesConfig config)
         {
@@ -19,15 +19,15 @@ namespace CodeBase.GameLogic.Models
                 _dataMap[hero.heroType] = hero;
         }
 
-        public HeroModel GetHeroBy(Guid id) => _heroes.GetValueOrDefault(id);
+        public HeroModel GetHeroBy(uint id) => _heroes.GetValueOrDefault(id);
 
-        public bool TryGetHeroBy(Guid id, out HeroModel model)
+        public bool TryGetHeroBy(uint id, out HeroModel model)
         {
             model = GetHeroBy(id);
             return model != null;
         }
         
-        public HeroModel Add(Guid id, HeroType type)
+        public HeroModel Add(uint id, HeroType type)
         {
             if (_heroes.ContainsKey(id))
             {
@@ -51,7 +51,7 @@ namespace CodeBase.GameLogic.Models
             return default;
         }
         
-        private void OnHealthChanged(Guid id)
+        private void OnHealthChanged(uint id)
         {
             onHealthChanged?.Invoke(_heroes[id]);
             if (_heroes[id].currentHealth <= 0)

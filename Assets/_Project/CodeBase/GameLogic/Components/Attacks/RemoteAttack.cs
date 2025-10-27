@@ -14,10 +14,10 @@ namespace CodeBase.GameLogic.Components.Attacks
         private readonly List<Transform> _targets = new List<Transform>();
         private GameFactory _factory;
         private float _lastHitTime;
-        private Guid _id;
+        private uint _id;
         private IAttackData _data;
 
-        public void Setup(Guid id, IAttackData data, GameFactory factory)
+        public void Setup(uint id, IAttackData data, GameFactory factory)
         {
             _id = id;
             _data = data;

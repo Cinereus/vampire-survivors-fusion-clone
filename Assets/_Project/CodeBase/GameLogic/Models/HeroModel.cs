@@ -8,7 +8,7 @@ namespace CodeBase.GameLogic.Models
 {
     public class HeroModel : IAttackData
     {
-        public Guid id { get; private set; }
+        public uint id { get; private set; }
         public HeroType type { get; private set; }
         public float maxHealth { get; private set; }
         public float currentHealth { get; private set; }
@@ -19,13 +19,13 @@ namespace CodeBase.GameLogic.Models
         public float currentXP { get; private set; }
         public int currentLevel { get; private set; }
 
-        public event Action<Guid> onXpChanged;
-        public event Action<Guid> onHealthChanged;
+        public event Action<uint> onXpChanged;
+        public event Action<uint> onHealthChanged;
 
         private readonly float _progressionCoeff;
         private readonly float _statIncreaseCoeff;
 
-        public HeroModel(Guid id, HeroData data)
+        public HeroModel(uint id, HeroData data)
         {
             this.id = id;
             type = data.heroType;

@@ -1,5 +1,4 @@
-﻿using System;
-using CodeBase.GameLogic.Models;
+﻿using CodeBase.GameLogic.Models;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components.Hero
@@ -18,7 +17,7 @@ namespace CodeBase.GameLogic.Components.Hero
 
         private void OnDestroy() => _model.onHealthChanged -= OnHealthChanged;
         
-        private void OnHealthChanged(Guid _)
+        private void OnHealthChanged(uint _)
         {
             if (_model.currentHealth <= 0)
             {

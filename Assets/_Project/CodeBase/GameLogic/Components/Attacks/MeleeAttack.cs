@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using CodeBase.EntryPoints;
+﻿using System.Collections.Generic;
 using CodeBase.GameLogic.Services;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -12,14 +10,14 @@ namespace CodeBase.GameLogic.Components.Attacks
         [SerializeField]
         private CollisionTracker _attackArea;
         
-        private readonly List<Guid> _victims = new List<Guid>();
+        private readonly List<uint> _victims = new List<uint>();
         private AttackService _attackService;
         private bool _isAttack;
         private float _lastHitTime;
-        private Guid _id;
+        private uint _id;
         private float _cooldown;
 
-        public void Setup(Guid id, float cooldown, AttackService attackService)
+        public void Setup(uint id, float cooldown, AttackService attackService)
         {
             _id = id;
             _cooldown = cooldown;

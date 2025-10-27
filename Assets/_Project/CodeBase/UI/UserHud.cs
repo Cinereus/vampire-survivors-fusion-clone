@@ -1,4 +1,3 @@
-using System;
 using CodeBase.GameLogic.Models;
 using UnityEngine;
 
@@ -12,7 +11,6 @@ namespace CodeBase.UI
         [SerializeField] 
         private ProgressBar _xpBar;
 
-        private Guid _id;
         private HeroModel _model;
 
         public void Setup(HeroModel model)
@@ -33,9 +31,9 @@ namespace CodeBase.UI
             }
         }
 
-        private void OnXpChanged(Guid _) => UpdateXpValue();
+        private void OnXpChanged(uint _) => UpdateXpValue();
         
-        private void OnHealthChanged(Guid _) => UpdateHealthValue();
+        private void OnHealthChanged(uint _) => UpdateHealthValue();
 
         private void UpdateHealthValue() =>
             _healthBar.SetProgress($"{_model.currentHealth}/{_model.maxHealth}", _model.currentHealth,

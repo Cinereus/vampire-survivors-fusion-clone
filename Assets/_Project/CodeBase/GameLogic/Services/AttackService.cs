@@ -1,5 +1,4 @@
-﻿using System;
-using CodeBase.GameLogic.Models;
+﻿using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure.Services;
 
 namespace CodeBase.GameLogic.Services
@@ -15,7 +14,7 @@ namespace CodeBase.GameLogic.Services
             _enemies = enemies;
         }
 
-        public void MakeAttack(Guid attackerId, Guid victimId)
+        public void MakeAttack(uint attackerId, uint victimId)
         {
             if (TryGetHeroModel(attackerId, out var hero))
             {
@@ -32,7 +31,7 @@ namespace CodeBase.GameLogic.Services
         
         public void Dispose() { }
         
-        private bool TryGetHeroModel(Guid id, out HeroModel heroModel)
+        private bool TryGetHeroModel(uint id, out HeroModel heroModel)
         {
             heroModel = _heroes.GetHeroBy(id);
             return heroModel != null;

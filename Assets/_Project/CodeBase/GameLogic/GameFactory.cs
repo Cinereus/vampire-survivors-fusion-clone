@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using CodeBase.Configs;
+﻿using CodeBase.Configs;
 using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
 using CodeBase.EntryPoints;
@@ -13,8 +11,8 @@ using CodeBase.GameLogic.Services;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services;
 using CodeBase.UI;
+using Fusion;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CodeBase.GameLogic
 {
@@ -22,17 +20,19 @@ namespace CodeBase.GameLogic
     {
         private readonly HeroesModel _heroes;
         private readonly EnemiesModel _enemies;
+        private readonly NetworkContainer _network;
+        private readonly HeroesInstanceProvider _instanceProvider;
         private readonly AssetProvider _assetProvider;
         private readonly RectTransform _uiPlaceholder;
-        private readonly HeroesInstanceProvider _instanceProvider;
 
         private ServiceLocator serviceLocator => ServiceLocator.instance;
 
         public GameFactory(HeroesModel heroes, EnemiesModel enemies, AssetProvider assetProvider,
-            HeroesInstanceProvider instanceProvider, RectTransform uiPlaceholder)
+            HeroesInstanceProvider instanceProvider, RectTransform uiPlaceholder, NetworkContainer network)
         {
             _heroes = heroes;
             _enemies = enemies;
+            _network = network;
             _instanceProvider = instanceProvider;
             _assetProvider = assetProvider;
             _uiPlaceholder = uiPlaceholder;
@@ -40,25 +40,25 @@ namespace CodeBase.GameLogic
 
         public GameObject CreateEnemy(EnemyType type, Vector3 spawnPoint)
         {
-            var id = Guid.NewGuid();
-            EnemyModel model = _enemies.Add(id, type);
             GameObject prefab = _assetProvider.GetEnemy(type);
-            GameObject newInstance = Object.Instantiate(prefab, spawnPoint, Quaternion.identity);
-
+            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
+            var id = newInstance.Id.Raw;
+            EnemyModel model = _enemies.Add(id, type);
+            
             newInstance.GetComponent<Identifier>()?.Setup(id);
             newInstance.GetComponent<HeroChaser>()?.Setup(model.speed, _instanceProvider);
             newInstance.GetComponent<LootSpawner>()?.Setup(model, serviceLocator.Get<LootSpawnService>());
             newInstance.GetComponent<MeleeAttack>()?.Setup(id, model.attackCooldown, serviceLocator.Get<AttackService>());
             newInstance.GetComponent<EnemyDeathHandler>()?.Setup(model);
-            return newInstance;
+            return newInstance.gameObject;
         }
 
-        public GameObject CreateHero(HeroType type, Vector3 spawnPoint)
+        public NetworkObject CreateHero(HeroType type, Vector2 spawnPoint)
         {
-            var id = Guid.NewGuid();
-            HeroModel model = _heroes.Add(id, type);
             GameObject prefab = _assetProvider.GetHero(type);
-            GameObject newInstance = Object.Instantiate(prefab, spawnPoint, Quaternion.identity);
+            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
+            var id = newInstance.Id.Raw;
+            HeroModel model = _heroes.Add(id, type);
             
             newInstance.GetComponent<Identifier>()?.Setup(id);
             newInstance.GetComponent<PlayerMovement>()?.Setup(serviceLocator.Get<PlayerInputService>(), model);
@@ -73,30 +73,32 @@ namespace CodeBase.GameLogic
         public GameObject CreateUserHud(HeroModel model)
         {
             GameObject prefab = _assetProvider.GetUserHud();
-            GameObject newInstance = Object.Instantiate(prefab, _uiPlaceholder);
+            NetworkObject newInstance = _network.runner.Spawn(prefab);
             
+            newInstance.transform.SetParent(_uiPlaceholder);
             newInstance.GetComponent<UserHud>()?.Setup(model);
-            return newInstance;
+            return newInstance.gameObject;
         }
         
         public GameObject CreateGameOverScreen()
         {
             GameObject prefab = _assetProvider.GetGameOverScreen();
-            GameObject newInstance = Object.Instantiate(prefab, _uiPlaceholder);
+            NetworkObject newInstance = _network.runner.Spawn(prefab);
             
+            newInstance.transform.SetParent(_uiPlaceholder);
             newInstance.GetComponent<GameOverScreen>()?.Setup(serviceLocator.Get<LoadSceneService>());
-            return newInstance;
+            return newInstance.gameObject;
         }
 
-        public GameObject CreateProjectile(Guid id, Vector3 spawnPoint, Vector3 targetPos)
+        public GameObject CreateProjectile(uint id, Vector3 spawnPoint, Vector3 targetPos)
         {
             if (_heroes.TryGetHeroBy(id, out var hero))
             {
                 GameObject prefab = _assetProvider.GetProjectile(hero.type);
-                GameObject newInstance = Object.Instantiate(prefab, spawnPoint, Quaternion.identity);
+                NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
                 
                 newInstance.GetComponent<AttackProjectile>()?.Setup(id, targetPos, serviceLocator.Get<AttackService>());
-                return newInstance;
+                return newInstance.gameObject;
             }
             return null;
         }
@@ -104,10 +106,10 @@ namespace CodeBase.GameLogic
         public GameObject CreateItem(ItemType item, Vector3 spawnPoint)
         {
             GameObject prefab = _assetProvider.GetItem(item);
-            GameObject newInstance = Object.Instantiate(prefab, spawnPoint, Quaternion.identity);
+            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
             
             newInstance.GetComponent<CollectableItem>()?.Setup(item, serviceLocator.Get<ItemsService>());
-            return newInstance;
+            return newInstance.gameObject;
         }
         
         public void Dispose() { }

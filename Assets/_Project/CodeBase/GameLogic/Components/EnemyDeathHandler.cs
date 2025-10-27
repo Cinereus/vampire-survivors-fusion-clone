@@ -1,5 +1,4 @@
-﻿using System;
-using CodeBase.GameLogic.Models;
+﻿using CodeBase.GameLogic.Models;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components
@@ -14,7 +13,7 @@ namespace CodeBase.GameLogic.Components
             _model.onDeath += OnDeath;
         }
 
-        private void OnDeath(Guid _) => Destroy(gameObject);
+        private void OnDeath(uint _) => Destroy(gameObject);
         
         private void OnDestroy()
         {

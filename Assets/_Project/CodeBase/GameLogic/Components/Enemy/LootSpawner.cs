@@ -1,5 +1,4 @@
-﻿using System;
-using CodeBase.GameLogic.Models;
+﻿using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
 using UnityEngine;
 
@@ -19,7 +18,7 @@ namespace CodeBase.GameLogic.Components.Enemy
 
         private void OnDestroy() => _model.onDeath -= OnDeath;
         
-        private void OnDeath(Guid obj)
+        private void OnDeath(uint obj)
         {
             _lootService.SpawnXp(_model.type, transform.position);
             _lootService.SpawnHealPotion(_model.lootProbability, transform.position);

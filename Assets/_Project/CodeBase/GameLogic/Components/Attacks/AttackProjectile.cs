@@ -15,12 +15,12 @@ namespace CodeBase.GameLogic.Components.Attacks
         [SerializeField]
         private CollisionTracker _hurtBox;
         
-        private Guid _id;
+        private uint _id;
         private float _lifeTimeBorder;
         private Vector3 _targetPos;
         private AttackService _attackService;
 
-        public void Setup(Guid id, Vector3 targetPos, AttackService attackService)
+        public void Setup(uint id, Vector3 targetPos, AttackService attackService)
         {
             _id = id;
             _targetPos = targetPos;

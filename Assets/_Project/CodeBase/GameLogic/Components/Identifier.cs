@@ -5,9 +5,9 @@ namespace CodeBase.GameLogic.Components
 {
     public class Identifier : MonoBehaviour
     {
-        public Guid id { get; private set; }
+        public uint id { get; private set; }
 
-        public void Setup(Guid id)
+        public void Setup(uint id)
         {
             this.id = id;
         }

@@ -13,12 +13,14 @@ namespace CodeBase.GameLogic.Services
         private readonly List<EnemyData> _enemies;
         private readonly HeroesInstanceProvider _instanceProvider;
         private readonly GameFactory _factory;
+        private readonly NetworkContainer _network;
 
         public EnemySpawnService(Camera camera, GameFactory factory, HeroesInstanceProvider instanceProvider,
-            EnemiesModel enemies)
+            EnemiesModel enemies, NetworkContainer network)
         {
             _camera = camera;
             _factory = factory;
+            _network = network;
             _instanceProvider = instanceProvider;
             _enemies = enemies.GetAvailableEnemyData();
         }
@@ -30,7 +32,7 @@ namespace CodeBase.GameLogic.Services
             foreach (var enemy in _enemies)
             {
                 const int FULL_PROBABILITY = 100;
-                if (FULL_PROBABILITY * Random.value < enemy.spawnProbability) 
+                if (_network.runner.IsServer && FULL_PROBABILITY * Random.value < enemy.spawnProbability) 
                     _factory.CreateEnemy(enemy.type, GetSpawnPosition());
             }
         }

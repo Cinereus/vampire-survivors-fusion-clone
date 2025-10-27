@@ -8,6 +8,8 @@ namespace CodeBase.GameLogic.Components.Network
 {
     public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
+        public event Action<NetworkRunner, PlayerRef> onPlayerJoined;
+        
         public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
         {
         }
@@ -16,9 +18,7 @@ namespace CodeBase.GameLogic.Components.Network
         {
         }
 
-        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
-        {
-        }
+        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) => onPlayerJoined?.Invoke(runner, player);
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {

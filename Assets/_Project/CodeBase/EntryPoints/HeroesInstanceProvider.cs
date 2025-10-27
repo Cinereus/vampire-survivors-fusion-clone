@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure.Services;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.EntryPoints
@@ -10,24 +10,32 @@ namespace CodeBase.EntryPoints
     public class HeroesInstanceProvider : IService
     {
         private readonly HeroesModel _heroes;
-        private readonly Dictionary<Guid, GameObject> _instances = new Dictionary<Guid, GameObject>();
+        private readonly NetworkContainer _container;
+        private readonly Dictionary<uint, NetworkObject> _instances = new Dictionary<uint, NetworkObject>();
 
-        public HeroesInstanceProvider(HeroesModel heroes)
+        public HeroesInstanceProvider(HeroesModel heroes, NetworkContainer container)
         {
             _heroes = heroes;
+            _container = container;
         }
 
-        public List<GameObject> GetAll() => _instances.Values.ToList();
+        public List<NetworkObject> GetAll() => _instances.Values.ToList();
         
-        public void AddHero(Guid id, GameObject heroInstance)
+        public void AddHero(uint id, NetworkObject heroInstance)
         {
-            if (_instances.TryGetValue(id, out GameObject _))
+            if (!_container.runner.IsServer)
+            {
+                Debug.Log($"{nameof(HeroesInstanceProvider)}: Add failed. User not the host.");
+                return;
+            }
+            
+            if (_instances.TryGetValue(id, out NetworkObject _))
             {
                 Debug.LogWarning($"{nameof(HeroesInstanceProvider)}: Add failed. Hero instance already exists!");
                 return;
             }
 
-            if (!_heroes.TryGetHeroBy(id, out var hero))
+            if (!_heroes.TryGetHeroBy(heroInstance.Id.Raw, out var hero))
             {
                 Debug.LogWarning($"{nameof(HeroesInstanceProvider)}: Add failed. Hero model not found!");
                 return;
@@ -37,7 +45,7 @@ namespace CodeBase.EntryPoints
             hero.onHealthChanged += OnHealthChanged;
         }
 
-        private void OnHealthChanged(Guid id)
+        private void OnHealthChanged(uint id)
         {
             if (_heroes.TryGetHeroBy(id, out var hero) && hero.currentHealth <= 0)
             {

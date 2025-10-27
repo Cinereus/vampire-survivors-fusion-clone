@@ -1,7 +1,6 @@
 using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic;
-using CodeBase.GameLogic.Components;
 using CodeBase.GameLogic.Components.Enemy;
 using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
@@ -30,25 +29,26 @@ namespace CodeBase.EntryPoints
 
         [SerializeField] 
         private HeroesConfig _heroesConfig;
-
+        
         private void Awake()
         {
-            var services = ServiceLocator.instance;
-            RegisterDependencies(services);
-            InitializeGame(services);
+            RegisterDependencies();
         }
 
-        private void RegisterDependencies(ServiceLocator services)
+        private void RegisterDependencies()
         {
+            var services = ServiceLocator.instance;
+            
             services.Register(new HeroesModel(_heroesConfig), ServiceContext.Game);
             
             services.Register(new EnemiesModel(_enemiesConfig), ServiceContext.Game);
-            
-            services.Register(new HeroesInstanceProvider(services.Get<HeroesModel>()), ServiceContext.Game);
+
+            services.Register(new HeroesInstanceProvider(services.Get<HeroesModel>(), services.Get<NetworkContainer>()),
+                ServiceContext.Game);
             
             services.Register(new GameFactory(services.Get<HeroesModel>(), services.Get<EnemiesModel>(),
                 services.Get<AssetProvider>(), services.Get<HeroesInstanceProvider>(),
-                _uiPlaceholder), ServiceContext.Game);
+                _uiPlaceholder, services.Get<NetworkContainer>()), ServiceContext.Game);
             
             services.Register(new PlayerInputService(), ServiceContext.Game);
             
@@ -58,19 +58,16 @@ namespace CodeBase.EntryPoints
                 ServiceContext.Game);
             
             services.Register(new LootSpawnService(services.Get<GameFactory>()), ServiceContext.Game);
-            
-            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(),
-                services.Get<HeroesInstanceProvider>(), services.Get<EnemiesModel>()),
+
+            services.Register(new HeroSpawnService(_camera, services.Get<GameFactory>(), 
+                services.Get<NetworkContainer>(), services.Get<HeroesInstanceProvider>()),
                 ServiceContext.Game);
+            
+            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(), 
+                services.Get<HeroesInstanceProvider>(), services.Get<EnemiesModel>(),
+                services.Get<NetworkContainer>()), ServiceContext.Game);
         }
         
-        private void InitializeGame(ServiceLocator services)
-        {
-            var hero = services.Get<GameFactory>().CreateHero(_heroType, Vector3.zero);
-            _camera.GetComponent<CameraFollow>()?.SetTarget(hero.transform);
-            _spawner.Setup(services.Get<EnemySpawnService>());
-        }
-
         private void OnDestroy() => ServiceLocator.instance.ClearContext(ServiceContext.Game);
     }
 }

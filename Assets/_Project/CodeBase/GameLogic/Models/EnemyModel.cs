@@ -5,7 +5,7 @@ namespace CodeBase.GameLogic.Models
 {
     public class EnemyModel : IAttackData
     {
-        public Guid id { get; private set; }
+        public uint id { get; private set; }
         public EnemyType type { get; private set; }
         public float maxHealth { get; private set; }
         public float currentHealth { get; private set; }
@@ -15,9 +15,9 @@ namespace CodeBase.GameLogic.Models
         public float spawnProbability { get; private set; }
         public float attackCooldown { get; private set; }
 
-        public event Action<Guid> onDeath;
+        public event Action<uint> onDeath;
 
-        public EnemyModel(Guid id, EnemyData data)
+        public EnemyModel(uint id, EnemyData data)
         {
             this.id = id;
             type = data.type;
