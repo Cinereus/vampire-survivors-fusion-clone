@@ -8,7 +8,12 @@ namespace CodeBase.GameLogic.Components.Network
 {
     public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
+        public event Action<NetworkRunner, NetworkInput> onInput;
         public event Action<NetworkRunner, PlayerRef> onPlayerJoined;
+        
+        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) => onPlayerJoined?.Invoke(runner, player);
+        
+        public void OnInput(NetworkRunner runner, NetworkInput input) => onInput?.Invoke(runner, input);
         
         public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
         {
@@ -17,8 +22,6 @@ namespace CodeBase.GameLogic.Components.Network
         public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
         {
         }
-
-        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) => onPlayerJoined?.Invoke(runner, player);
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
@@ -51,10 +54,6 @@ namespace CodeBase.GameLogic.Components.Network
         }
 
         public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
-        {
-        }
-
-        public void OnInput(NetworkRunner runner, NetworkInput input)
         {
         }
 

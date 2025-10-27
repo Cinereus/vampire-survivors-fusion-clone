@@ -177,7 +177,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3602965599177472747}
-  - component: {fileID: 7472872330224752549}
+  - component: {fileID: 6092540405446661823}
+  - component: {fileID: 7800334867004762769}
   - component: {fileID: 468167692198948162}
   - component: {fileID: 6311552910584003078}
   - component: {fileID: 4730173596958425197}
@@ -207,7 +208,7 @@ Transform:
   - {fileID: 773314192518882773}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7472872330224752549
+--- !u!114 &6092540405446661823
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -216,9 +217,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 8738136218091356863}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56ad51733557462780885d54a18426db, type: 3}
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
+--- !u!114 &7800334867004762769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8738136218091356863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 1064821153
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 6092540405446661823}
+  - {fileID: 6311552910584003078}
+  ForceRemoteRenderTimeframe: 0
 --- !u!114 &468167692198948162
 MonoBehaviour:
   m_ObjectHideFlags: 0

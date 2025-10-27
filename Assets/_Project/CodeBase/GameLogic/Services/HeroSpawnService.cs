@@ -37,6 +37,8 @@ namespace CodeBase.GameLogic.Services
                 var hero = _factory.CreateHero(HeroType.Knight, spawnPoint);
                 if (hero.HasInputAuthority)
                     _camera.GetComponent<CameraFollow>()?.SetTarget(hero.transform);
+                
+                _instanceProvider.AddHero(hero.Id.Raw, hero);
             }
         }
 

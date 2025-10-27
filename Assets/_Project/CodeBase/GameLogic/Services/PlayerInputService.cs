@@ -1,12 +1,25 @@
 ﻿using CodeBase.Infrastructure.Services;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class PlayerInputService : IService
+    public class PlayerInputService : IInitializeService
     {
-        public Vector2 GetAxis() => new(SimpleInput.GetAxis("Horizontal"), SimpleInput.GetAxis("Vertical"));
+        private readonly NetworkContainer _network;
 
-        public void Dispose() { }
+        public PlayerInputService(NetworkContainer network)
+        {
+            _network = network;
+        }
+
+        public void Initialize() => _network.callbacks.onInput += OnInput;
+
+        public void Dispose() => _network.callbacks.onInput -= OnInput;
+
+        private void OnInput(NetworkRunner runner, NetworkInput input) =>
+            input.Set(new NetworkInputData { axis = GetAxis() });
+
+        private Vector2 GetAxis() => new(SimpleInput.GetAxis("Horizontal"), SimpleInput.GetAxis("Vertical"));
     }
 }

@@ -1,10 +1,11 @@
 ﻿using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components.Hero
 {
-    public class PlayerMovement : MonoBehaviour
+    public class PlayerMovement : NetworkBehaviour
     {
         [SerializeField]
         private Rigidbody2D _rb;
@@ -13,19 +14,20 @@ namespace CodeBase.GameLogic.Components.Hero
         private SpriteRenderer _renderer;
         
         private HeroModel _data;
-        private PlayerInputService _inputService;
 
-        public void Setup(PlayerInputService inputService, HeroModel data)
+        public void Setup(HeroModel data)
         {
             _data = data;
-            _inputService = inputService;
         }
 
-        public void FixedUpdate()
+        public override void FixedUpdateNetwork()
         {
-            Vector2 moveDir = _inputService.GetAxis();
-            _renderer.flipX = moveDir.x > 0;
-            _rb.MovePosition(_rb.position + moveDir * (_data.speed * Time.fixedDeltaTime));
+            if (GetInput(out NetworkInputData input))
+            {
+                Vector2 moveDir = input.axis;
+                _renderer.flipX = moveDir.x > 0;
+                _rb.MovePosition(_rb.position + moveDir * (_data.speed * Runner.DeltaTime));
+            }
         }
     }
 }

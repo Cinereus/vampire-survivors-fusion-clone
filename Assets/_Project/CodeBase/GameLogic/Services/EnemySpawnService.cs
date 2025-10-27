@@ -13,30 +13,30 @@ namespace CodeBase.GameLogic.Services
         private readonly List<EnemyData> _enemies;
         private readonly HeroesInstanceProvider _instanceProvider;
         private readonly GameFactory _factory;
-        private readonly NetworkContainer _network;
 
         public EnemySpawnService(Camera camera, GameFactory factory, HeroesInstanceProvider instanceProvider,
-            EnemiesModel enemies, NetworkContainer network)
+            EnemiesModel enemies)
         {
             _camera = camera;
             _factory = factory;
-            _network = network;
             _instanceProvider = instanceProvider;
             _enemies = enemies.GetAvailableEnemyData();
         }
-        
-        public void Dispose() { }
-        
+
+        public void Dispose()
+        {
+        }
+
         public void SpawnEnemyWave()
         {
             foreach (var enemy in _enemies)
             {
                 const int FULL_PROBABILITY = 100;
-                if (_network.runner.IsServer && FULL_PROBABILITY * Random.value < enemy.spawnProbability) 
+                if (FULL_PROBABILITY * Random.value < enemy.spawnProbability)
                     _factory.CreateEnemy(enemy.type, GetSpawnPosition());
             }
         }
-        
+
         private Vector2 GetSpawnPosition()
         {
             float height = _camera.orthographicSize * 2f;
@@ -48,7 +48,7 @@ namespace CodeBase.GameLogic.Services
             var result = new Vector2(camPos.x + randHorizontalSide, camPos.y + randVerticalSide);
             if (CheckPositionFarFromHeroes(result))
                 return result;
-            
+
             return GetSpawnPosition();
         }
 
@@ -57,10 +57,11 @@ namespace CodeBase.GameLogic.Services
             foreach (var heroPos in _instanceProvider.GetAll())
             {
                 const float EPSILON = 0.01f;
-                float distance = (pos - (Vector2) heroPos.transform.position).sqrMagnitude;
+                float distance = (pos - (Vector2)heroPos.transform.position).sqrMagnitude;
                 if (distance <= EPSILON)
                     return false;
             }
+
             return true;
         }
     }

@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4388269054297867489}
+  - component: {fileID: 3076630276372341226}
   - component: {fileID: 9195444470706474912}
+  - component: {fileID: 8475364367478853491}
   m_Layer: 10
   m_Name: HealthPotion
   m_TagString: Untagged
@@ -33,6 +35,23 @@ Transform:
   - {fileID: 3996040510692124653}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3076630276372341226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497039601284840808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!114 &9195444470706474912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,6 +66,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _count: 20
   _tracker: {fileID: 3103213176405803325}
+--- !u!114 &8475364367478853491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497039601284840808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 859002277
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 3076630276372341226}
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &4807883692262422660
 GameObject:
   m_ObjectHideFlags: 0

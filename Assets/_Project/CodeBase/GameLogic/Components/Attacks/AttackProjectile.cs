@@ -1,5 +1,6 @@
 ﻿using System;
 using CodeBase.GameLogic.Services;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components.Attacks
@@ -40,7 +41,7 @@ namespace CodeBase.GameLogic.Components.Attacks
 
         private void OnVictimEntered(Collider2D victim)
         {
-            var victimId = victim.transform.root.GetComponent<Identifier>()?.id;
+            var victimId = victim.transform.root.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (victimId.HasValue)
             {
                 _attackService.MakeAttack(_id, victimId.Value);

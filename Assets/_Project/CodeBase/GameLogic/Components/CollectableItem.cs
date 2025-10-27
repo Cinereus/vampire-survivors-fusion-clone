@@ -1,5 +1,6 @@
 ﻿using CodeBase.Configs;
 using CodeBase.GameLogic.Services;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components
@@ -29,7 +30,7 @@ namespace CodeBase.GameLogic.Components
 
         private void OnPicked(Collider2D picker)
         {
-            var id = picker.GetComponent<Identifier>()?.id;
+            var id = picker.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (id.HasValue && _itemsService.TryPickUpItem(id.Value, _item, _count)) 
                 Destroy(gameObject);
         }

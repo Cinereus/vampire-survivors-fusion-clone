@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeBase.GameLogic.Services;
+using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -43,14 +44,14 @@ namespace CodeBase.GameLogic.Components.Attacks
         
         private void OnVictimEntered(Collider2D victim)
         {
-            var victimId = victim.transform.root.GetComponent<Identifier>()?.id;
+            var victimId = victim.transform.root.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (victimId.HasValue && !_victims.Contains(victimId.Value))
                 _victims.Add(victimId.Value); 
         }
 
         private void OnVictimExited(Collider2D victim)
         {
-            var victimId = victim.transform.root.GetComponent<Identifier>()?.id;
+            var victimId = victim.transform.root.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (victimId.HasValue && _victims.Contains(victimId.Value))
                 _victims.Remove(victimId.Value);
         }

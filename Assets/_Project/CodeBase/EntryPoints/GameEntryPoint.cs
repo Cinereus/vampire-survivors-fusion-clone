@@ -43,14 +43,13 @@ namespace CodeBase.EntryPoints
             
             services.Register(new EnemiesModel(_enemiesConfig), ServiceContext.Game);
 
-            services.Register(new HeroesInstanceProvider(services.Get<HeroesModel>(), services.Get<NetworkContainer>()),
-                ServiceContext.Game);
+            services.Register(new HeroesInstanceProvider(services.Get<HeroesModel>()), ServiceContext.Game);
             
             services.Register(new GameFactory(services.Get<HeroesModel>(), services.Get<EnemiesModel>(),
                 services.Get<AssetProvider>(), services.Get<HeroesInstanceProvider>(),
                 _uiPlaceholder, services.Get<NetworkContainer>()), ServiceContext.Game);
             
-            services.Register(new PlayerInputService(), ServiceContext.Game);
+            services.Register(new PlayerInputService(services.Get<NetworkContainer>()), ServiceContext.Game);
             
             services.Register(new ItemsService(services.Get<HeroesModel>()), ServiceContext.Game);
             
@@ -62,10 +61,10 @@ namespace CodeBase.EntryPoints
             services.Register(new HeroSpawnService(_camera, services.Get<GameFactory>(), 
                 services.Get<NetworkContainer>(), services.Get<HeroesInstanceProvider>()),
                 ServiceContext.Game);
-            
-            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(), 
-                services.Get<HeroesInstanceProvider>(), services.Get<EnemiesModel>(),
-                services.Get<NetworkContainer>()), ServiceContext.Game);
+
+            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(),
+                services.Get<HeroesInstanceProvider>(), services.Get<EnemiesModel>()),
+                ServiceContext.Game);
         }
         
         private void OnDestroy() => ServiceLocator.instance.ClearContext(ServiceContext.Game);

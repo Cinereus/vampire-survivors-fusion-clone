@@ -42,10 +42,9 @@ namespace CodeBase.GameLogic
         {
             GameObject prefab = _assetProvider.GetEnemy(type);
             NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
-            var id = newInstance.Id.Raw;
+            uint id = newInstance.Id.Raw;
             EnemyModel model = _enemies.Add(id, type);
             
-            newInstance.GetComponent<Identifier>()?.Setup(id);
             newInstance.GetComponent<HeroChaser>()?.Setup(model.speed, _instanceProvider);
             newInstance.GetComponent<LootSpawner>()?.Setup(model, serviceLocator.Get<LootSpawnService>());
             newInstance.GetComponent<MeleeAttack>()?.Setup(id, model.attackCooldown, serviceLocator.Get<AttackService>());
@@ -57,15 +56,13 @@ namespace CodeBase.GameLogic
         {
             GameObject prefab = _assetProvider.GetHero(type);
             NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
-            var id = newInstance.Id.Raw;
+            uint id = newInstance.Id.Raw;
             HeroModel model = _heroes.Add(id, type);
             
-            newInstance.GetComponent<Identifier>()?.Setup(id);
-            newInstance.GetComponent<PlayerMovement>()?.Setup(serviceLocator.Get<PlayerInputService>(), model);
+            newInstance.GetComponent<PlayerMovement>()?.Setup(model);
             newInstance.GetComponent<RemoteAttack>()?.Setup(id, model, this);
             newInstance.GetComponent<HeroDeathHandler>()?.Setup(model, this);
             
-            _instanceProvider.AddHero(id, newInstance);
             CreateUserHud(model);
             return newInstance;
         }

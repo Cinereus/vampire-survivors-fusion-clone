@@ -10,25 +10,17 @@ namespace CodeBase.EntryPoints
     public class HeroesInstanceProvider : IService
     {
         private readonly HeroesModel _heroes;
-        private readonly NetworkContainer _container;
         private readonly Dictionary<uint, NetworkObject> _instances = new Dictionary<uint, NetworkObject>();
 
-        public HeroesInstanceProvider(HeroesModel heroes, NetworkContainer container)
+        public HeroesInstanceProvider(HeroesModel heroes)
         {
             _heroes = heroes;
-            _container = container;
         }
 
         public List<NetworkObject> GetAll() => _instances.Values.ToList();
         
         public void AddHero(uint id, NetworkObject heroInstance)
         {
-            if (!_container.runner.IsServer)
-            {
-                Debug.Log($"{nameof(HeroesInstanceProvider)}: Add failed. User not the host.");
-                return;
-            }
-            
             if (_instances.TryGetValue(id, out NetworkObject _))
             {
                 Debug.LogWarning($"{nameof(HeroesInstanceProvider)}: Add failed. Hero instance already exists!");
