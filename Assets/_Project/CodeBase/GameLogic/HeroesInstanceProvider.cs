@@ -5,16 +5,18 @@ using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
-namespace CodeBase.EntryPoints
+namespace CodeBase.GameLogic
 {
     public class HeroesInstanceProvider : IService
     {
         private readonly HeroesModel _heroes;
+        private readonly NetworkContainer _network;
         private readonly Dictionary<uint, NetworkObject> _instances = new Dictionary<uint, NetworkObject>();
 
-        public HeroesInstanceProvider(HeroesModel heroes)
+        public HeroesInstanceProvider(HeroesModel heroes, NetworkContainer network)
         {
             _heroes = heroes;
+            _network = network;
         }
 
         public List<NetworkObject> GetAll() => _instances.Values.ToList();
@@ -42,16 +44,22 @@ namespace CodeBase.EntryPoints
             if (_heroes.TryGetHeroBy(id, out var hero) && hero.currentHealth <= 0)
             {
                 hero.onHealthChanged -= OnHealthChanged;
-                _instances.Remove(id);   
+                
+                if (_instances.TryGetValue(id, out var heroInstance)) 
+                    _network.runner.Despawn(heroInstance);
+                
+                _instances.Remove(id);
             }
         }
 
         public void Dispose()
         {
-            foreach (var id in _instances.Keys)
+            foreach (var instance in _instances)
             {
-                if (_heroes.TryGetHeroBy(id, out var hero))
+                if (_heroes.TryGetHeroBy(instance.Key, out var hero))
                     hero.onHealthChanged -= OnHealthChanged;
+                
+                _network.runner.Despawn(instance.Value);
             }
             _instances.Clear();
         }

@@ -12,9 +12,9 @@ namespace CodeBase.GameLogic.Models
         private readonly Dictionary<EnemyType, EnemyData> _enemyDataMap = new Dictionary<EnemyType, EnemyData>();
         private readonly Dictionary<uint, EnemyModel> _enemies = new Dictionary<uint, EnemyModel>();
 
-        public EnemiesModel(EnemiesConfig config)
+        public EnemiesModel(GameSettingsProvider config)
         {
-            foreach (var enemy in config.enemies) 
+            foreach (var enemy in config.enemiesConfig.enemies) 
                 _enemyDataMap[enemy.type] = enemy;
         }
 

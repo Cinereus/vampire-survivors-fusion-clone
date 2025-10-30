@@ -1,9 +1,10 @@
-using CodeBase.EntryPoints;
+using CodeBase.Infrastructure.Services;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components.Enemy
 {
-    public class HeroChaser : MonoBehaviour
+    public class HeroChaser : NetworkBehaviour
     {
         [SerializeField] 
         private Rigidbody2D _rb;
@@ -14,19 +15,27 @@ namespace CodeBase.GameLogic.Components.Enemy
         private HeroesInstanceProvider _instanceProvider;
         private float _speed;
 
-        public void Setup(float speed, HeroesInstanceProvider instanceProvider)
-        {
+        public void Setup(float speed)
+        { 
             _speed = speed;
-            _instanceProvider = instanceProvider;
         }
-        
-        public void FixedUpdate() => ChaseTarget();
+
+        public override void Spawned()
+        {
+            _instanceProvider = ServiceLocator.instance.Get<HeroesInstanceProvider>();
+        }
+
+        public override void FixedUpdateNetwork() => ChaseTarget();
 
         private void ChaseTarget()
         {
-            var chaseDir = GetNearestChaseTargetDir();
-            _renderer.flipX = chaseDir.x > 0;
-            _rb.MovePosition(_rb.position + chaseDir * (_speed * Time.fixedDeltaTime));
+            if (HasStateAuthority)
+            {
+                var chaseDir = GetNearestChaseTargetDir();
+                _rb.MovePosition(_rb.position + chaseDir * (_speed * Runner.DeltaTime));    
+            }
+            
+            _renderer.flipX = _rb.position.normalized.x > 0;
         }
 
         private Vector2 GetNearestChaseTargetDir()

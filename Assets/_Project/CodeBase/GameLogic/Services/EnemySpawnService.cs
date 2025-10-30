@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using CodeBase.Configs.Enemies;
-using CodeBase.EntryPoints;
 using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure.Services;
 using UnityEngine;
@@ -39,13 +38,19 @@ namespace CodeBase.GameLogic.Services
 
         private Vector2 GetSpawnPosition()
         {
+            var heroes = _instanceProvider.GetAll();
             float height = _camera.orthographicSize * 2f;
             float width = height * _camera.aspect;
             var outsideOffset = 4f;
             float randHorizontalSide = Random.Range(-width / 2f - outsideOffset, width / 2f + outsideOffset);
             float randVerticalSide = Random.Range(-height / 2f - outsideOffset, height / 2f + outsideOffset);
-            var camPos = _camera.transform.position;
-            var result = new Vector2(camPos.x + randHorizontalSide, camPos.y + randVerticalSide);
+            
+            Vector3 heroPos = heroes.Count == 0
+                ? Vector3.zero
+                : heroes[Random.Range(0, heroes.Count)].transform.position;
+            
+            var result = new Vector2(heroPos.x + randHorizontalSide, heroPos.y + randVerticalSide);
+            
             if (CheckPositionFarFromHeroes(result))
                 return result;
 
@@ -57,11 +62,10 @@ namespace CodeBase.GameLogic.Services
             foreach (var heroPos in _instanceProvider.GetAll())
             {
                 const float EPSILON = 0.01f;
-                float distance = (pos - (Vector2)heroPos.transform.position).sqrMagnitude;
+                float distance = (pos - (Vector2) heroPos.transform.position).sqrMagnitude;
                 if (distance <= EPSILON)
                     return false;
             }
-
             return true;
         }
     }

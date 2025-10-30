@@ -1,45 +1,65 @@
 ﻿using System.Collections.Generic;
 using CodeBase.GameLogic.Services;
+using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace CodeBase.GameLogic.Components.Attacks
 {
-    public class MeleeAttack : MonoBehaviour
+    public class EnemyMeleeAttack : NetworkBehaviour
     {
         [SerializeField]
         private CollisionTracker _attackArea;
         
         private readonly List<uint> _victims = new List<uint>();
         private AttackService _attackService;
-        private bool _isAttack;
-        private float _lastHitTime;
-        private uint _id;
+        private TickTimer _cooldownTimer;
+        private uint _attackerId;
         private float _cooldown;
 
-        public void Setup(uint id, float cooldown, AttackService attackService)
+        public void Setup(uint attackerId, float cooldown)
         {
-            _id = id;
+            _attackerId = attackerId;
             _cooldown = cooldown;
-            _attackService = attackService;
-            _attackArea.onTriggerEnter += OnVictimEntered;
-            _attackArea.onTriggerExit += OnVictimExited;
+        }
+
+        public override void Spawned()
+        {
+            _attackService = ServiceLocator.instance.Get<AttackService>();
+            
+            if (HasStateAuthority)
+            {
+                _attackArea.onTriggerEnter += OnVictimEntered;
+                _attackArea.onTriggerExit += OnVictimExited;    
+            }
+        }
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (HasStateAuthority)
+            { 
+                _attackArea.onTriggerEnter -= OnVictimEntered; 
+                _attackArea.onTriggerExit -= OnVictimExited;
+            }
         }
         
-        private void Update()
+        public override void FixedUpdateNetwork()
         {
-            if (_victims.Count > 0 && Time.realtimeSinceStartup >= _lastHitTime)
+            if (HasStateAuthority && _cooldownTimer.ExpiredOrNotRunning(Runner))
             {
-                _lastHitTime = Time.realtimeSinceStartup + _cooldown;
                 Attack();
+                _cooldownTimer = TickTimer.CreateFromSeconds(Runner, _cooldown);
             }
         }
 
         private void Attack()
-        { 
+        {
+            if (_victims.Count == 0)
+                return;
+            
             var randomVictim = _victims[Random.Range(0, _victims.Count)];
-            _attackService.MakeAttack(_id, randomVictim);
+            _attackService.MakeAttack(_attackerId, randomVictim);
         }
         
         private void OnVictimEntered(Collider2D victim)
@@ -54,12 +74,6 @@ namespace CodeBase.GameLogic.Components.Attacks
             var victimId = victim.transform.root.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (victimId.HasValue && _victims.Contains(victimId.Value))
                 _victims.Remove(victimId.Value);
-        }
-
-        private void OnDestroy()
-        {
-            _attackArea.onTriggerEnter -= OnVictimEntered;
-            _attackArea.onTriggerExit -= OnVictimExited;
         }
     }
 }

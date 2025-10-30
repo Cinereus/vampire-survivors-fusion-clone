@@ -1,4 +1,5 @@
 ﻿using CodeBase.GameLogic.Services;
+using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
@@ -9,24 +10,22 @@ namespace CodeBase.GameLogic.Components.Enemy
         [SerializeField]
         private float _spawnInterval;
 
-        private Coroutine _spawnRoutine;
-        private EnemySpawnService _spawnService;
         private TickTimer _spawnTimer;
+        private EnemySpawnService _spawnService;
         
-        public void Setup(EnemySpawnService spawnService)
-        {
-            _spawnService = spawnService;
+        public override void Spawned()
+        { 
+            Debug.Log(gameObject.name + "+ SPAWNED");
+            _spawnService = ServiceLocator.instance.Get<EnemySpawnService>();
         }
-        
+
         public override void FixedUpdateNetwork()
         {
             if (HasStateAuthority && _spawnTimer.ExpiredOrNotRunning(Runner))
             {
-                _spawnTimer = TickTimer.CreateFromSeconds(Runner, _spawnInterval);
                 _spawnService.SpawnEnemyWave();    
+                _spawnTimer = TickTimer.CreateFromSeconds(Runner, _spawnInterval);
             }
         }
-
-        private void OnDestroy() => StopCoroutine(_spawnRoutine);
     }
 }

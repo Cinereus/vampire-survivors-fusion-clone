@@ -19,13 +19,13 @@ namespace CodeBase.GameLogic.Services
             if (TryGetHeroModel(attackerId, out var hero))
             {
                 var victim = _enemies.GetEnemyBy(victimId); 
-                victim.TakeDamage(hero.damage);    
+                victim?.TakeDamage(hero.damage);    
             }
             else
             {
                 var attacker = _enemies.GetEnemyBy(attackerId);
                 var victim = _heroes.GetHeroBy(victimId);
-                victim.TakeDamage(attacker.damage);
+                victim?.TakeDamage(attacker.damage);
             }
         }
         

@@ -13,11 +13,31 @@ namespace CodeBase.GameLogic.Components.Hero
         [SerializeField]
         private SpriteRenderer _renderer;
         
-        private HeroModel _data;
+        [Networked]
+        private float speed { get; set; }
 
-        public void Setup(HeroModel data)
+        private HeroModel _model;
+        
+        public void Setup(HeroModel model)
         {
-            _data = data;
+            _model = model;
+            speed = _model.speed;
+        }
+
+        public override void Spawned()
+        {
+            if (HasStateAuthority)
+            {
+                _model.onLevelIncreased += OnLevelIncreased;
+            }
+        }
+        
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (HasStateAuthority)
+            {
+                _model.onLevelIncreased -= OnLevelIncreased;
+            }
         }
 
         public override void FixedUpdateNetwork()
@@ -26,9 +46,11 @@ namespace CodeBase.GameLogic.Components.Hero
             {
                 Vector2 moveDir = input.axis;
                 _renderer.flipX = moveDir.x > 0;
-                _rb.MovePosition(_rb.position + moveDir * (_data.speed * Runner.DeltaTime));
+                _rb.MovePosition(_rb.position + moveDir * (speed * Runner.DeltaTime));
             }
         }
+        
+        private void OnLevelIncreased(uint _) => speed = _model.speed;
     }
 }
 

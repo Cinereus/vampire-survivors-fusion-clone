@@ -3,7 +3,7 @@ using CodeBase.Configs.Enemies;
 
 namespace CodeBase.GameLogic.Models
 {
-    public class EnemyModel : IAttackData
+    public class EnemyModel
     {
         public uint id { get; private set; }
         public EnemyType type { get; private set; }
@@ -14,8 +14,8 @@ namespace CodeBase.GameLogic.Models
         public float lootProbability { get; private set; }
         public float spawnProbability { get; private set; }
         public float attackCooldown { get; private set; }
-
-        public event Action<uint> onDeath;
+        
+        public event Action<uint> onHealthChanged;
 
         public EnemyModel(uint id, EnemyData data)
         {
@@ -33,8 +33,7 @@ namespace CodeBase.GameLogic.Models
         public void TakeDamage(float damageTaken)
         {
             currentHealth -= damageTaken;
-            if (currentHealth <= 0)
-                onDeath?.Invoke(id);
+            onHealthChanged?.Invoke(id);
         }
     }
 }

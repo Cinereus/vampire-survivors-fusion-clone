@@ -11,18 +11,21 @@ namespace CodeBase.Infrastructure
     {
         private const string GAME_PREFABS_PATH = "Prefabs/Game/";
         private const string UI_PREFABS_PATH = "Prefabs/UI/";
-        private const string USER_HUD_PATH = UI_PREFABS_PATH + "UserHud";
+        private const string USER_HUD_PATH = UI_PREFABS_PATH + "ClientUserHud";
+        private const string REMOTE_USER_HUD_PATH = UI_PREFABS_PATH + "RemoteUserHud";
         private const string GAME_OVER_SCREEN_PATH = UI_PREFABS_PATH + "GameOverScreen";
-        private const string ENEMY_MODELS_PATH = GAME_PREFABS_PATH + "Enemies/";
-        private const string HERO_MODELS_PATH = GAME_PREFABS_PATH + "Heroes/";
-        private const string ITEM_MODELS_PATH = GAME_PREFABS_PATH + "Items/";
-        private const string PROJECTILE_PATH = GAME_PREFABS_PATH + "Projectiles/";
+        private const string SPAWNERS_PATH = GAME_PREFABS_PATH + "Spawners/";
+        private const string ENEMIES_PATH = GAME_PREFABS_PATH + "Enemies/";
+        private const string HEROES_PATH = GAME_PREFABS_PATH + "Heroes/";
+        private const string ITEMS_PATH = GAME_PREFABS_PATH + "Items/";
+        private const string PROJECTILES_PATH = GAME_PREFABS_PATH + "Projectiles/";
 
         private readonly Dictionary<ItemType, GameObject> _itemPrefabs = new Dictionary<ItemType, GameObject>();
         private readonly Dictionary<HeroType, GameObject> _heroPrefabs = new Dictionary<HeroType, GameObject>();
         private readonly Dictionary<HeroType, GameObject> _heroProjectilePrefabs = new Dictionary<HeroType, GameObject>();
         private readonly Dictionary<EnemyType, GameObject> _enemyPrefabs = new Dictionary<EnemyType, GameObject>();
-        private GameObject _userHudPrefab;
+        private GameObject _clientUserHudPrefab;
+        private GameObject _remoteUserHudPrefab;
         private GameObject _gameOverScreenPrefab;
 
         public void Dispose()
@@ -69,12 +72,20 @@ namespace CodeBase.Infrastructure
             return result;
         }
         
-        public GameObject GetUserHud()
+        public GameObject GetClientUserHud()
         {
-            if (_userHudPrefab == null)
-                _userHudPrefab = LoadUserHud();
+            if (_clientUserHudPrefab == null)
+                _clientUserHudPrefab = LoadClientUserHud();
             
-            return _userHudPrefab;
+            return _clientUserHudPrefab;
+        }
+        
+        public GameObject GetRemoteUserHud()
+        {
+            if (_remoteUserHudPrefab == null)
+                _remoteUserHudPrefab = LoadRemoteUserHud();
+            
+            return _remoteUserHudPrefab;
         }
         
         public GameObject GetGameOverScreen()
@@ -84,10 +95,28 @@ namespace CodeBase.Infrastructure
             
             return _gameOverScreenPrefab;
         }
+        
+        public GameObject GetHeroSpawner()
+        {
+            var result = Resources.Load(SPAWNERS_PATH + "HeroSpawner");
+            if (!result)
+                Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
+            
+            return (GameObject) result;
+        }
+
+        public GameObject GetEnemySpawner()
+        {
+            var result = Resources.Load(SPAWNERS_PATH + "EnemySpawner");
+            if (!result)
+                Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
+            
+            return (GameObject) result;
+        }
 
         private GameObject LoadEnemy(EnemyType type)
         {
-            var result = Resources.Load(ENEMY_MODELS_PATH + type);
+            var result = Resources.Load(ENEMIES_PATH + type);
             if (!result)
                 Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
 
@@ -96,7 +125,7 @@ namespace CodeBase.Infrastructure
 
         private GameObject LoadHero(HeroType type)
         {
-            var result = Resources.Load(HERO_MODELS_PATH + type);
+            var result = Resources.Load(HEROES_PATH + type);
             if (!result)
                 Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
 
@@ -105,7 +134,7 @@ namespace CodeBase.Infrastructure
 
         private GameObject LoadItem(ItemType type)
         {
-            var result = Resources.Load(ITEM_MODELS_PATH + type);
+            var result = Resources.Load(ITEMS_PATH + type);
             if (!result)
                 Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
 
@@ -114,16 +143,25 @@ namespace CodeBase.Infrastructure
         
         private GameObject LoadHeroProjectile(HeroType type)
         {
-            var result = Resources.Load(PROJECTILE_PATH + type + "Projectile");
+            var result = Resources.Load(PROJECTILES_PATH + type + "Projectile");
             if (!result)
                 Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
 
             return (GameObject) result;
         }
         
-        private GameObject LoadUserHud()
+        private GameObject LoadClientUserHud()
         {
             var result = Resources.Load(USER_HUD_PATH);
+            if (!result)
+                Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
+            
+            return (GameObject) result;
+        }   
+        
+        private GameObject LoadRemoteUserHud()
+        {
+            var result = Resources.Load(REMOTE_USER_HUD_PATH);
             if (!result)
                 Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
             

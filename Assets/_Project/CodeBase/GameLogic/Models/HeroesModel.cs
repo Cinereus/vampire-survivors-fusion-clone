@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CodeBase.Configs.Heroes;
 using CodeBase.Infrastructure.Services;
 using UnityEngine;
@@ -8,14 +7,12 @@ namespace CodeBase.GameLogic.Models
 {
     public class HeroesModel : IService
     {
-        public event Action<HeroModel> onHealthChanged;
-        
         private readonly Dictionary<HeroType, HeroData> _dataMap = new Dictionary<HeroType, HeroData>();
         private readonly Dictionary<uint, HeroModel> _heroes = new Dictionary<uint, HeroModel>();
 
-        public HeroesModel(HeroesConfig config)
+        public HeroesModel(GameSettingsProvider config)
         {
-            foreach (var hero in config.heroes) 
+            foreach (var hero in config.heroesConfig.heroes) 
                 _dataMap[hero.heroType] = hero;
         }
 
@@ -53,7 +50,6 @@ namespace CodeBase.GameLogic.Models
         
         private void OnHealthChanged(uint id)
         {
-            onHealthChanged?.Invoke(_heroes[id]);
             if (_heroes[id].currentHealth <= 0)
             {
                 _heroes[id].onHealthChanged -= OnHealthChanged;

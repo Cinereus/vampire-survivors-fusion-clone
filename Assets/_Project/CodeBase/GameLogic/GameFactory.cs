@@ -1,13 +1,11 @@
 ﻿using CodeBase.Configs;
 using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
-using CodeBase.EntryPoints;
 using CodeBase.GameLogic.Components;
 using CodeBase.GameLogic.Components.Attacks;
 using CodeBase.GameLogic.Components.Enemy;
 using CodeBase.GameLogic.Components.Hero;
 using CodeBase.GameLogic.Models;
-using CodeBase.GameLogic.Services;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services;
 using CodeBase.UI;
@@ -21,80 +19,98 @@ namespace CodeBase.GameLogic
         private readonly HeroesModel _heroes;
         private readonly EnemiesModel _enemies;
         private readonly NetworkContainer _network;
-        private readonly HeroesInstanceProvider _instanceProvider;
         private readonly AssetProvider _assetProvider;
         private readonly RectTransform _uiPlaceholder;
 
-        private ServiceLocator serviceLocator => ServiceLocator.instance;
-
-        public GameFactory(HeroesModel heroes, EnemiesModel enemies, AssetProvider assetProvider,
-            HeroesInstanceProvider instanceProvider, RectTransform uiPlaceholder, NetworkContainer network)
+        public GameFactory(HeroesModel heroes, EnemiesModel enemies, AssetProvider assetProvider, 
+            RectTransform uiPlaceholder, NetworkContainer network)
         {
             _heroes = heroes;
             _enemies = enemies;
             _network = network;
-            _instanceProvider = instanceProvider;
             _assetProvider = assetProvider;
             _uiPlaceholder = uiPlaceholder;
         }
 
         public GameObject CreateEnemy(EnemyType type, Vector3 spawnPoint)
         {
-            GameObject prefab = _assetProvider.GetEnemy(type);
-            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
-            uint id = newInstance.Id.Raw;
-            EnemyModel model = _enemies.Add(id, type);
+            if (!_network.runner.IsServer)
+                return null;
             
-            newInstance.GetComponent<HeroChaser>()?.Setup(model.speed, _instanceProvider);
-            newInstance.GetComponent<LootSpawner>()?.Setup(model, serviceLocator.Get<LootSpawnService>());
-            newInstance.GetComponent<MeleeAttack>()?.Setup(id, model.attackCooldown, serviceLocator.Get<AttackService>());
-            newInstance.GetComponent<EnemyDeathHandler>()?.Setup(model);
+            GameObject prefab = _assetProvider.GetEnemy(type);
+            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity, 
+                onBeforeSpawned: (_, netObject) => 
+                {
+                    EnemyModel model = _enemies.Add(netObject.Id.Raw, type);
+                    
+                    netObject.GetComponent<HeroChaser>()?.Setup(model.speed);
+                    netObject.GetComponent<LootSpawner>()?.Setup(model);
+                    netObject.GetComponent<EnemyMeleeAttack>()?.Setup(model.id, model.attackCooldown);
+                    netObject.GetComponent<EnemyDeathHandler>()?.Setup(model);
+                });
+
             return newInstance.gameObject;
         }
 
-        public NetworkObject CreateHero(HeroType type, Vector2 spawnPoint)
+        public NetworkObject CreateHero(HeroType type, PlayerRef player,  Vector2 spawnPoint)
         {
+            if (!_network.runner.IsServer)
+                return null;
+            
             GameObject prefab = _assetProvider.GetHero(type);
-            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
-            uint id = newInstance.Id.Raw;
-            HeroModel model = _heroes.Add(id, type);
+            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity, player, 
+                onBeforeSpawned: (_, netObject) =>
+                {
+                    HeroModel model = _heroes.Add(netObject.Id.Raw, type);
+                    
+                    netObject.GetComponent<PlayerMovement>()?.Setup(model);
+                    netObject.GetComponent<HeroRemoteAttack>()?.Setup(model);
+                    netObject.GetComponent<HeroDeathHandler>()?.Setup(model);
+                    netObject.GetComponent<UserHudStatTracker>()?.Setup(model);
+                });
             
-            newInstance.GetComponent<PlayerMovement>()?.Setup(model);
-            newInstance.GetComponent<RemoteAttack>()?.Setup(id, model, this);
-            newInstance.GetComponent<HeroDeathHandler>()?.Setup(model, this);
-            
-            CreateUserHud(model);
             return newInstance;
         }
         
-        public GameObject CreateUserHud(HeroModel model)
+        public UserHud CreateClientUserHudLocal()
         {
-            GameObject prefab = _assetProvider.GetUserHud();
-            NetworkObject newInstance = _network.runner.Spawn(prefab);
-            
-            newInstance.transform.SetParent(_uiPlaceholder);
-            newInstance.GetComponent<UserHud>()?.Setup(model);
-            return newInstance.gameObject;
+            GameObject prefab = _assetProvider.GetClientUserHud();
+            UserHud newInstance = Object.Instantiate(prefab, _uiPlaceholder).GetComponent<UserHud>();
+            return newInstance;
         }
         
-        public GameObject CreateGameOverScreen()
+        public UserHud CreateRemoteUserHudLocal(RectTransform parent)
+        {
+            GameObject prefab = _assetProvider.GetRemoteUserHud();
+            UserHud newInstance = Object.Instantiate(prefab, parent).GetComponent<UserHud>(); 
+            
+            return newInstance;
+        }
+        
+        public GameOverScreen CreateGameOverScreenLocal()
         {
             GameObject prefab = _assetProvider.GetGameOverScreen();
-            NetworkObject newInstance = _network.runner.Spawn(prefab);
+            GameOverScreen newInstance = Object.Instantiate(prefab, _uiPlaceholder)
+                .GetComponent<GameOverScreen>();
+            newInstance?.Setup();
             
-            newInstance.transform.SetParent(_uiPlaceholder);
-            newInstance.GetComponent<GameOverScreen>()?.Setup(serviceLocator.Get<LoadSceneService>());
-            return newInstance.gameObject;
+            return newInstance;
         }
 
         public GameObject CreateProjectile(uint id, Vector3 spawnPoint, Vector3 targetPos)
         {
+            if (!_network.runner.IsServer)
+                return null;
+            
             if (_heroes.TryGetHeroBy(id, out var hero))
             {
                 GameObject prefab = _assetProvider.GetProjectile(hero.type);
-                NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
+                NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity, 
+                    onBeforeSpawned: (_, netObject) =>
+                    {
+                        netObject.GetComponent<AttackProjectile>()?.Setup(id, targetPos); 
+                    });
                 
-                newInstance.GetComponent<AttackProjectile>()?.Setup(id, targetPos, serviceLocator.Get<AttackService>());
                 return newInstance.gameObject;
             }
             return null;
@@ -102,10 +118,44 @@ namespace CodeBase.GameLogic
         
         public GameObject CreateItem(ItemType item, Vector3 spawnPoint)
         {
-            GameObject prefab = _assetProvider.GetItem(item);
-            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity);
+            if (!_network.runner.IsServer)
+                return null;
             
-            newInstance.GetComponent<CollectableItem>()?.Setup(item, serviceLocator.Get<ItemsService>());
+            GameObject prefab = _assetProvider.GetItem(item);
+            NetworkObject newInstance = _network.runner.Spawn(prefab, spawnPoint, Quaternion.identity, 
+                onBeforeSpawned: (_, netObject) =>
+                {
+                    netObject.GetComponent<CollectableItem>()?.Setup(item);        
+                });
+            
+            return newInstance.gameObject;
+        }
+        
+        public GameObject CreateHeroSpawner(PlayerRef playerRef)
+        {
+            Debug.Log($"Spawn call by: IsServer={_network.runner.IsServer}, IsClient={_network.runner.IsClient}, GameMode={_network.runner.GameMode}");
+            if (!_network.runner.IsServer)
+                return null;
+            
+            GameObject prefab = _assetProvider.GetHeroSpawner();
+            NetworkObject newInstance =
+                _network.runner.Spawn(prefab, Vector3.zero, Quaternion.identity, playerRef, onBeforeSpawned:
+                    (r, o) => Debug.Log($"BeforeSpawn: owner={o.InputAuthority}") );
+            
+            return newInstance.gameObject;
+        }
+        
+        public GameObject CreateEnemySpawner()
+        {
+            Debug.Log($"Spawn call by: IsServer={_network.runner.IsServer}, IsClient={_network.runner.IsClient}, GameMode={_network.runner.GameMode}");
+            if (!_network.runner.IsServer)
+                return null;
+            
+            Debug.Log("Spawn enemy spawner made");
+            GameObject prefab = _assetProvider.GetEnemySpawner();
+            NetworkObject newInstance =
+                _network.runner.Spawn(prefab, Vector3.zero, Quaternion.identity);
+            
             return newInstance.gameObject;
         }
         

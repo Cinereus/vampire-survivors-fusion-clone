@@ -1,11 +1,12 @@
 ﻿using CodeBase.Configs;
 using CodeBase.GameLogic.Services;
+using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components
 {
-    public class CollectableItem : MonoBehaviour
+    public class CollectableItem : NetworkBehaviour
     {
         [SerializeField] 
         private float _count;
@@ -16,23 +17,34 @@ namespace CodeBase.GameLogic.Components
         private ItemType _item;
         private ItemsService _itemsService;
 
-        public void Setup(ItemType item, ItemsService itemService)
+        public void Setup(ItemType item)
         {
             _item = item;
-            _itemsService = itemService;
-            _tracker.onTriggerEnter += OnPicked;
         }
 
-        private void OnDestroy()
+        public override void Spawned()
         {
-            _tracker.onTriggerEnter -= OnPicked;
+            _itemsService = ServiceLocator.instance.Get<ItemsService>();
+            
+            if (HasStateAuthority)
+            {
+                _tracker.onTriggerEnter += OnPicked;
+            }
+        }
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (HasStateAuthority)
+            {
+                _tracker.onTriggerEnter -= OnPicked;
+            }
         }
 
         private void OnPicked(Collider2D picker)
         {
             var id = picker.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (id.HasValue && _itemsService.TryPickUpItem(id.Value, _item, _count)) 
-                Destroy(gameObject);
+                Runner.Despawn(Object);
         }
     }
 }

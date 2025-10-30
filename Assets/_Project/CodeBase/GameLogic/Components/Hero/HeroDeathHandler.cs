@@ -1,29 +1,58 @@
 ﻿using CodeBase.GameLogic.Models;
-using UnityEngine;
+using CodeBase.Infrastructure.Services;
+using Fusion;
 
 namespace CodeBase.GameLogic.Components.Hero
 {
-    public class HeroDeathHandler : MonoBehaviour
+    public class HeroDeathHandler : NetworkBehaviour
     {
+        [Networked]
+        private float currentHealth { get; set; }
+        
         private HeroModel _model;
-        private GameFactory _gameFactory;
-
-        public void Setup(HeroModel model, GameFactory gameFactory)
+        private ChangeDetector _changeDetector;
+        
+        public void Setup(HeroModel model)
         {
             _model = model;
-            _gameFactory = gameFactory;
-            model.onHealthChanged += OnHealthChanged;
+        }
+        
+        public override void Spawned()
+        {
+            _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            
+            if (HasStateAuthority)
+            {
+                _model.onHealthChanged += OnHealthChanged;
+                currentHealth = _model.currentHealth;
+            }
+        }
+        
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (HasStateAuthority)
+            { 
+                _model.onHealthChanged -= OnHealthChanged;
+            }
         }
 
-        private void OnDestroy() => _model.onHealthChanged -= OnHealthChanged;
-        
-        private void OnHealthChanged(uint _)
+        public override void Render() => CheckNetworkPropertyChanged();
+
+        private void CheckNetworkPropertyChanged()
         {
-            if (_model.currentHealth <= 0)
+            foreach (var propertyName in _changeDetector.DetectChanges(this))
             {
-                _gameFactory.CreateGameOverScreen();
-                Destroy(gameObject);
-            } 
+                if (propertyName == nameof(currentHealth) && HasInputAuthority && currentHealth <= 0 ) 
+                    ServiceLocator.instance.Get<GameFactory>().CreateGameOverScreenLocal();
+            }
+        }
+        
+        private void OnHealthChanged(uint id)
+        {
+            currentHealth = _model.currentHealth;
+            
+            if (HasStateAuthority && _model.currentHealth <= 0) 
+                Runner.Disconnect(Object.InputAuthority);
         }
     }
 }

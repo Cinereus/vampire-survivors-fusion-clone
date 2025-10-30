@@ -1,45 +1,19 @@
-using CodeBase.GameLogic.Models;
 using UnityEngine;
 
 namespace CodeBase.UI
 {
     public class UserHud : MonoBehaviour
     {
-        [SerializeField] 
+        [SerializeField]
         private ProgressBar _healthBar;
 
-        [SerializeField] 
+        [SerializeField]
         private ProgressBar _xpBar;
-
-        private HeroModel _model;
-
-        public void Setup(HeroModel model)
-        {
-            _model = model;
-            UpdateXpValue();
-            UpdateHealthValue();
-            _model.onXpChanged += OnXpChanged; 
-            _model.onHealthChanged += OnHealthChanged;
-        }
-
-        private void OnDestroy()
-        {
-            if (_model != null)
-            { 
-                _model.onXpChanged -= OnXpChanged; 
-                _model.onHealthChanged -= OnHealthChanged;
-            }
-        }
-
-        private void OnXpChanged(uint _) => UpdateXpValue();
         
-        private void OnHealthChanged(uint _) => UpdateHealthValue();
+        public void UpdateHealthValue(float current, float max) => 
+            _healthBar.SetProgress($"{current}/{max}", current, max);
 
-        private void UpdateHealthValue() =>
-            _healthBar.SetProgress($"{_model.currentHealth}/{_model.maxHealth}", _model.currentHealth,
-                _model.maxHealth);
-
-        private void UpdateXpValue() => 
-            _xpBar.SetProgress($"{_model.currentXP}/{_model.maxXP}", _model.currentXP, _model.maxXP);
+        public void UpdateXpValue(float current, float max) =>
+            _xpBar.SetProgress($"{current}/{max}", current, max);
     }
 }

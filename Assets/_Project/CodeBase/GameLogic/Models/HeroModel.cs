@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 namespace CodeBase.GameLogic.Models
 {
-    public class HeroModel : IAttackData
+    public class HeroModel
     {
         public uint id { get; private set; }
         public HeroType type { get; private set; }
@@ -15,11 +15,12 @@ namespace CodeBase.GameLogic.Models
         public float speed { get; private set; }
         public float damage { get; private set; }
         public float attackCooldown { get; private set; }
-        public float maxXP { get; private set; }
-        public float currentXP { get; private set; }
+        public float maxXp { get; private set; }
+        public float currentXp { get; private set; }
         public int currentLevel { get; private set; }
 
         public event Action<uint> onXpChanged;
+        public event Action<uint> onLevelIncreased;
         public event Action<uint> onHealthChanged;
 
         private readonly float _progressionCoeff;
@@ -27,15 +28,15 @@ namespace CodeBase.GameLogic.Models
 
         public HeroModel(uint id, HeroData data)
         {
-            this.id = id;
+            this.id = id; 
             type = data.heroType;
             maxHealth = data.health;
             currentHealth = data.health;
             speed = data.speed;
             damage = data.damage;
             attackCooldown = data.attackCooldown;
-            currentXP = data.currentXP;
-            maxXP = data.maxXP;
+            currentXp = data.currentXP;
+            maxXp = data.maxXP;
             currentLevel = data.currentLevel;
             _progressionCoeff = data.progressionCoeff;
             _statIncreaseCoeff = data.statIncreaseCoeff;
@@ -63,8 +64,8 @@ namespace CodeBase.GameLogic.Models
                 case ItemType.XpPage:
                 case ItemType.XpBook:
                 {
-                    currentXP += value;
-                    if (currentXP >= maxXP)
+                    currentXp += value;
+                    if (currentXp >= maxXp)
                         IncreaseLevel();
                     
                     onXpChanged?.Invoke(id);
@@ -75,9 +76,9 @@ namespace CodeBase.GameLogic.Models
 
         private void IncreaseLevel()
         {
-            currentXP = 0;
+            currentXp = 0;
             currentLevel++;
-            maxXP *= _statIncreaseCoeff;
+            maxXp *= _progressionCoeff;
             switch (Random.Range(0, 4))
             {
                 case 0:
@@ -100,6 +101,7 @@ namespace CodeBase.GameLogic.Models
             currentHealth = maxHealth;
             onHealthChanged?.Invoke(id);
             onXpChanged?.Invoke(id);
+            onLevelIncreased?.Invoke(id);
         }
     }
 }

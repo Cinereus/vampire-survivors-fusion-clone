@@ -1,11 +1,11 @@
-﻿using System;
-using CodeBase.GameLogic.Services;
+﻿using CodeBase.GameLogic.Services;
+using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Components.Attacks
 {
-    public class AttackProjectile : MonoBehaviour
+    public class AttackProjectile : NetworkBehaviour
     {
         [SerializeField]
         private float _lifeTime;
@@ -20,23 +20,45 @@ namespace CodeBase.GameLogic.Components.Attacks
         private float _lifeTimeBorder;
         private Vector3 _targetPos;
         private AttackService _attackService;
+        private TickTimer _lifeTimer;
+        private uint _attackerId;
 
-        public void Setup(uint id, Vector3 targetPos, AttackService attackService)
+        public void Setup(uint attackerId, Vector3 targetPos)
         {
-            _id = id;
+            _attackerId = attackerId;
             _targetPos = targetPos;
-            _attackService = attackService;
-            _lifeTimeBorder = Time.time + _lifeTime;
-            _hurtBox.onTriggerEnter += OnVictimEntered;
         }
 
-        public void Update()
+        public override void Spawned()
         {
-            var targetDir = (_targetPos - transform.position).normalized;
-            transform.position += targetDir * (_moveSpeed * Time.deltaTime);
+            _attackService = ServiceLocator.instance.Get<AttackService>();
             
-            if (Time.time >= _lifeTimeBorder) 
-                Destroy(gameObject);
+            if (HasStateAuthority)
+            {
+                _lifeTimer = TickTimer.CreateFromSeconds(Runner, _lifeTime);
+                _hurtBox.onTriggerEnter += OnVictimEntered;    
+            }
+        }
+        
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (HasStateAuthority)
+            { 
+                _hurtBox.onTriggerEnter -= OnVictimEntered;
+            }
+        }
+
+        public override void FixedUpdateNetwork()
+        {
+            if (HasStateAuthority && _lifeTimer.Expired(Runner))
+            {
+                Runner.Despawn(Object);
+            }
+            else
+            {
+                var targetDir = (_targetPos - transform.position).normalized;
+                transform.position += targetDir * (_moveSpeed * Runner.DeltaTime);    
+            }
         }
 
         private void OnVictimEntered(Collider2D victim)
@@ -44,14 +66,9 @@ namespace CodeBase.GameLogic.Components.Attacks
             var victimId = victim.transform.root.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (victimId.HasValue)
             {
-                _attackService.MakeAttack(_id, victimId.Value);
-                Destroy(gameObject);
+                _attackService.MakeAttack(_attackerId, victimId.Value);
+                Runner.Despawn(Object);
             }
-        }
-        
-        private void OnDestroy()
-        {
-            _hurtBox.onTriggerEnter -= OnVictimEntered;
         }
     }
 }

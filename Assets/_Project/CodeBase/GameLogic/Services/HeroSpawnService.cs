@@ -1,47 +1,34 @@
 ﻿using CodeBase.Configs.Heroes;
-using CodeBase.EntryPoints;
-using CodeBase.GameLogic.Components;
 using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class HeroSpawnService : IInitializeService
+    public class HeroSpawnService : IService
     {
-        private readonly Camera _camera;
         private readonly GameFactory _factory;
         private readonly NetworkContainer _network;
         private readonly HeroesInstanceProvider _instanceProvider;
 
-        public HeroSpawnService(Camera camera, GameFactory factory, NetworkContainer network,
-            HeroesInstanceProvider instanceProvider)
+        public HeroSpawnService(GameFactory factory, NetworkContainer network, HeroesInstanceProvider instanceProvider)
         {
-            _camera = camera;
             _factory = factory;
             _network = network;
             _instanceProvider = instanceProvider;
         }
 
-        public void Initialize() => _network.callbacks.onPlayerJoined += OnPlayerJoined;
+        public void Dispose() { }
 
-        public void Dispose() => _network.callbacks.onPlayerJoined -= OnPlayerJoined;
-
-        private void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+        public void SpawnHero(PlayerRef player, HeroType heroType)
         {
-            if (runner.IsServer)
-            {
-                var randOffset = player.RawEncoded % runner.Config.Simulation.PlayerCount * 3;
-                var spawnedHeroPos = GetRandomSpawnedHeroPos();
-                var spawnPoint = spawnedHeroPos + Vector2.right * randOffset;
-                var hero = _factory.CreateHero(HeroType.Knight, spawnPoint);
-                if (hero.HasInputAuthority)
-                    _camera.GetComponent<CameraFollow>()?.SetTarget(hero.transform);
-                
-                _instanceProvider.AddHero(hero.Id.Raw, hero);
-            }
+            var randOffset = player.RawEncoded % _network.runner.Config.Simulation.PlayerCount * 3;
+            var spawnedHeroPos = GetRandomSpawnedHeroPos();
+            var spawnPoint = spawnedHeroPos + Vector2.right * randOffset;
+            var hero = _factory.CreateHero(heroType, player, spawnPoint);
+            _instanceProvider.AddHero(hero.Id.Raw, hero);
         }
-
+        
         private Vector2 GetRandomSpawnedHeroPos()
         {
             var activePlayers = _instanceProvider.GetAll(); 
