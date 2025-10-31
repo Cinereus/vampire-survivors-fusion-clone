@@ -15,19 +15,22 @@ namespace CodeBase.GameLogic.Components.Hero
         
         [Networked]
         private float speed { get; set; }
+        
+        [Networked]
+        private Vector2 moveDir { get; set; }
 
         private HeroModel _model;
         
         public void Setup(HeroModel model)
         {
             _model = model;
-            speed = _model.speed;
         }
 
         public override void Spawned()
         {
             if (HasStateAuthority)
             {
+                speed = _model.speed;
                 _model.onLevelIncreased += OnLevelIncreased;
             }
         }
@@ -44,10 +47,11 @@ namespace CodeBase.GameLogic.Components.Hero
         {
             if (GetInput(out NetworkInputData input))
             {
-                Vector2 moveDir = input.axis;
-                _renderer.flipX = moveDir.x > 0;
+                moveDir = input.axis;
                 _rb.MovePosition(_rb.position + moveDir * (speed * Runner.DeltaTime));
             }
+            
+            _renderer.flipX = moveDir.x > 0;
         }
         
         private void OnLevelIncreased(uint _) => speed = _model.speed;

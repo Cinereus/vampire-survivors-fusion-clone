@@ -44,12 +44,7 @@ namespace CodeBase.UI
                 _model.onHealthChanged += OnHealthChanged;
             }
         }
-
-        private void Start()
-        {
-            InitUserHudLocal();
-        }
-
+        
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (HasStateAuthority)
@@ -66,6 +61,11 @@ namespace CodeBase.UI
             CheckNetworkPropertyChanged();
         }
 
+        private void Start()
+        {
+            InitUserHudLocal();
+        }
+        
         private void InitProperties()
         {
             if (!HasStateAuthority) 
@@ -80,7 +80,8 @@ namespace CodeBase.UI
         private void InitUserHudLocal()
         {
             var factory = ServiceLocator.instance.Get<GameFactory>();
-            _userHud = HasInputAuthority// && Runner.LocalPlayer == Object.InputAuthority
+            
+            _userHud = HasInputAuthority
                 ? factory.CreateClientUserHudLocal()
                 : factory.CreateRemoteUserHudLocal(_remoteUserHudPlaceholder);
             

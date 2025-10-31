@@ -12,6 +12,9 @@ namespace CodeBase.GameLogic.Components.Enemy
         [SerializeField] 
         private SpriteRenderer _renderer;
         
+        [Networked]
+        private Vector2 moveDir { get; set; }
+        
         private HeroesInstanceProvider _instanceProvider;
         private float _speed;
 
@@ -31,11 +34,10 @@ namespace CodeBase.GameLogic.Components.Enemy
         {
             if (HasStateAuthority)
             {
-                var chaseDir = GetNearestChaseTargetDir();
-                _rb.MovePosition(_rb.position + chaseDir * (_speed * Runner.DeltaTime));    
+                moveDir = GetNearestChaseTargetDir();
+                _rb.MovePosition(_rb.position + moveDir * (_speed * Runner.DeltaTime));    
             }
-            
-            _renderer.flipX = _rb.position.normalized.x > 0;
+            _renderer.flipX = moveDir.x > 0;
         }
 
         private Vector2 GetNearestChaseTargetDir()

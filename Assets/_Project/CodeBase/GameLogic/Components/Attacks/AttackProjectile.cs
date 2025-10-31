@@ -18,7 +18,7 @@ namespace CodeBase.GameLogic.Components.Attacks
         
         private uint _id;
         private float _lifeTimeBorder;
-        private Vector3 _targetPos;
+        private Vector3 _targetDir;
         private AttackService _attackService;
         private TickTimer _lifeTimer;
         private uint _attackerId;
@@ -26,7 +26,7 @@ namespace CodeBase.GameLogic.Components.Attacks
         public void Setup(uint attackerId, Vector3 targetPos)
         {
             _attackerId = attackerId;
-            _targetPos = targetPos;
+            _targetDir = (targetPos - transform.position).normalized;
         }
 
         public override void Spawned()
@@ -56,7 +56,7 @@ namespace CodeBase.GameLogic.Components.Attacks
             }
             else
             {
-                var targetDir = (_targetPos - transform.position).normalized;
+                var targetDir = _targetDir.normalized;
                 transform.position += targetDir * (_moveSpeed * Runner.DeltaTime);    
             }
         }
