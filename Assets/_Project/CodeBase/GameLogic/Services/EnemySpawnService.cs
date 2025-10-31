@@ -30,32 +30,39 @@ namespace CodeBase.GameLogic.Services
         {
             foreach (var enemy in _enemies)
             {
-                const int FULL_PROBABILITY = 100;
-                if (FULL_PROBABILITY * Random.value < enemy.spawnProbability)
+                float probability = 100 * Random.value;
+                if (probability < enemy.spawnProbability)
                     _factory.CreateEnemy(enemy.type, GetSpawnPosition());
             }
         }
 
         private Vector2 GetSpawnPosition()
         {
+            float screenHeight = _camera.orthographicSize * 2f;
+            float screenWidth = screenHeight * _camera.aspect;
+            float outsideOffset = Random.Range(0.5f, 2f);
+            float horizontalBorder = screenWidth / 2f + outsideOffset;
+            float verticalBorder = screenHeight / 2f + outsideOffset;
+            Vector2 spawnPos = Vector2.zero;
+            
+            if (GetRandom())
+            {
+                spawnPos.x = GetRandom() ? horizontalBorder : -horizontalBorder;
+                spawnPos.y = Random.Range(-verticalBorder, verticalBorder);
+            }
+            else
+            {
+                spawnPos.x = Random.Range(-horizontalBorder, horizontalBorder);
+                spawnPos.y = GetRandom() ? verticalBorder : -verticalBorder;
+            }
+         
             var heroes = _instanceProvider.GetAll();
-            float height = _camera.orthographicSize * 2f;
-            float width = height * _camera.aspect;
-            var outsideOffset = 4f;
-            float randHorizontalSide = Random.Range(-width / 2f - outsideOffset, width / 2f + outsideOffset);
-            float randVerticalSide = Random.Range(-height / 2f - outsideOffset, height / 2f + outsideOffset);
+            spawnPos += heroes.Count == 0 ? Vector2.zero : heroes[Random.Range(0, heroes.Count)].transform.position;
             
-            Vector3 heroPos = heroes.Count == 0
-                ? Vector3.zero
-                : heroes[Random.Range(0, heroes.Count)].transform.position;
-            
-            var result = new Vector2(heroPos.x + randHorizontalSide, heroPos.y + randVerticalSide);
-            
-            if (CheckPositionFarFromHeroes(result))
-                return result;
-
-            return GetSpawnPosition();
+            return CheckPositionFarFromHeroes(spawnPos) ? spawnPos : GetSpawnPosition();
         }
+
+        private bool GetRandom() => Random.Range(0, 2) > 0;
 
         private bool CheckPositionFarFromHeroes(Vector2 pos)
         {
