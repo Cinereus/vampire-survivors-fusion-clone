@@ -22,7 +22,7 @@ namespace CodeBase.GameLogic.Services
 
         public void SpawnHero(PlayerRef player, HeroType heroType)
         {
-            var randOffset = player.RawEncoded % _network.runner.Config.Simulation.PlayerCount * 3;
+            var randOffset = Random.Range(-1f, 1f);
             var spawnedHeroPos = GetRandomSpawnedHeroPos();
             var spawnPoint = spawnedHeroPos + Vector2.right * randOffset;
             var hero = _factory.CreateHero(heroType, player, spawnPoint);
