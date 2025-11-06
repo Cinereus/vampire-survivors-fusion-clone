@@ -4,4 +4,5 @@ All asynchronous logic made in simple way, using vanila c# tasks. It's unsafe pr
 Please if you'll be using this project for something, use unitasks instead.
 
 Tech stack: Unity + Photon Fusion 2
+
 Art assets used in this project: https://sethbb.itch.io/32rogues
