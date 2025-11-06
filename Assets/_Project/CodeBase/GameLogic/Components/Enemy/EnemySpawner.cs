@@ -1,4 +1,7 @@
-﻿using CodeBase.GameLogic.Services;
+﻿using System.Collections.Generic;
+using CodeBase.Configs.Enemies;
+using CodeBase.GameLogic.Models;
+using CodeBase.GameLogic.Services;
 using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
@@ -10,12 +13,14 @@ namespace CodeBase.GameLogic.Components.Enemy
         [SerializeField]
         private float _spawnInterval;
 
-        private TickTimer _spawnTimer;
+        private readonly List<EnemyData> _newEnemiesBuffer = new List<EnemyData>();
         private EnemySpawnService _spawnService;
-        
+        private EnemiesModel _enemies;
+        private TickTimer _spawnTimer;
+
         public override void Spawned()
-        { 
-            Debug.Log(gameObject.name + "+ SPAWNED");
+        {
+            _enemies = ServiceLocator.instance.Get<EnemiesModel>();
             _spawnService = ServiceLocator.instance.Get<EnemySpawnService>();
         }
 
@@ -23,9 +28,19 @@ namespace CodeBase.GameLogic.Components.Enemy
         {
             if (HasStateAuthority && _spawnTimer.ExpiredOrNotRunning(Runner))
             {
-                _spawnService.SpawnEnemyWave();    
                 _spawnTimer = TickTimer.CreateFromSeconds(Runner, _spawnInterval);
+                _spawnService.SpawnEnemyWave(_newEnemiesBuffer);
+                
+                Rpc_RequestActualizeModels(_newEnemiesBuffer.ToArray());
+                _newEnemiesBuffer.Clear();
             }
+        }
+        
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+        private void Rpc_RequestActualizeModels(EnemyData[] dataList)
+        {
+            if (!HasStateAuthority)
+                _enemies.Actualize(dataList);
         }
     }
 }

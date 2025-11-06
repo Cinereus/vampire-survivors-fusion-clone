@@ -10,77 +10,107 @@ namespace CodeBase.EntryPoints
 {
     public class GameEntryPoint : MonoBehaviour
     {
-        [SerializeField] 
-        private Camera _camera;
-        
         [SerializeField]
+        private Camera _camera;
+
+        [SerializeField] 
         private RectTransform _uiPlaceholder;
-        
-        private void Start()
+
+        [SerializeField] 
+        private GameObject _loadingScreen;
+
+        private GameFactory _factory;
+        private NetworkProvider _network;
+
+        private void Awake()
         {
             var services = ServiceLocator.instance;
             RegisterServices(services);
-            InitializeGameSession(services);
-            
-            foreach (var no in FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
-            {
-                Debug.Log($"NO: name={no.name} id={no.GetInstanceID()} owner={no.HasStateAuthority} root={no.transform.root.name}");
-            }
+            SetupDependencies(services);
+            SubscribeToEvents();
         }
 
         private void RegisterServices(ServiceLocator services)
         {
-            services.Register(new HeroesModel(services.Get<GameSettingsProvider>()), ServiceContext.Game);
-            
-            services.Register(new EnemiesModel(services.Get<GameSettingsProvider>()), ServiceContext.Game);
+            services.Register(new HeroesModel(services.Get<GameSettingsProvider>().heroesConfig.heroes),
+                ServiceContext.Game);
 
-            services.Register(new HeroesInstanceProvider(services.Get<HeroesModel>(), services.Get<NetworkContainer>()),
+            services.Register(new EnemiesModel(services.Get<GameSettingsProvider>().enemiesConfig.enemies),
                 ServiceContext.Game);
-            
+
+            services.Register(new HeroesInstanceProvider(), ServiceContext.Game);
+
             services.Register(new GameFactory(services.Get<HeroesModel>(), services.Get<EnemiesModel>(),
-                services.Get<AssetProvider>(), _uiPlaceholder, services.Get<NetworkContainer>()), 
+                services.Get<AssetProvider>(), _uiPlaceholder, services.Get<NetworkProvider>()), ServiceContext.Game);
+
+            services.Register(new PlayersLeftService(services.Get<HeroesModel>(), 
+                services.Get<NetworkProvider>().callbacks, services.Get<HeroesInstanceProvider>()),
                 ServiceContext.Game);
             
-            services.Register(new PlayerInputService(services.Get<NetworkContainer>()), ServiceContext.Game);
-            
+            services.Register(new PlayerInputService(services.Get<NetworkProvider>()), ServiceContext.Game);
+
             services.Register(new ItemsService(services.Get<HeroesModel>()), ServiceContext.Game);
-            
+
             services.Register(new AttackService(services.Get<HeroesModel>(), services.Get<EnemiesModel>()),
                 ServiceContext.Game);
-            
+
             services.Register(new LootSpawnService(services.Get<GameFactory>()), ServiceContext.Game);
 
-            services.Register(new HeroSpawnService(services.Get<GameFactory>(), services.Get<NetworkContainer>(),
-                    services.Get<HeroesInstanceProvider>()), ServiceContext.Game);
+            services.Register(new HeroSpawnService(services.Get<GameFactory>(), services.Get<HeroesInstanceProvider>()),
+                ServiceContext.Game);
 
-            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(),
+            services.Register(new EnemySpawnService(_camera, services.Get<GameFactory>(), 
                 services.Get<HeroesInstanceProvider>(), services.Get<EnemiesModel>()),
                 ServiceContext.Game);
+
+
+            services.Register(new HostMigrationService(services.Get<MatchmakingService>(), services.Get<GameFactory>(),
+                    services.Get<NetworkProvider>().callbacks, services.Get<HeroesModel>(),
+                    services.Get<EnemiesModel>(), services.Get<HeroesInstanceProvider>()), ServiceContext.Game);
         }
 
-        private void InitializeGameSession(ServiceLocator services)
+        private void SetupDependencies(ServiceLocator services)
         {
-            var playerData = services.Get<PlayerData>();
-            var sceneService = services.Get<LoadSceneService>();
-            var matchmakingService = services.Get<MatchmakingService>();
-            var currentSceneIndex = SceneRef.FromIndex(sceneService.GetActiveSceneIndex());
-            matchmakingService.StartGameSession(playerData.roomName, playerData.isHost, currentSceneIndex,
-                onFailed: () => sceneService.LoadScene(SceneNames.MAIN_MENU));
-            
-            services.Get<NetworkContainer>().callbacks.onPlayerJoined += InitializeSpawners;
+            _factory = services.Get<GameFactory>();
+            _network = services.Get<NetworkProvider>();
+        }
+
+        private void SubscribeToEvents()
+        {
+            _network.callbacks.onHostMigration += OnHostMigration;
+            _network.callbacks.onSceneLoadDone += OnSceneLoadDone;
+            _network.callbacks.onShutdown += OnShutdown;
+            _network.callbacks.onPlayerJoined += OnPlayerJoined;
         }
         
-        private void InitializeSpawners(NetworkRunner _, PlayerRef p)
+        private void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            var factory = ServiceLocator.instance.Get<GameFactory>();
-            factory.CreateHeroSpawner(p);
-            factory.CreateEnemySpawner();
-            ServiceLocator.instance.Get<NetworkContainer>().callbacks.onPlayerJoined -= InitializeSpawners;
+            if (runner.LocalPlayer == player)
+                _factory.CreateHeroSpawner();
         }
-        
+
+        private void OnSceneLoadDone(NetworkRunner runner)
+        {
+            _loadingScreen.SetActive(false);
+            _factory.CreateEnemySpawner();
+        }
+
+        private void OnHostMigration(NetworkRunner runner, HostMigrationToken token)
+        { 
+            _loadingScreen.SetActive(true);
+        }
+
+        private void OnShutdown(NetworkRunner runner, ShutdownReason reason)
+        {
+            _factory.CreateGameOverScreenLocal(_loadingScreen);
+        }
+
         private void OnDestroy()
         {
-            ServiceLocator.instance.Get<MatchmakingService>().KillSession();
+            _network.callbacks.onHostMigration -= OnHostMigration;
+            _network.callbacks.onSceneLoadDone -= OnSceneLoadDone;
+            _network.callbacks.onShutdown -= OnShutdown;
+            _network.callbacks.onPlayerJoined -= OnPlayerJoined;
             ServiceLocator.instance.ClearContext(ServiceContext.Game);
         }
     }

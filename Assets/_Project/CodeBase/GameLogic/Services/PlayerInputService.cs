@@ -6,9 +6,9 @@ namespace CodeBase.GameLogic.Services
 {
     public class PlayerInputService : IInitializeService
     {
-        private readonly NetworkContainer _network;
+        private readonly NetworkProvider _network;
 
-        public PlayerInputService(NetworkContainer network)
+        public PlayerInputService(NetworkProvider network)
         {
             _network = network;
         }

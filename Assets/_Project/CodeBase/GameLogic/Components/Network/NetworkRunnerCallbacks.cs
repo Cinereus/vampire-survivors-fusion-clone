@@ -8,23 +8,36 @@ namespace CodeBase.GameLogic.Components.Network
 {
     public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
-        public event Action<NetworkRunner> onSceneLoadDone;
+       
         public event Action<NetworkRunner, List<SessionInfo>> onSessionListUpdated;
         public event Action<NetworkRunner, NetworkInput> onInput;
         public event Action<NetworkRunner, PlayerRef> onPlayerJoined;
-        
+        public event Action<NetworkRunner, PlayerRef> onPlayerLeft;
+        public event Action<NetworkRunner, HostMigrationToken> onHostMigration;
+        public event Action<NetworkRunner, ShutdownReason> onShutdown;
+        public event Action<NetworkRunner> onSceneLoadDone;
+
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) => onPlayerJoined?.Invoke(runner, player);
+        
+        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) => onPlayerLeft?.Invoke(runner, player);
         
         public void OnInput(NetworkRunner runner, NetworkInput input) => onInput?.Invoke(runner, input);
 
-        public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
-        {
-            Debug.LogError($"sessionList updated:\n{string.Join("\n", sessionList)}");
+        public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) =>
             onSessionListUpdated?.Invoke(runner, sessionList);
+
+        public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) =>
+            onHostMigration?.Invoke(runner, hostMigrationToken);
+        
+        public void OnSceneLoadDone(NetworkRunner runner) => onSceneLoadDone?.Invoke(runner);
+
+        public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) =>
+            onShutdown?.Invoke(runner, shutdownReason);
+        
+        public void OnConnectedToServer(NetworkRunner runner)
+        {
         }
 
-        public void OnSceneLoadDone(NetworkRunner runner) => onSceneLoadDone?.Invoke(runner);
-        
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
         {
         }
@@ -34,14 +47,6 @@ namespace CodeBase.GameLogic.Components.Network
         }
 
         public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
-        {
-        }
-
-        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
-        {
-        }
-
-        public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
         }
 
@@ -71,15 +76,7 @@ namespace CodeBase.GameLogic.Components.Network
         {
         }
 
-        public void OnConnectedToServer(NetworkRunner runner)
-        {
-        }
-
         public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data)
-        {
-        }
-
-        public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
         {
         }
 

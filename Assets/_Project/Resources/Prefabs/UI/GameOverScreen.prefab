@@ -531,3 +531,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59b8f96a7b54e96a55f5b37a1cbdc2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _quitButton: {fileID: 5088952131887676219}

@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using Fusion;
 using UnityEngine;
 
 namespace CodeBase.UI
 {
     public class RoomListPanel : MonoBehaviour
     {
+        public struct RoomInfo
+        {
+            public string name;
+            public string playerCount;
+            public bool isVisited;
+        } 
+        
         [SerializeField]
         private RoomListElement _roomPrefab;
         
@@ -21,7 +27,7 @@ namespace CodeBase.UI
             _onJoinPressed = onJoinPressed;
         }
 
-        public void OnRoomListUpdated(List<SessionInfo> roomList)
+        public void OnRoomListUpdated(List<RoomInfo> roomList)
         {
             var count = _rooms.Count > roomList.Count ? _rooms.Count : roomList.Count;
             for (int i = 0; i < count; i++)
@@ -34,27 +40,27 @@ namespace CodeBase.UI
                 
                 if (i >= _rooms.Count)
                 {
-                    AddRoom(roomList[i].Name, roomList[i].PlayerCount.ToString());
+                    AddRoom(roomList[i]);
                     continue;
                 }
                 
-                _rooms[i].Initialize(roomList[i].Name, roomList[i].PlayerCount.ToString(), OnJoinPressed);
+                _rooms[i].Initialize(roomList[i], OnJoinPressed);
             }
         }
         
-        private void AddRoom(string roomName, string playerCount)
+        private void AddRoom(RoomInfo roomInfo)
         {
             var newInstance = Instantiate(_roomPrefab, _roomsPlaceholder);
-            newInstance.Initialize(roomName, playerCount, OnJoinPressed);
+            newInstance.Initialize(roomInfo, OnJoinPressed);
             _rooms.Add(newInstance);
         }
         
         private void RemoveRoom(int index)
         {
-            if (_rooms.Count > index)
+            if (index < _rooms.Count)
             {
-                _rooms.Remove(_rooms[index]);
                 Destroy(_rooms[index].gameObject);
+                _rooms.Remove(_rooms[index]);
             }
         }
 

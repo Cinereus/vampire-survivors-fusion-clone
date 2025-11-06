@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic;
 using CodeBase.Infrastructure.Services;
 using CodeBase.UI;
-using TMPro;
+using Fusion;
 using UnityEngine;
 
 namespace CodeBase.EntryPoints
@@ -10,95 +11,77 @@ namespace CodeBase.EntryPoints
     public class MainMenuEntryPoint : MonoBehaviour
     {
         [SerializeField]
-        private TMP_Dropdown _heroTypeDropdown;
-        
-        [SerializeField]
-        private RoomListPanel _roomListPanel;
-        
-        [SerializeField]
-        private TMP_InputField _hostInputField;
+        private MainMenuPanel _mainMenuPanel;
 
-        private PlayerData _playerData; 
-        private GameSettingsProvider _gameSettings;
+        [SerializeField] 
+        private GameObject _loadingScreen;
+
+        private PlayerData _playerData;
         private MatchmakingService _matchmakingService;
         private LoadSceneService _sceneService;
-
-        public void OnStartAsHostPressed()
-        {
-            if (string.IsNullOrEmpty(_hostInputField.text))
-            {
-                var roomName = $"room#{_matchmakingService.roomCount + 1}";
-                StartGame(roomName, true);
-                return;
-            }
-
-            if (!_matchmakingService.CheckRoomExists(_hostInputField.text)) 
-                StartGame(_hostInputField.text, true);
-        }
-
+        
         private void Awake()
         {
-            var services = ServiceLocator.instance; 
-            RegisterServices(services);
+            var services = ServiceLocator.instance;
             SetupDependencies(services);
-            InitializeHeroDropdown();
-            InitializeRoomListPanel();
-            _matchmakingService.StartLobbySession();
+            InitializeMainMenuPanel(services);
+            InitializeMatchmaking();
+        }
+
+        private void InitializeMainMenuPanel(ServiceLocator services)
+        {
+            _mainMenuPanel.Setup(services.Get<GameSettingsProvider>().heroesConfig.heroes);
+            _mainMenuPanel.onStartAsHost += OnStartAsHost;
+            _mainMenuPanel.onJoinRoomFromList += OnJoinRoomFromList;
+            _mainMenuPanel.onHeroSelected += OnHeroSelected;
+        }
+
+        private void InitializeMatchmaking()
+        {
+            _matchmakingService.StartLobbySession(onCompleted: () => _loadingScreen.SetActive(false));
+            _matchmakingService.onRoomsUpdated += OnRoomListUpdated;
         }
 
         private void OnDestroy()
         {
-            _matchmakingService.onRoomsUpdated -= _roomListPanel.OnRoomListUpdated;
+            _mainMenuPanel.onStartAsHost -= OnStartAsHost;
+            _mainMenuPanel.onJoinRoomFromList -= OnJoinRoomFromList;
+            _mainMenuPanel.onHeroSelected -= OnHeroSelected;
+            _matchmakingService.onRoomsUpdated -= OnRoomListUpdated;
         }
 
-        private void RegisterServices(ServiceLocator services)
+        private void OnRoomListUpdated(List<SessionInfo> roomList) =>
+            _mainMenuPanel.OnRoomListUpdated(roomList, _playerData.visitedRooms.Contains);
+
+        private void OnHeroSelected(HeroType heroType) => _playerData.chosenHero = heroType;
+        
+        private void OnJoinRoomFromList(string roomName) => StartGame(roomName, false);
+
+        private void OnStartAsHost(string roomName)
         {
-            services.Register(new PlayerData(), ServiceContext.Game);
-            services.Register(new MatchmakingService(services.Get<NetworkContainer>()), ServiceContext.Game);
+            if (string.IsNullOrEmpty(roomName))
+            {
+                roomName = $"room#{_matchmakingService.roomCount + 1}";
+                StartGame(roomName, true);
+                return;
+            }
+
+            if (!_matchmakingService.CheckRoomExists(roomName))
+                StartGame(roomName, true);
+        }
+
+        private void StartGame(string roomName, bool isHost)
+        {
+            _playerData.visitedRooms.Add(roomName);
+            _matchmakingService.StartGameSession(roomName, isHost, SceneNames.GAME,
+                onFailed: () => _sceneService.LoadScene(SceneNames.MAIN_MENU));
         }
 
         private void SetupDependencies(ServiceLocator services)
         {
             _playerData = services.Get<PlayerData>();
-            _gameSettings = services.Get<GameSettingsProvider>();
             _matchmakingService = services.Get<MatchmakingService>();
             _sceneService = services.Get<LoadSceneService>();
-        }
-        
-        private void InitializeHeroDropdown()
-        {
-            var heroDataList = _gameSettings.heroesConfig.heroes;
-            var options = new List<TMP_Dropdown.OptionData>();
-            foreach (var heroData in heroDataList)
-                options.Add(new TMP_Dropdown.OptionData(heroData.heroType.ToString()));
-            
-            _heroTypeDropdown.options = options;
-            SelectHero(_heroTypeDropdown.value);
-            _heroTypeDropdown.onValueChanged.AddListener(SelectHero);
-        }
-        
-        private void InitializeRoomListPanel()
-        {
-            _roomListPanel.Initialize(OnJoinRoomFromListPressed);
-            _matchmakingService.onRoomsUpdated += _roomListPanel.OnRoomListUpdated;
-        }
-        
-        private void SelectHero(int index)
-        {
-            if (index > _heroTypeDropdown.options.Count)
-                return;
-            
-            _playerData.chosenHero = _gameSettings.heroesConfig.heroes[index].heroType;
-        }
-        
-        private void OnJoinRoomFromListPressed(string roomName) => 
-            StartGame(roomName, false);
-
-        private void StartGame(string roomName, bool isHost)
-        {
-            _playerData.roomName = roomName;
-            _playerData.isHost = isHost;
-            _sceneService.LoadScene(SceneNames.GAME);
         }
     }
 }

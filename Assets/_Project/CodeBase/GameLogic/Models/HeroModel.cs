@@ -8,38 +8,27 @@ namespace CodeBase.GameLogic.Models
 {
     public class HeroModel
     {
-        public uint id { get; private set; }
-        public HeroType type { get; private set; }
-        public float maxHealth { get; private set; }
-        public float currentHealth { get; private set; }
-        public float speed { get; private set; }
-        public float damage { get; private set; }
-        public float attackCooldown { get; private set; }
-        public float maxXp { get; private set; }
-        public float currentXp { get; private set; }
-        public int currentLevel { get; private set; }
+        public uint id { get; set; }
+        public HeroType type { get; set; }
+        public float maxHealth { get; set; }
+        public float currentHealth { get; set; }
+        public float speed { get; set; }
+        public float damage { get; set; }
+        public float attackCooldown { get; set; }
+        public float maxXp { get; set; }
+        public float currentXp { get; set; }
+        public int currentLevel { get; set; }
 
-        public event Action<uint> onXpChanged;
-        public event Action<uint> onLevelIncreased;
-        public event Action<uint> onHealthChanged;
+         public event Action<uint> onXpChanged;
+         public event Action<uint> onLevelIncreased;
+         public event Action<uint> onHealthChanged;
 
-        private readonly float _progressionCoeff;
-        private readonly float _statIncreaseCoeff;
+        private float _progressionCoeff;
+        private float _statIncreaseCoeff;
 
-        public HeroModel(uint id, HeroData data)
+        public HeroModel(HeroData data)
         {
-            this.id = id; 
-            type = data.heroType;
-            maxHealth = data.health;
-            currentHealth = data.health;
-            speed = data.speed;
-            damage = data.damage;
-            attackCooldown = data.attackCooldown;
-            currentXp = data.currentXP;
-            maxXp = data.maxXP;
-            currentLevel = data.currentLevel;
-            _progressionCoeff = data.progressionCoeff;
-            _statIncreaseCoeff = data.statIncreaseCoeff;
+            Setup(data);
         }
 
         public void TakeDamage(float damageTaken)
@@ -98,10 +87,59 @@ namespace CodeBase.GameLogic.Models
                     Debug.Log($"{type} Level up! New level is: {currentLevel} Max health increased to {maxHealth}");
                     break;
             }
+            
             currentHealth = maxHealth;
             onHealthChanged?.Invoke(id);
             onXpChanged?.Invoke(id);
             onLevelIncreased?.Invoke(id);
+        }
+
+        public void Setup(HeroData data)
+        {
+            var oldCurrentXp = currentXp;
+            var oldCurrentLevel = currentLevel;
+            var oldCurrentHealth = currentHealth;
+            
+            id = data.id;
+            type = data.heroType;
+            maxHealth = data.maxHealth;
+            currentHealth = data.currentHealth;
+            speed = data.speed;
+            damage = data.damage;
+            attackCooldown = data.attackCooldown;
+            currentXp = data.currentXp;
+            maxXp = data.maxXp;
+            currentLevel = data.currentLevel;
+            _progressionCoeff = data.progressionCoeff;
+            _statIncreaseCoeff = data.statIncreaseCoeff;
+            
+            if (currentLevel != oldCurrentLevel)
+                onLevelIncreased?.Invoke(id);
+            
+            if (Math.Abs(currentXp - oldCurrentXp) > 0.001f)
+                onHealthChanged?.Invoke(id);
+            
+            if (Math.Abs(currentHealth - oldCurrentHealth) > 0.001f)
+                onXpChanged?.Invoke(id);
+        }
+        
+        public HeroData ToData()
+        {
+            return new HeroData
+            {
+                id = id,
+                heroType = type,
+                currentHealth = currentHealth,
+                maxHealth = maxHealth,
+                speed = speed,
+                damage = damage,
+                attackCooldown = attackCooldown,
+                currentXp = currentXp,
+                maxXp = maxXp,
+                currentLevel = currentLevel,
+                progressionCoeff = _progressionCoeff,
+                statIncreaseCoeff = _statIncreaseCoeff,
+            };
         }
     }
 }

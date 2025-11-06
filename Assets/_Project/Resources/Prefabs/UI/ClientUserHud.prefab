@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7019884634201623762}
   - component: {fileID: 1007025659932585009}
-  - component: {fileID: 8080077473310377623}
   m_Layer: 5
   m_Name: ClientUserHud
   m_TagString: Untagged
@@ -54,24 +53,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _healthBar: {fileID: 8452431085317814737}
   _xpBar: {fileID: 5943692497450380464}
---- !u!114 &8080077473310377623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4731111430855691284}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SortKey: 2301922741
-  ObjectInterest: 1
-  Flags: 262145
-  NestedObjects: []
-  NetworkedBehaviours: []
-  ForceRemoteRenderTimeframe: 0
 --- !u!1 &7612061368062928995
 GameObject:
   m_ObjectHideFlags: 0

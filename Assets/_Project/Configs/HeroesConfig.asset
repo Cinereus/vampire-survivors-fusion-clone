@@ -13,33 +13,39 @@ MonoBehaviour:
   m_Name: HeroesConfig
   m_EditorClassIdentifier: 
   heroes:
-  - heroType: 0
-    health: 100
+  - id: 0
+    heroType: 0
+    maxHealth: 100
+    currentHealth: 100
     speed: 0.5
     damage: 1
     attackCooldown: 1
-    maxXP: 25
-    currentXP: 0
+    maxXp: 20
+    currentXp: 0
     currentLevel: 0
     progressionCoeff: 1.5
     statIncreaseCoeff: 1.5
-  - heroType: 1
-    health: 150
+  - id: 0
+    heroType: 1
+    maxHealth: 120
+    currentHealth: 120
     speed: 0.2
     damage: 3
     attackCooldown: 2.5
-    maxXP: 25
-    currentXP: 0
+    maxXp: 30
+    currentXp: 0
     currentLevel: 0
     progressionCoeff: 1.5
     statIncreaseCoeff: 1.2
-  - heroType: 2
-    health: 70
+  - id: 0
+    heroType: 2
+    maxHealth: 70
+    currentHealth: 70
     speed: 0.3
     damage: 4
     attackCooldown: 4
-    maxXP: 25
-    currentXP: 0
+    maxXp: 15
+    currentXp: 0
     currentLevel: 0
     progressionCoeff: 1.5
     statIncreaseCoeff: 2

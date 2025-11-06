@@ -1,32 +1,30 @@
 ﻿using CodeBase.GameLogic.Models;
+using CodeBase.Infrastructure.Services;
 using Fusion;
 
-namespace CodeBase.GameLogic.Components
+namespace CodeBase.GameLogic.Components.Enemy
 {
     public class EnemyDeathHandler : NetworkBehaviour
     {
-        private EnemyModel _model;
-
-        public void Setup(EnemyModel model)
-        {
-            _model = model;
-        }
-
+        private EnemiesModel _enemies;
+        
         public override void Spawned()
         {
+            _enemies = ServiceLocator.instance.Get<EnemiesModel>();
+            
             if (HasStateAuthority) 
-                _model.onHealthChanged += OnHealthChanged;
+                _enemies.onHealthChanged += OnHealthChanged;
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (HasStateAuthority) 
-                _model.onHealthChanged -= OnHealthChanged;
+                _enemies.onHealthChanged -= OnHealthChanged;
         }
 
-        private void OnHealthChanged(uint _)
+        private void OnHealthChanged(uint id)
         {
-            if (HasStateAuthority && _model.currentHealth <= 0)
+            if (Object.Id.Raw == id && _enemies.TryGetBy(id, out var model) && model.currentHealth <= 0)
                 Runner.Despawn(Object);
         }
     }

@@ -285,6 +285,7 @@ GameObject:
   - component: {fileID: 2683647966082453532}
   - component: {fileID: 7699686922304908515}
   - component: {fileID: -6230717816172690419}
+  - component: {fileID: -2855008362218814472}
   - component: {fileID: 8045214076481861832}
   - component: {fileID: 8264855983661696287}
   m_Layer: 8
@@ -335,6 +336,7 @@ MonoBehaviour:
   - {fileID: 2683647966082453532}
   - {fileID: 7699686922304908515}
   - {fileID: -6230717816172690419}
+  - {fileID: -2855008362218814472}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &1262221306072808234
 MonoBehaviour:
@@ -423,6 +425,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _remoteUserHudPlaceholder: {fileID: 3100104684933492141}
+--- !u!114 &-2855008362218814472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8738136218091356863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66d489c2d075483e8a19461e00491a5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!70 &8045214076481861832
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -453,7 +467,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -468,7 +482,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8738136218091356863}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0

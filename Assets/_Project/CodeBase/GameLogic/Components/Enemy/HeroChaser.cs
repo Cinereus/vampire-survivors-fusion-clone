@@ -28,7 +28,15 @@ namespace CodeBase.GameLogic.Components.Enemy
             _instanceProvider = ServiceLocator.instance.Get<HeroesInstanceProvider>();
         }
 
-        public override void FixedUpdateNetwork() => ChaseTarget();
+        public override void FixedUpdateNetwork()
+        {
+            ChaseTarget();
+        }
+
+        public override void Render()
+        {
+            _renderer.flipX = moveDir.x > 0;
+        }
 
         private void ChaseTarget()
         {
@@ -37,7 +45,6 @@ namespace CodeBase.GameLogic.Components.Enemy
                 moveDir = GetNearestChaseTargetDir();
                 _rb.MovePosition(_rb.position + moveDir * (_speed * Runner.DeltaTime));    
             }
-            _renderer.flipX = moveDir.x > 0;
         }
 
         private Vector2 GetNearestChaseTargetDir()

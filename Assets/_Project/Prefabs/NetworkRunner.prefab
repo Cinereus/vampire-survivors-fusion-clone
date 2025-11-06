@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6318490035727514684}
   - component: {fileID: 1261199474369314229}
   - component: {fileID: 4265996731529765759}
-  - component: {fileID: 7715093662731302662}
+  - component: {fileID: 8152950269390625589}
   m_Layer: 0
   m_Name: NetworkRunner
   m_TagString: Untagged
@@ -102,10 +102,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _physicsAuthority: 2
   _physicsTiming: 3
-  ClientPhysicsSimulation: 3
+  ClientPhysicsSimulation: 1
   DeltaTimeMultiplier: 1
   SetUnityFixedTimestep: 0
---- !u!114 &7715093662731302662
+--- !u!114 &8152950269390625589
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

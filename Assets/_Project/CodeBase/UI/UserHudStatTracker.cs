@@ -1,5 +1,4 @@
-﻿using System;
-using CodeBase.GameLogic;
+﻿using CodeBase.GameLogic;
 using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure.Services;
 using Fusion;
@@ -26,22 +25,18 @@ namespace CodeBase.UI
 
         private ChangeDetector _changeDetector;
         private UserHud _userHud;   
-        private HeroModel _model;
-
-        public void Setup(HeroModel model)
-        {
-            _model = model;
-        }
-
+        private HeroesModel _heroes;
+        
         public override void Spawned()
         {
-            InitProperties();
+            _heroes = ServiceLocator.instance.Get<HeroesModel>();
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            SetupProperties();
             
             if (HasStateAuthority)
             { 
-                _model.onXpChanged += OnXpChanged; 
-                _model.onHealthChanged += OnHealthChanged;
+                _heroes.onXpChanged += OnXpChanged; 
+                _heroes.onHealthChanged += OnHealthChanged;
             }
         }
         
@@ -49,11 +44,11 @@ namespace CodeBase.UI
         {
             if (HasStateAuthority)
             { 
-                _model.onXpChanged -= OnXpChanged; 
-                _model.onHealthChanged -= OnHealthChanged;
+                _heroes.onXpChanged -= OnXpChanged; 
+                _heroes.onHealthChanged -= OnHealthChanged;
             }
             
-            Destroy(_userHud);
+            Destroy(_userHud.gameObject);
         }
 
         public override void Render()
@@ -66,15 +61,15 @@ namespace CodeBase.UI
             InitUserHudLocal();
         }
         
-        private void InitProperties()
+        private void SetupProperties()
         {
-            if (!HasStateAuthority) 
-                return;
-            
-            currentXp = _model.currentXp;
-            maxXp = _model.maxXp;
-            currentHealth = _model.currentHealth;
-            maxHealth = _model.maxHealth;
+            if (HasStateAuthority && _heroes.TryGetBy(Object.Id.Raw, out var model))
+            {
+                currentXp = model.currentXp;
+                maxXp = model.maxXp;
+                currentHealth = model.currentHealth;
+                maxHealth = model.maxHealth;    
+            }
         }
 
         private void InitUserHudLocal()
@@ -108,16 +103,22 @@ namespace CodeBase.UI
             }
         }
 
-        private void OnHealthChanged(uint _)
+        private void OnHealthChanged(uint id)
         {
-            maxHealth = _model.maxHealth;
-            currentHealth = _model.currentHealth;
+            if (Object.Id.Raw == id && _heroes.TryGetBy(id, out var model))
+            {
+                maxHealth = model.maxHealth;
+                currentHealth = model.currentHealth;    
+            }
         }
 
-        private void OnXpChanged(uint _)
+        private void OnXpChanged(uint id)
         {
-            maxXp = _model.maxXp;
-            currentXp = _model.currentXp;
+            if (Object.Id.Raw == id && _heroes.TryGetBy(id, out var model))
+            {
+                maxXp = model.maxXp;
+                currentXp = model.currentXp;
+            }
         }
     }
 }

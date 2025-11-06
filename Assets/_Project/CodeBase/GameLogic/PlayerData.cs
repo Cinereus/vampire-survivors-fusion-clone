@@ -1,4 +1,5 @@
-﻿using CodeBase.Configs.Heroes;
+﻿using System.Collections.Generic;
+using CodeBase.Configs.Heroes;
 using CodeBase.Infrastructure.Services;
 
 namespace CodeBase.GameLogic
@@ -6,8 +7,7 @@ namespace CodeBase.GameLogic
     public class PlayerData : IService
     {
         public HeroType chosenHero;
-        public string roomName;
-        public bool isHost;
+        public readonly List<string> visitedRooms = new List<string>();
 
         public void Dispose() { }
     }

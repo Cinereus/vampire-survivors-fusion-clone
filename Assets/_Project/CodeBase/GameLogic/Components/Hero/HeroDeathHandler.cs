@@ -6,25 +6,15 @@ namespace CodeBase.GameLogic.Components.Hero
 {
     public class HeroDeathHandler : NetworkBehaviour
     {
-        [Networked]
-        private float currentHealth { get; set; }
-        
-        private HeroModel _model;
-        private ChangeDetector _changeDetector;
-        
-        public void Setup(HeroModel model)
-        {
-            _model = model;
-        }
-        
+        private HeroesModel _heroes;
+
         public override void Spawned()
         {
-            _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            _heroes = ServiceLocator.instance.Get<HeroesModel>();
             
             if (HasStateAuthority)
             {
-                _model.onHealthChanged += OnHealthChanged;
-                currentHealth = _model.currentHealth;
+                _heroes.onHealthChanged += OnHealthChanged;
             }
         }
         
@@ -32,27 +22,14 @@ namespace CodeBase.GameLogic.Components.Hero
         {
             if (HasStateAuthority)
             { 
-                _model.onHealthChanged -= OnHealthChanged;
-            }
-        }
-
-        public override void Render() => CheckNetworkPropertyChanged();
-
-        private void CheckNetworkPropertyChanged()
-        {
-            foreach (var propertyName in _changeDetector.DetectChanges(this))
-            {
-                if (propertyName == nameof(currentHealth) && HasInputAuthority && currentHealth <= 0 ) 
-                    ServiceLocator.instance.Get<GameFactory>().CreateGameOverScreenLocal();
+                _heroes.onHealthChanged -= OnHealthChanged;
             }
         }
         
         private void OnHealthChanged(uint id)
         {
-            currentHealth = _model.currentHealth;
-            
-            if (HasStateAuthority && _model.currentHealth <= 0) 
-                Runner.Disconnect(Object.InputAuthority);
+            if (Object.Id.Raw == id && _heroes.TryGetBy(Object.Id.Raw, out var model) && model.currentHealth <= 0)
+                Runner.Shutdown();
         }
     }
 }

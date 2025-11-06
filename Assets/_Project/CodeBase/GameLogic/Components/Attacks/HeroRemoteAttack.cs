@@ -11,30 +11,23 @@ namespace CodeBase.GameLogic.Components.Attacks
     {
         [SerializeField]
         private CollisionTracker _attackArea;
-
-        [Networked]
-        private float attackCooldown { get; set; }
         
         private readonly List<Transform> _targets = new List<Transform>();
         private GameFactory _factory;
-        private HeroModel _model;
+        private HeroesModel _heroes;
         private TickTimer _cooldownTimer;
-
-        public void Setup(HeroModel model)
-        {
-            _model = model;
-            attackCooldown = _model.attackCooldown;
-        }
+        private HeroModel _model;
 
         public override void Spawned()
         {
             _factory = ServiceLocator.instance.Get<GameFactory>();
+            _heroes = ServiceLocator.instance.Get<HeroesModel>();
             
-            if (HasStateAuthority)
+            if (HasStateAuthority && _heroes.TryGetBy(Object.Id.Raw, out var model))
             {
+                _model = model;
                 _attackArea.onTriggerEnter += OnTargetEntered;
                 _attackArea.onTriggerExit += OnTargetExited;
-                _model.onLevelIncreased += OnLevelIncreased;
             }
         }
 
@@ -44,7 +37,6 @@ namespace CodeBase.GameLogic.Components.Attacks
             {
                 _attackArea.onTriggerEnter -= OnTargetEntered;
                 _attackArea.onTriggerExit -= OnTargetExited;    
-                _model.onLevelIncreased -= OnLevelIncreased;
             }
         }
 
@@ -53,7 +45,7 @@ namespace CodeBase.GameLogic.Components.Attacks
             if (HasStateAuthority && _cooldownTimer.ExpiredOrNotRunning(Runner))
             { 
                 Attack();
-                _cooldownTimer = TickTimer.CreateFromSeconds(Runner, attackCooldown);
+                _cooldownTimer = TickTimer.CreateFromSeconds(Runner, _model.attackCooldown);
             }
         }
         
@@ -63,7 +55,7 @@ namespace CodeBase.GameLogic.Components.Attacks
                 return;
             
             var randomTarget = _targets[Random.Range(0, _targets.Count)];
-            _factory.CreateProjectile(_model.id, transform.position, randomTarget.position);    
+            _factory.CreateProjectile(Object.Id.Raw, transform.position, randomTarget.position);    
         }
         
         private void OnTargetEntered(Collider2D target)
@@ -76,11 +68,6 @@ namespace CodeBase.GameLogic.Components.Attacks
         {
             if (_targets.Contains(target.transform)) 
                 _targets.Remove(target.transform);
-        }
-        
-        private void OnLevelIncreased(uint _)
-        {
-            attackCooldown = _model.attackCooldown;
         }
     }
 }

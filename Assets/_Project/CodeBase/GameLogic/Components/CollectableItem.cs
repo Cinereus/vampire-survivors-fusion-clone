@@ -14,12 +14,16 @@ namespace CodeBase.GameLogic.Components
         [SerializeField]
         private CollisionTracker _tracker;
 
-        private ItemType _item;
+        public ItemType itemType => item;
+        
+        [Networked]
+        private ItemType item { get; set; }
+        
         private ItemsService _itemsService;
 
-        public void Setup(ItemType item)
+        public void Setup(ItemType type)
         {
-            _item = item;
+            item = type;
         }
 
         public override void Spawned()
@@ -43,7 +47,7 @@ namespace CodeBase.GameLogic.Components
         private void OnPicked(Collider2D picker)
         {
             var id = picker.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
-            if (id.HasValue && _itemsService.TryPickUpItem(id.Value, _item, _count)) 
+            if (id.HasValue && _itemsService.TryPickUpItem(id.Value, item, _count)) 
                 Runner.Despawn(Object);
         }
     }

@@ -9,7 +9,7 @@ namespace CodeBase.GameLogic.Services
     public class EnemySpawnService : IService
     {
         private readonly Camera _camera;
-        private readonly List<EnemyData> _enemies;
+        private readonly EnemiesModel _enemies;
         private readonly HeroesInstanceProvider _instanceProvider;
         private readonly GameFactory _factory;
 
@@ -19,20 +19,23 @@ namespace CodeBase.GameLogic.Services
             _camera = camera;
             _factory = factory;
             _instanceProvider = instanceProvider;
-            _enemies = enemies.GetAvailableEnemyData();
+            _enemies = enemies;
         }
 
         public void Dispose()
         {
         }
 
-        public void SpawnEnemyWave()
+        public void SpawnEnemyWave(List<EnemyData> newEnemies)
         {
-            foreach (var enemy in _enemies)
+            foreach (var enemy in _enemies.GetAvailableEnemyData())
             {
                 float probability = 100 * Random.value;
                 if (probability < enemy.spawnProbability)
-                    _factory.CreateEnemy(enemy.type, GetSpawnPosition());
+                {
+                    var networkObject = _factory.CreateEnemy(enemy.type, GetSpawnPosition(), Quaternion.identity);
+                    newEnemies.Add(_enemies.GetBy(networkObject.Id.Raw).ToData());
+                }
             }
         }
 

@@ -9,7 +9,7 @@ namespace CodeBase.GameLogic.Services
     public class LootSpawnService : IService
     {
         private readonly GameFactory _factory;
-        private readonly NetworkContainer _network;
+        private readonly NetworkProvider _network;
 
         public LootSpawnService(GameFactory factory)
         {

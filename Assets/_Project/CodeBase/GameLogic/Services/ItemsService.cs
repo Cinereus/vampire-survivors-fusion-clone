@@ -17,7 +17,7 @@ namespace CodeBase.GameLogic.Services
 
         public bool TryPickUpItem(uint id, ItemType item, float count)
         {
-            if (_heroes.TryGetHeroBy(id, out var hero))
+            if (_heroes.TryGetBy(id, out var hero))
             {
                 hero.PickUp(item, count);
                 return true;

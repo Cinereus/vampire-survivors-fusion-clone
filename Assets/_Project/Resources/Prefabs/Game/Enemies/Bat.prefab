@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 8138632223171828779}
   - component: {fileID: 1052800099718742031}
   - component: {fileID: 4455658653394081774}
-  - component: {fileID: 416609803087777283}
+  - component: {fileID: 1766497053580383045}
   - component: {fileID: 6960224125755017017}
   m_Layer: 6
   m_Name: Bat
@@ -219,8 +219,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7e3f26ebac6473590465d84ce1d232d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!61 &416609803087777283
-BoxCollider2D:
+--- !u!70 &1766497053580383045
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -254,17 +254,8 @@ BoxCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.3, y: 0.16}
-    newSize: {x: 0.23, y: 0.29}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.3, y: 0.16}
-  m_EdgeRadius: 0
+  m_Size: {x: 0.15, y: 0.08}
+  m_Direction: 1
 --- !u!50 &6960224125755017017
 Rigidbody2D:
   serializedVersion: 5

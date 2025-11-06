@@ -1,5 +1,6 @@
 ﻿using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
+using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
@@ -14,33 +15,17 @@ namespace CodeBase.GameLogic.Components.Hero
         private SpriteRenderer _renderer;
         
         [Networked]
-        private float speed { get; set; }
-        
-        [Networked]
         private Vector2 moveDir { get; set; }
 
+        private HeroesModel _heroes;
         private HeroModel _model;
-        
-        public void Setup(HeroModel model)
-        {
-            _model = model;
-        }
 
         public override void Spawned()
         {
-            if (HasStateAuthority)
-            {
-                speed = _model.speed;
-                _model.onLevelIncreased += OnLevelIncreased;
-            }
-        }
-        
-        public override void Despawned(NetworkRunner runner, bool hasState)
-        {
-            if (HasStateAuthority)
-            {
-                _model.onLevelIncreased -= OnLevelIncreased;
-            }
+            _heroes = ServiceLocator.instance.Get<HeroesModel>();
+            
+            if (_heroes.TryGetBy(Object.Id.Raw, out var model)) 
+                _model = model;
         }
 
         public override void FixedUpdateNetwork()
@@ -48,13 +33,14 @@ namespace CodeBase.GameLogic.Components.Hero
             if (GetInput(out NetworkInputData input))
             {
                 moveDir = input.axis;
-                _rb.MovePosition(_rb.position + moveDir * (speed * Runner.DeltaTime));
+                _rb.MovePosition(_rb.position + moveDir * (_model.speed * Runner.DeltaTime));
             }
-            
+        }
+
+        public override void Render()
+        {
             _renderer.flipX = moveDir.x > 0;
         }
-        
-        private void OnLevelIncreased(uint _) => speed = _model.speed;
     }
 }
 

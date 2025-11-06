@@ -1,5 +1,6 @@
 using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
+using CodeBase.GameLogic;
 using CodeBase.GameLogic.Components.Network;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services;
@@ -11,10 +12,10 @@ namespace CodeBase.EntryPoints
     public class BootEntryPoint : MonoBehaviour
     {
         [SerializeField]
-        private NetworkRunner _networkRunner;
-        
-        [SerializeField] 
         private NetworkRunnerCallbacks _networkCallbacks;
+        
+        [SerializeField]
+        private NetworkRunner _networkRunnerPrefab;
         
         [SerializeField] 
         private EnemiesConfig _enemiesConfig;
@@ -31,18 +32,21 @@ namespace CodeBase.EntryPoints
         
         private void RegisterServices(ServiceLocator services)
         {
+            services.Register(new PlayerData());
+            
             services.Register(new AssetProvider());
+            
             services.Register(new LoadSceneService());
-            services.Register(new NetworkContainer(_networkRunner, _networkCallbacks));
+            
+            services.Register(new NetworkProvider(_networkRunnerPrefab, _networkCallbacks));
+            
+            services.Register(new MatchmakingService(services.Get<NetworkProvider>(),
+                services.Get<LoadSceneService>()));
+            
             services.Register(new GameSettingsProvider(_heroesConfig, _enemiesConfig));
         }
         
-        private void Initialize(ServiceLocator services)
-        {
-            var network = services.Get<NetworkContainer>();
-            network.runner.AddCallbacks(network.callbacks);
-            
+        private void Initialize(ServiceLocator services) => 
             services.Get<LoadSceneService>().LoadScene(SceneNames.MAIN_MENU);
-        }
     }
 }

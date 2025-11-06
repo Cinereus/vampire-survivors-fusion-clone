@@ -1,17 +1,20 @@
 ﻿using System;
+using Fusion;
 
 namespace CodeBase.Configs.Heroes
 {
     [Serializable]
-    public struct HeroData
+    public struct HeroData : INetworkStruct
     {
+        public uint id;
         public HeroType heroType;
-        public float health;
+        public float maxHealth;
+        public float currentHealth;
         public float speed;
         public float damage;
         public float attackCooldown;
-        public float maxXP;
-        public float currentXP;
+        public float maxXp;
+        public float currentXp;
         public int currentLevel;
         public float progressionCoeff;
         public float statIncreaseCoeff;

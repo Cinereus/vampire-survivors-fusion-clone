@@ -1,12 +1,15 @@
 ﻿using System;
+using Fusion;
 
 namespace CodeBase.Configs.Enemies
 {
     [Serializable]
-    public struct EnemyData
+    public struct EnemyData : INetworkStruct
     {
+        public uint id;
         public EnemyType type;
-        public float health;
+        public float maxHealth;
+        public float currentHealth;
         public float damage;
         public float attackCooldown;
         public float speed;

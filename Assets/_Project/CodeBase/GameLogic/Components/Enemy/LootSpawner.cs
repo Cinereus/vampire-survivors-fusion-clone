@@ -7,22 +7,17 @@ namespace CodeBase.GameLogic.Components.Enemy
 {
     public class LootSpawner : NetworkBehaviour
     {
-        private EnemyModel _model;
         private LootSpawnService _lootService;
-        private NetworkContainer _network;
-
-        public void Setup(EnemyModel model)
-        {
-            _model = model;
-        }
-
+        private EnemiesModel _enemies;
+        
         public override void Spawned()
         {
             _lootService = ServiceLocator.instance.Get<LootSpawnService>();
+            _enemies = ServiceLocator.instance.Get<EnemiesModel>();
             
             if (HasStateAuthority)
             { 
-                _model.onHealthChanged += OnDeath;   
+                _enemies.onHealthChanged += OnDeath;   
             }
         }
 
@@ -30,16 +25,16 @@ namespace CodeBase.GameLogic.Components.Enemy
         {
             if (HasStateAuthority)
             { 
-                _model.onHealthChanged -= OnDeath;   
+                _enemies.onHealthChanged -= OnDeath;
             }
         }
         
-        private void OnDeath(uint obj)
+        private void OnDeath(uint id)
         {
-            if (_model.currentHealth <= 0)
+            if (Object.Id.Raw == id && _enemies.TryGetBy(id, out var model) && model.currentHealth <= 0)
             {
-                _lootService.SpawnXp(_model.type, transform.position);
-                _lootService.SpawnHealPotion(_model.lootProbability, transform.position);    
+                _lootService.SpawnXp(model.type, transform.position);
+                _lootService.SpawnHealPotion(model.lootProbability, transform.position);    
             }
         }
     }

@@ -18,13 +18,13 @@ namespace CodeBase.GameLogic.Services
         {
             if (TryGetHeroModel(attackerId, out var hero))
             {
-                var victim = _enemies.GetEnemyBy(victimId); 
+                var victim = _enemies.GetBy(victimId); 
                 victim?.TakeDamage(hero.damage);    
             }
             else
             {
-                var attacker = _enemies.GetEnemyBy(attackerId);
-                var victim = _heroes.GetHeroBy(victimId);
+                var attacker = _enemies.GetBy(attackerId);
+                var victim = _heroes.GetBy(victimId);
                 victim?.TakeDamage(attacker.damage);
             }
         }
@@ -33,7 +33,7 @@ namespace CodeBase.GameLogic.Services
         
         private bool TryGetHeroModel(uint id, out HeroModel heroModel)
         {
-            heroModel = _heroes.GetHeroBy(id);
+            heroModel = _heroes.GetBy(id);
             return heroModel != null;
         }
 
