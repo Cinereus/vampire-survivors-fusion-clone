@@ -2,25 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CodeBase.Infrastructure.Services;
+using CodeBase.UI;
 using Fusion;
 using UnityEngine;
 
 namespace CodeBase
 {
-    public class MatchmakingService : IInitializeService
+    public class MatchmakingService : IDisposable
     {
         public int roomCount => _rooms.Count;
         public event Action<List<SessionInfo>> onRoomsUpdated;
 
         private readonly NetworkProvider _network;
         private readonly LoadSceneService _sceneService;
+        private readonly UIManager _uiManager;
         private readonly List<SessionInfo> _rooms = new List<SessionInfo>();
 
-        public MatchmakingService(NetworkProvider network, LoadSceneService sceneService)
+        public MatchmakingService(NetworkProvider network, LoadSceneService sceneService, UIManager uiManager)
         {
             _network = network;
             _sceneService = sceneService;
+            _uiManager = uiManager;
         }
 
         public void Initialize()
@@ -30,7 +32,10 @@ namespace CodeBase
 
         public async void StartLobbySession(Action onCompleted = null, Action onFailed = null)
         {
+            _uiManager.ShowLoadingScreen();
             var result = await _network.runner.JoinSessionLobby(SessionLobby.ClientServer);
+            _uiManager.HideLoadingScreen();
+            
             if (result.Ok)
             {
                 Debug.Log("Lobby joined");
@@ -46,6 +51,7 @@ namespace CodeBase
         public async void MigrateGameSession(HostMigrationToken token, Action<NetworkRunner> onHostMigrationResume,
             Action onCompleted = null, Action onFailed = null)
         {
+            _uiManager.ShowLoadingScreen();
             await _network.ClearCurrentRunner(ShutdownReason.HostMigration);
             
             _network.runner.ProvideInput = true;
@@ -58,12 +64,14 @@ namespace CodeBase
             };
 
             await StartGameSession(args, onCompleted, onFailed);
+            _uiManager.HideLoadingScreen();
         }
 
         public async void StartGameSession(string roomName, bool isHost, string scene, Action onCompleted = null,
             Action onFailed = null)
         {
-            await _sceneService.LoadSceneAsync(scene);
+            _uiManager.ShowLoadingScreen();
+            await _sceneService.LoadSceneAsync(scene, needShowLoadingScreen: false);
             
             _network.runner.ProvideInput = true;
             var args = new StartGameArgs
@@ -74,6 +82,7 @@ namespace CodeBase
                 SceneManager = _network.runner.GetComponent<NetworkSceneManagerDefault>(),
             };
             await StartGameSession(args, onCompleted, onFailed);
+            _uiManager.HideLoadingScreen();
         }
 
         public bool CheckRoomExists(string roomName) => _rooms.FirstOrDefault(r => r.Name == roomName) != null;

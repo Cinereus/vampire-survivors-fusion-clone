@@ -1,10 +1,11 @@
-﻿using CodeBase.Infrastructure.Services;
+﻿using System;
 using Fusion;
 using UnityEngine;
+using VContainer.Unity;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class PlayerInputService : IInitializeService
+    public class PlayerInputService : IInitializable, IDisposable
     {
         private readonly NetworkProvider _network;
 
@@ -13,9 +14,15 @@ namespace CodeBase.GameLogic.Services
             _network = network;
         }
 
-        public void Initialize() => _network.callbacks.onInput += OnInput;
+        public void Initialize()
+        {
+            _network.callbacks.onInput += OnInput;
+        }
 
-        public void Dispose() => _network.callbacks.onInput -= OnInput;
+        public void Dispose()
+        {
+            _network.callbacks.onInput -= OnInput;
+        }
 
         private void OnInput(NetworkRunner runner, NetworkInput input) =>
             input.Set(new NetworkInputData { axis = GetAxis() });

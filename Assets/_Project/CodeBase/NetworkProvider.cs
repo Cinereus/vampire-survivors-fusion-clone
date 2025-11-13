@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
 using CodeBase.GameLogic.Components.Network;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
 namespace CodeBase
 {
-    public class NetworkProvider : IService
+    public class NetworkProvider
     {
         public NetworkRunner runner
         {
@@ -21,22 +21,19 @@ namespace CodeBase
 
         public NetworkRunnerCallbacks callbacks { get; }
 
-        private readonly NetworkRunner _runnerPrefab;
+        private readonly GameObject _runnerPrefab;
         private NetworkRunner _runner;
 
-        public NetworkProvider(NetworkRunner runnerPrefab, NetworkRunnerCallbacks callbacks)
+        public NetworkProvider(AssetProvider assetProvider)
         {
-            _runnerPrefab = runnerPrefab;
-            this.callbacks = callbacks;
-        }
-
-        public void Dispose()
-        {
+            _runnerPrefab = assetProvider.GetNetworkRunnerPrefab();
+            callbacks = Object.Instantiate(assetProvider.GetNetworkRunnerCallbacksPrefab())
+                .GetComponent<NetworkRunnerCallbacks>();
         }
 
         private NetworkRunner CreateRunner()
         {
-            var newRunner = Object.Instantiate(_runnerPrefab);
+            var newRunner = Object.Instantiate(_runnerPrefab).GetComponent<NetworkRunner>();
             newRunner.AddCallbacks(callbacks);
             return newRunner;
         }

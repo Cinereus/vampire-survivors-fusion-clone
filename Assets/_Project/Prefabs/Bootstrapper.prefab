@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1789117456020222011}
-  - component: {fileID: 7387837344119803660}
+  - component: {fileID: 2108137079134978031}
   m_Layer: 0
   m_Name: Bootstrapper
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7387837344119803660
+--- !u!114 &2108137079134978031
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,9 +41,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5605583113490664885}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bb041d12baccd640a6ffc8f549aa6a9, type: 3}
+  m_Script: {fileID: 11500000, guid: 84f02f154b5c438194eddc8f4875a942, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _networkRunnerPrefab: {fileID: 88427220485397865, guid: cd8d49689dda8934f87bcbf0914470d9, type: 3}
-  _enemiesConfig: {fileID: 11400000, guid: 84f00059129867a48be91d67d1037493, type: 2}
-  _heroesConfig: {fileID: 11400000, guid: cb158654ae042284cb28862598c66073, type: 2}
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  _uiManagerPrefab: {fileID: 8358937677726100697, guid: 613d67ec4ca0eef4785227daf7393459, type: 3}

@@ -1,9 +1,8 @@
 ﻿using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class AttackService : IService
+    public class AttackService
     {
         private readonly EnemiesModel _enemies;
         private readonly HeroesModel _heroes;
@@ -28,8 +27,6 @@ namespace CodeBase.GameLogic.Services
                 victim?.TakeDamage(attacker.damage);
             }
         }
-        
-        public void Dispose() { }
         
         private bool TryGetHeroModel(uint id, out HeroModel heroModel)
         {

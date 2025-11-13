@@ -2,24 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodeBase.Configs.Heroes;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Models
 {
-    public class HeroesModel : IService
+    public class HeroesModel : IDisposable
     {
         public event Action<uint> onXpChanged;
         public event Action<uint> onLevelIncreased;
-        public event Action<uint> onHealthChanged;
+        public event Action<uint, float> onHealthChanged;
         
         private readonly Dictionary<HeroType, HeroData> _dataMap = new Dictionary<HeroType, HeroData>();
         private readonly Dictionary<uint, HeroModel> _heroes = new Dictionary<uint, HeroModel>();
 
-        public HeroesModel(List<HeroData> heroes)
+        public HeroesModel(AssetProvider assetProvider)
         {
-            foreach (var hero in heroes) 
-                _dataMap[hero.heroType] = hero;
+            var heroes = assetProvider.GetConfig<HeroesConfig>()?.heroes;
+            if (heroes != null)
+            { 
+                foreach (var hero in heroes) 
+                    _dataMap[hero.heroType] = hero;    
+            }
         }
         
         public HeroModel GetBy(uint id) => _heroes.GetValueOrDefault(id);
@@ -112,7 +116,7 @@ namespace CodeBase.GameLogic.Models
         {
             if (_heroes.TryGetValue(id, out var hero))
             {
-                onHealthChanged?.Invoke(id);
+                onHealthChanged?.Invoke(id, hero.currentHealth);
                 
                 if (hero.currentHealth <= 0)
                     Remove(id);    

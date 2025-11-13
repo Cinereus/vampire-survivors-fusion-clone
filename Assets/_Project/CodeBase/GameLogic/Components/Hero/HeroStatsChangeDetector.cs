@@ -1,6 +1,6 @@
 ﻿using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -8,36 +8,32 @@ namespace CodeBase.GameLogic.Components.Hero
 {
     public class HeroStatsChangeDetector : NetworkBehaviour
     {
-        [Networked] 
-        private float currentHealth { get; set; } 
-        
-        private ChangeDetector _changeDetector;
         private HeroesModel _heroes;
-
+        
         public override void Spawned()
         {
-            _heroes = ServiceLocator.instance.Get<HeroesModel>();
-            _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            _heroes = BehaviourInjector.instance.Resolve<HeroesModel>();
             
             if (HasStateAuthority && _heroes.TryGetBy(Object.Id.Raw, out _))
             {
+                _heroes.onHealthChanged += OnHealthChanged;
                 _heroes.onLevelIncreased += OnLevelIncreased;
             }
         }
 
-        public override void Render() => 
-            CheckPropertyChanged();
-
-        private void CheckPropertyChanged()
+        public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            foreach (var propertyName in _changeDetector.DetectChanges(this)) 
-                TrySaveLocalState(propertyName);
+            if (HasStateAuthority && _heroes.TryGetBy(Object.Id.Raw, out _))
+            {
+                _heroes.onHealthChanged -= OnHealthChanged;
+                _heroes.onLevelIncreased -= OnLevelIncreased;
+            }
         }
 
-        private void TrySaveLocalState(string propertyName)
+        private void OnHealthChanged(uint id, float _)
         {
-            if (propertyName == nameof(currentHealth) && _heroes.TryGetBy(Object.Id.Raw, out var model))
-                model.currentHealth = currentHealth;
+            if (Object.Id.Raw == id && _heroes.TryGetBy(id, out var model))
+                Rpc_RequestLocalStateSaving(model.ToData());
         }
 
         private void OnLevelIncreased(uint id)

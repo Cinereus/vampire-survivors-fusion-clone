@@ -1,23 +1,20 @@
-﻿using CodeBase.Infrastructure.Services;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace CodeBase.UI
 {
-    public class GameOverScreen : MonoBehaviour
+    public class GameOverScreen : BaseUIEntity
     {
         [SerializeField]
         public Button _quitButton;
         
+        private LoadSceneService _sceneService;
         private MatchmakingService _matchmakingService;
-        private LoadSceneService _loadSceneService;
-        private GameObject _loadingScreen;
-
-        public void Setup(GameObject loadingScreen)
+        
+        public void Initialize(MatchmakingService matchmakingService, LoadSceneService sceneService)
         {
-            _loadingScreen = loadingScreen;
-            _matchmakingService = ServiceLocator.instance.Get<MatchmakingService>();
-            _loadSceneService = ServiceLocator.instance.Get<LoadSceneService>();
+            _sceneService = sceneService;
+            _matchmakingService = matchmakingService;
         }
 
         public void OnQuitPressed()
@@ -28,9 +25,8 @@ namespace CodeBase.UI
 
         private async void GoToMainMenu()
         {
-            _loadingScreen.SetActive(true);
             await _matchmakingService.KillSession();
-            await _loadSceneService.LoadSceneAsync(SceneNames.MAIN_MENU);
+            await _sceneService.LoadSceneAsync(SceneNames.MAIN_MENU);
         }
     }
 }

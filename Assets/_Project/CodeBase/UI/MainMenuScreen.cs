@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeBase.Configs.Heroes;
 using Fusion;
 using TMPro;
 using UnityEngine;
 
 namespace CodeBase.UI
 {
-    public class MainMenuPanel : MonoBehaviour
+    public class MainMenuScreen : BaseUIEntity
     {
         [SerializeField] 
         private TMP_Dropdown _heroTypeDropdown;
@@ -19,15 +18,15 @@ namespace CodeBase.UI
         [SerializeField] 
         private TMP_InputField _hostInputField;
 
+        private readonly List<string> _heroNames = new List<string>();
+        
         public event Action<string> onStartAsHost;
         public event Action<string> onJoinRoomFromList;
-        public event Action<HeroType> onHeroSelected;
-
-        private List<HeroData> _heroes;
-
-        public void Setup(List<HeroData> heroes)
+        public event Action<int> onHeroSelected;
+        
+        public void Initialize(List<string> heroNames)
         {
-            _heroes = heroes;
+            _heroNames.AddRange(heroNames);
             InitializeHeroDropdown();
             InitializeRoomListPanel();
         }
@@ -48,12 +47,18 @@ namespace CodeBase.UI
             _roomListPanel.OnRoomListUpdated(rooms);
         }
 
+        public override void Dispose()
+        {
+            _heroNames.Clear();
+            base.Dispose();
+        }
+
         private void SelectHero(int index)
         {
             if (index > _heroTypeDropdown.options.Count)
                 return;
 
-            onHeroSelected?.Invoke(_heroes[index].heroType);
+            onHeroSelected?.Invoke(index);
         }
 
         private void OnJoinRoomFromListPressed(string roomName) => onJoinRoomFromList?.Invoke(roomName);
@@ -61,8 +66,8 @@ namespace CodeBase.UI
         private void InitializeHeroDropdown()
         {
             var options = new List<TMP_Dropdown.OptionData>();
-            foreach (var heroData in _heroes)
-                options.Add(new TMP_Dropdown.OptionData(heroData.heroType.ToString()));
+            foreach (var heroName in _heroNames)
+                options.Add(new TMP_Dropdown.OptionData(heroName));
 
             _heroTypeDropdown.options = options;
             SelectHero(_heroTypeDropdown.value);

@@ -3112,7 +3112,7 @@ GameObject:
   - component: {fileID: 2955008397977104201}
   - component: {fileID: 8669512124791977623}
   m_Layer: 5
-  m_Name: MainMenuPanel
+  m_Name: MainMenuScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -17,8 +17,8 @@ namespace CodeBase.GameLogic.Components.Attacks
         private TickTimer _cooldownTimer;
         private uint _attackerId;
         private float _cooldown;
-
-        public void Setup(uint attackerId, float cooldown)
+        
+        public void Initialize(uint attackerId, float cooldown)
         {
             _attackerId = attackerId;
             _cooldown = cooldown;
@@ -26,7 +26,7 @@ namespace CodeBase.GameLogic.Components.Attacks
 
         public override void Spawned()
         {
-            _attackService = ServiceLocator.instance.Get<AttackService>();
+            _attackService = BehaviourInjector.instance.Resolve<AttackService>();
             
             if (HasStateAuthority)
             {

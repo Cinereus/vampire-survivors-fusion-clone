@@ -1,5 +1,5 @@
 ﻿using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 
 namespace CodeBase.GameLogic.Components.Hero
@@ -7,28 +7,24 @@ namespace CodeBase.GameLogic.Components.Hero
     public class HeroDeathHandler : NetworkBehaviour
     {
         private HeroesModel _heroes;
-
+        
         public override void Spawned()
         {
-            _heroes = ServiceLocator.instance.Get<HeroesModel>();
+            _heroes = BehaviourInjector.instance.Resolve<HeroesModel>();
             
-            if (HasStateAuthority)
-            {
+            if (HasStateAuthority) 
                 _heroes.onHealthChanged += OnHealthChanged;
-            }
         }
         
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            if (HasStateAuthority)
-            { 
+            if (HasStateAuthority) 
                 _heroes.onHealthChanged -= OnHealthChanged;
-            }
         }
         
-        private void OnHealthChanged(uint id)
+        private void OnHealthChanged(uint id, float currentHealth)
         {
-            if (Object.Id.Raw == id && _heroes.TryGetBy(Object.Id.Raw, out var model) && model.currentHealth <= 0)
+            if (Object.Id.Raw == id && currentHealth <= 0)
                 Runner.Shutdown();
         }
     }

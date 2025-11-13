@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using CodeBase.Infrastructure.Services;
 using Fusion;
 
 namespace CodeBase.GameLogic
 {
-    public class HeroesInstanceProvider : IService
+    public class HeroesInstanceProvider : IDisposable
     {
         private readonly List<NetworkObject> _instances = new List<NetworkObject>();
         

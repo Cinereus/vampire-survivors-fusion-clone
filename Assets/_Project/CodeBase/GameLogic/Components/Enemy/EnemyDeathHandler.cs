@@ -1,6 +1,7 @@
 ﻿using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
+
 
 namespace CodeBase.GameLogic.Components.Enemy
 {
@@ -10,7 +11,7 @@ namespace CodeBase.GameLogic.Components.Enemy
         
         public override void Spawned()
         {
-            _enemies = ServiceLocator.instance.Get<EnemiesModel>();
+            _enemies = BehaviourInjector.instance.Resolve<EnemiesModel>();
             
             if (HasStateAuthority) 
                 _enemies.onHealthChanged += OnHealthChanged;
@@ -22,10 +23,12 @@ namespace CodeBase.GameLogic.Components.Enemy
                 _enemies.onHealthChanged -= OnHealthChanged;
         }
 
-        private void OnHealthChanged(uint id)
+        private void OnHealthChanged(uint id, float currentHealth)
         {
-            if (Object.Id.Raw == id && _enemies.TryGetBy(id, out var model) && model.currentHealth <= 0)
+            if (Object.Id.Raw == id && currentHealth <= 0)
                 Runner.Despawn(Object);
         }
+
+      
     }
 }

@@ -1,6 +1,6 @@
 ﻿using CodeBase.Configs;
 using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -14,34 +14,30 @@ namespace CodeBase.GameLogic.Components
         [SerializeField]
         private CollisionTracker _tracker;
 
+        private ItemsService _itemsService;
+
         public ItemType itemType => item;
         
         [Networked]
         private ItemType item { get; set; }
         
-        private ItemsService _itemsService;
-
-        public void Setup(ItemType type)
+        public void Initialize(ItemType type)
         {
             item = type;
         }
 
         public override void Spawned()
         {
-            _itemsService = ServiceLocator.instance.Get<ItemsService>();
+            _itemsService = BehaviourInjector.instance.Resolve<ItemsService>();
             
-            if (HasStateAuthority)
-            {
+            if (HasStateAuthority) 
                 _tracker.onTriggerEnter += OnPicked;
-            }
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            if (HasStateAuthority)
-            {
+            if (HasStateAuthority) 
                 _tracker.onTriggerEnter -= OnPicked;
-            }
         }
 
         private void OnPicked(Collider2D picker)

@@ -8,7 +8,6 @@ namespace CodeBase.GameLogic.Components.Network
 {
     public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
-       
         public event Action<NetworkRunner, List<SessionInfo>> onSessionListUpdated;
         public event Action<NetworkRunner, NetworkInput> onInput;
         public event Action<NetworkRunner, PlayerRef> onPlayerJoined;
@@ -23,7 +22,7 @@ namespace CodeBase.GameLogic.Components.Network
         
         public void OnInput(NetworkRunner runner, NetworkInput input) => onInput?.Invoke(runner, input);
 
-        public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) =>
+        public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) => 
             onSessionListUpdated?.Invoke(runner, sessionList);
 
         public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) =>

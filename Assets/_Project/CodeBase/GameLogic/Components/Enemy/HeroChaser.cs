@@ -1,4 +1,4 @@
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -17,15 +17,15 @@ namespace CodeBase.GameLogic.Components.Enemy
         
         private HeroesInstanceProvider _instanceProvider;
         private float _speed;
-
-        public void Setup(float speed)
+        
+        public void Initialize(float speed)
         { 
             _speed = speed;
         }
 
         public override void Spawned()
         {
-            _instanceProvider = ServiceLocator.instance.Get<HeroesInstanceProvider>();
+            _instanceProvider = BehaviourInjector.instance.Resolve<HeroesInstanceProvider>();
         }
 
         public override void FixedUpdateNetwork()

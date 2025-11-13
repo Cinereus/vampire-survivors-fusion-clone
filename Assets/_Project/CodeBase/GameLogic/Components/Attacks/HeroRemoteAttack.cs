@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -13,24 +13,21 @@ namespace CodeBase.GameLogic.Components.Attacks
         private CollisionTracker _attackArea;
         
         private readonly List<Transform> _targets = new List<Transform>();
-        private GameFactory _factory;
-        private HeroesModel _heroes;
         private TickTimer _cooldownTimer;
+        private GameFactory _factory;
         private HeroModel _model;
-
+        
         public override void Spawned()
         {
-            _factory = ServiceLocator.instance.Get<GameFactory>();
-            _heroes = ServiceLocator.instance.Get<HeroesModel>();
-            
-            if (HasStateAuthority && _heroes.TryGetBy(Object.Id.Raw, out var model))
+            SetupDependencies();
+
+            if (HasStateAuthority)
             {
-                _model = model;
                 _attackArea.onTriggerEnter += OnTargetEntered;
                 _attackArea.onTriggerExit += OnTargetExited;
             }
         }
-
+        
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (HasStateAuthority)
@@ -47,6 +44,12 @@ namespace CodeBase.GameLogic.Components.Attacks
                 Attack();
                 _cooldownTimer = TickTimer.CreateFromSeconds(Runner, _model.attackCooldown);
             }
+        }
+        
+        private void SetupDependencies()
+        {
+            _factory = BehaviourInjector.instance.Resolve<GameFactory>();
+            _model = BehaviourInjector.instance.Resolve<HeroesModel>().GetBy(Object.Id.Raw);
         }
         
         private void Attack()

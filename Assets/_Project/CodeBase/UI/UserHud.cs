@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace CodeBase.UI
 {
-    public class UserHud : MonoBehaviour
+    public class UserHud : BaseUIEntity 
     {
         [SerializeField]
         private ProgressBar _healthBar;
@@ -13,7 +13,6 @@ namespace CodeBase.UI
         public void UpdateHealthValue(float current, float max) => 
             _healthBar.SetProgress($"{current}/{max}", current, max);
 
-        public void UpdateXpValue(float current, float max) =>
-            _xpBar.SetProgress($"{current}/{max}", current, max);
+        public void UpdateXpValue(float current, float max) => _xpBar.SetProgress($"{current}/{max}", current, max);
     }
 }

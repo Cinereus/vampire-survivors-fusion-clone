@@ -1,52 +1,24 @@
-using CodeBase.Configs.Enemies;
-using CodeBase.Configs.Heroes;
-using CodeBase.GameLogic;
-using CodeBase.GameLogic.Components.Network;
-using CodeBase.Infrastructure;
-using CodeBase.Infrastructure.Services;
-using Fusion;
-using UnityEngine;
+using VContainer.Unity;
 
 namespace CodeBase.EntryPoints
 {
-    public class BootEntryPoint : MonoBehaviour
+    public class BootEntryPoint : IInitializable
     {
-        [SerializeField]
-        private NetworkRunnerCallbacks _networkCallbacks;
-        
-        [SerializeField]
-        private NetworkRunner _networkRunnerPrefab;
-        
-        [SerializeField] 
-        private EnemiesConfig _enemiesConfig;
+        private readonly MatchmakingService _matchmakingService;
+        private readonly LoadSceneService _sceneService;
 
-        [SerializeField] 
-        private HeroesConfig _heroesConfig;
-        
-        private void Awake()
+        public BootEntryPoint(LoadSceneService sceneService, MatchmakingService matchmakingService)
         {
-            var services = ServiceLocator.instance;
-            RegisterServices(services);
-            Initialize(services);
+            _matchmakingService = matchmakingService;
+            _sceneService = sceneService;
         }
         
-        private void RegisterServices(ServiceLocator services)
+        public void Initialize()
         {
-            services.Register(new PlayerData());
+            _matchmakingService.Initialize();
             
-            services.Register(new AssetProvider());
-            
-            services.Register(new LoadSceneService());
-            
-            services.Register(new NetworkProvider(_networkRunnerPrefab, _networkCallbacks));
-            
-            services.Register(new MatchmakingService(services.Get<NetworkProvider>(),
-                services.Get<LoadSceneService>()));
-            
-            services.Register(new GameSettingsProvider(_heroesConfig, _enemiesConfig));
+            if (_sceneService.GetActiveScene().name != SceneNames.MAIN_MENU) 
+                _sceneService.LoadScene(SceneNames.MAIN_MENU);
         }
-        
-        private void Initialize(ServiceLocator services) => 
-            services.Get<LoadSceneService>().LoadScene(SceneNames.MAIN_MENU);
     }
 }

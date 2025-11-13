@@ -1,5 +1,5 @@
 ﻿using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -17,13 +17,13 @@ namespace CodeBase.GameLogic.Components.Attacks
         private CollisionTracker _hurtBox;
         
         private uint _id;
+        private uint _attackerId;
         private float _lifeTimeBorder;
+        private TickTimer _lifeTimer;
         private Vector3 _targetDir;
         private AttackService _attackService;
-        private TickTimer _lifeTimer;
-        private uint _attackerId;
 
-        public void Setup(uint attackerId, Vector3 targetPos)
+        public void Initialize(uint attackerId, Vector3 targetPos)
         {
             _attackerId = attackerId;
             _targetDir = (targetPos - transform.position).normalized;
@@ -31,7 +31,7 @@ namespace CodeBase.GameLogic.Components.Attacks
 
         public override void Spawned()
         {
-            _attackService = ServiceLocator.instance.Get<AttackService>();
+            _attackService = BehaviourInjector.instance.Resolve<AttackService>();
             
             if (HasStateAuthority)
             {

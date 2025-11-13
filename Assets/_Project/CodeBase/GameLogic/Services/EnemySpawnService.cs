@@ -1,29 +1,26 @@
 ﻿using System.Collections.Generic;
 using CodeBase.Configs.Enemies;
 using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
+using CodeBase.UI;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class EnemySpawnService : IService
+    public class EnemySpawnService
     {
         private readonly Camera _camera;
         private readonly EnemiesModel _enemies;
         private readonly HeroesInstanceProvider _instanceProvider;
         private readonly GameFactory _factory;
 
-        public EnemySpawnService(Camera camera, GameFactory factory, HeroesInstanceProvider instanceProvider,
+        public EnemySpawnService(UIManager uiManager, GameFactory factory, HeroesInstanceProvider instanceProvider,
             EnemiesModel enemies)
         {
-            _camera = camera;
+            _camera = uiManager.actualCamera;
             _factory = factory;
             _instanceProvider = instanceProvider;
             _enemies = enemies;
-        }
-
-        public void Dispose()
-        {
         }
 
         public void SpawnEnemyWave(List<EnemyData> newEnemies)
@@ -33,7 +30,7 @@ namespace CodeBase.GameLogic.Services
                 float probability = 100 * Random.value;
                 if (probability < enemy.spawnProbability)
                 {
-                    var networkObject = _factory.CreateEnemy(enemy.type, GetSpawnPosition(), Quaternion.identity);
+                    var networkObject = _factory.CreateEnemy(enemy.type, GetSpawnPosition());
                     newEnemies.Add(_enemies.GetBy(networkObject.Id.Raw).ToData());
                 }
             }

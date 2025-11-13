@@ -1,21 +1,22 @@
-﻿using CodeBase.GameLogic.Components.Network;
+﻿using System;
+using CodeBase.GameLogic.Components.Network;
 using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
 using Fusion;
+using VContainer.Unity;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class PlayersLeftService : IInitializeService
+    public class PlayersLeftService : IInitializable, IDisposable
     {
         private readonly HeroesModel _heroes;
         private readonly NetworkRunnerCallbacks _netCallbacks;
         private readonly HeroesInstanceProvider _instanceProvider;
 
-        public PlayersLeftService(HeroesModel heroes, NetworkRunnerCallbacks netCallbacks,
+        public PlayersLeftService(HeroesModel heroes, NetworkProvider networkProvider,
             HeroesInstanceProvider instanceProvider)
         {
             _heroes = heroes;
-            _netCallbacks = netCallbacks;
+            _netCallbacks = networkProvider.callbacks;
             _instanceProvider = instanceProvider;
         }
         

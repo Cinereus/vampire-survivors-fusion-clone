@@ -1,11 +1,10 @@
 ﻿using CodeBase.Configs.Heroes;
-using CodeBase.Infrastructure.Services;
 using Fusion;
 using UnityEngine;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class HeroSpawnService : IService
+    public class HeroSpawnService
     {
         private readonly GameFactory _factory;
         private readonly HeroesInstanceProvider _instanceProvider;
@@ -16,14 +15,12 @@ namespace CodeBase.GameLogic.Services
             _instanceProvider = instanceProvider;
         }
 
-        public void Dispose() { }
-
         public void SpawnHero(PlayerRef player, HeroType heroType)
         {
             var randOffset = Random.Range(-1f, 1f);
             var spawnedHeroPos = GetRandomSpawnedHeroPos();
             var spawnPoint = spawnedHeroPos + Vector2.right * randOffset;
-            _factory.CreateHero(heroType, player, spawnPoint, Quaternion.identity);
+            _factory.CreateHero(heroType, player, spawnPoint);
         }
         
         private Vector2 GetRandomSpawnedHeroPos()

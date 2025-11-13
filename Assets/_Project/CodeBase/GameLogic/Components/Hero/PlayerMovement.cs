@@ -1,6 +1,6 @@
 ﻿using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -16,16 +16,32 @@ namespace CodeBase.GameLogic.Components.Hero
         
         [Networked]
         private Vector2 moveDir { get; set; }
-
-        private HeroesModel _heroes;
+        
+        [Networked]
+        private float speed { get; set; }
+        
         private HeroModel _model;
-
+        
         public override void Spawned()
         {
-            _heroes = ServiceLocator.instance.Get<HeroesModel>();
-            
-            if (_heroes.TryGetBy(Object.Id.Raw, out var model)) 
-                _model = model;
+            if (HasStateAuthority)
+            {
+                _model = BehaviourInjector.instance.Resolve<HeroesModel>().GetBy(Object.Id.Raw);
+                _model.onLevelIncreased += OnLevelIncreased;
+                speed = _model.speed;
+            }
+        }
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (HasStateAuthority)
+                _model.onLevelIncreased -= OnLevelIncreased;
+        }
+
+        private void OnLevelIncreased(uint id)
+        {
+            if (_model.id == id) 
+                speed = _model.speed;
         }
 
         public override void FixedUpdateNetwork()
@@ -33,7 +49,7 @@ namespace CodeBase.GameLogic.Components.Hero
             if (GetInput(out NetworkInputData input))
             {
                 moveDir = input.axis;
-                _rb.MovePosition(_rb.position + moveDir * (_model.speed * Runner.DeltaTime));
+                _rb.MovePosition(_rb.position + moveDir * (speed * Runner.DeltaTime));
             }
         }
 

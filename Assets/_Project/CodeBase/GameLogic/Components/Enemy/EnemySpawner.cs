@@ -2,7 +2,7 @@
 using CodeBase.Configs.Enemies;
 using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -14,14 +14,15 @@ namespace CodeBase.GameLogic.Components.Enemy
         private float _spawnInterval;
 
         private readonly List<EnemyData> _newEnemiesBuffer = new List<EnemyData>();
-        private EnemySpawnService _spawnService;
         private EnemiesModel _enemies;
         private TickTimer _spawnTimer;
-
+        private EnemySpawnService _spawnService;
+        
         public override void Spawned()
         {
-            _enemies = ServiceLocator.instance.Get<EnemiesModel>();
-            _spawnService = ServiceLocator.instance.Get<EnemySpawnService>();
+            _enemies = BehaviourInjector.instance.Resolve<EnemiesModel>();
+            _spawnService = BehaviourInjector.instance.Resolve<EnemySpawnService>();
+            _spawnTimer = TickTimer.CreateFromSeconds(Runner, _spawnInterval);
         }
 
         public override void FixedUpdateNetwork()
@@ -36,7 +37,7 @@ namespace CodeBase.GameLogic.Components.Enemy
             }
         }
         
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsHostPlayer)]
         private void Rpc_RequestActualizeModels(EnemyData[] dataList)
         {
             if (!HasStateAuthority)

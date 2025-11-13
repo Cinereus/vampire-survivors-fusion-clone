@@ -1,60 +1,93 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using CodeBase.UI;
 using Fusion;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace CodeBase.EntryPoints
 {
-    public class MainMenuEntryPoint : MonoBehaviour
+    public class MainMenuEntryPoint : IInitializable, IDisposable
     {
-        [SerializeField]
-        private MainMenuPanel _mainMenuPanel;
+        private readonly UIManager _uiManager;
+        private readonly PlayerData _playerData;
+        private readonly AssetProvider _assetProvider;
+        private readonly LoadSceneService _sceneService;
+        private readonly MatchmakingService _matchmakingService;
+        private readonly IObjectResolver _resolver;
+        private readonly Camera _mainCamera;
 
-        [SerializeField] 
-        private GameObject _loadingScreen;
+        private MainMenuScreen _mainMenuScreen;
 
-        private PlayerData _playerData;
-        private MatchmakingService _matchmakingService;
-        private LoadSceneService _sceneService;
-        
-        private void Awake()
+        public MainMenuEntryPoint(UIManager uiManager, AssetProvider assetProvider, PlayerData playerData,
+            LoadSceneService sceneService, MatchmakingService matchmakingService, Camera mainCamera,
+            IObjectResolver resolver)
         {
-            var services = ServiceLocator.instance;
-            SetupDependencies(services);
-            InitializeMainMenuPanel(services);
+            _assetProvider = assetProvider;
+            _playerData = playerData;
+            _matchmakingService = matchmakingService;
+            _mainCamera = mainCamera;
+            _sceneService = sceneService;
+            _uiManager = uiManager;
+            _resolver = resolver;
+        }
+
+        public void Initialize()
+        {
+            BehaviourInjector.instance.SetupResolver(_resolver);
+            InitializeMainMenuPanel();
             InitializeMatchmaking();
         }
 
-        private void InitializeMainMenuPanel(ServiceLocator services)
+        public void Dispose()
         {
-            _mainMenuPanel.Setup(services.Get<GameSettingsProvider>().heroesConfig.heroes);
-            _mainMenuPanel.onStartAsHost += OnStartAsHost;
-            _mainMenuPanel.onJoinRoomFromList += OnJoinRoomFromList;
-            _mainMenuPanel.onHeroSelected += OnHeroSelected;
+            if (_mainMenuScreen != null)
+            {
+                _mainMenuScreen.onStartAsHost -= OnStartAsHost;
+                _mainMenuScreen.onJoinRoomFromList -= OnJoinRoomFromList;
+                _mainMenuScreen.onHeroSelected -= OnHeroSelected;
+                _uiManager.Hide<MainMenuScreen>();
+            }
+
+            if (_matchmakingService != null)
+            {
+                _matchmakingService.onRoomsUpdated -= OnRoomListUpdated;
+            }
+        }
+
+        private void InitializeMainMenuPanel()
+        {
+            _uiManager.SetupActualCamera(_mainCamera);
+            _mainMenuScreen = _uiManager.Show<MainMenuScreen>();
+
+            var heroNames = _assetProvider.GetConfig<HeroesConfig>().heroes
+                .Select(h => h.heroType.ToString()).ToList();
+
+            _mainMenuScreen.Initialize(heroNames);
+
+            _mainMenuScreen.onStartAsHost += OnStartAsHost;
+            _mainMenuScreen.onJoinRoomFromList += OnJoinRoomFromList;
+            _mainMenuScreen.onHeroSelected += OnHeroSelected;
         }
 
         private void InitializeMatchmaking()
         {
-            _matchmakingService.StartLobbySession(onCompleted: () => _loadingScreen.SetActive(false));
+            _matchmakingService.StartLobbySession();
             _matchmakingService.onRoomsUpdated += OnRoomListUpdated;
         }
 
-        private void OnDestroy()
+        private void OnRoomListUpdated(List<SessionInfo> roomList)
         {
-            _mainMenuPanel.onStartAsHost -= OnStartAsHost;
-            _mainMenuPanel.onJoinRoomFromList -= OnJoinRoomFromList;
-            _mainMenuPanel.onHeroSelected -= OnHeroSelected;
-            _matchmakingService.onRoomsUpdated -= OnRoomListUpdated;
+            _mainMenuScreen.OnRoomListUpdated(roomList, _playerData.visitedRooms.Contains);
         }
 
-        private void OnRoomListUpdated(List<SessionInfo> roomList) =>
-            _mainMenuPanel.OnRoomListUpdated(roomList, _playerData.visitedRooms.Contains);
+        private void OnHeroSelected(int hero) => _playerData.chosenHero = (HeroType)hero;
 
-        private void OnHeroSelected(HeroType heroType) => _playerData.chosenHero = heroType;
-        
         private void OnJoinRoomFromList(string roomName) => StartGame(roomName, false);
 
         private void OnStartAsHost(string roomName)
@@ -75,13 +108,6 @@ namespace CodeBase.EntryPoints
             _playerData.visitedRooms.Add(roomName);
             _matchmakingService.StartGameSession(roomName, isHost, SceneNames.GAME,
                 onFailed: () => _sceneService.LoadScene(SceneNames.MAIN_MENU));
-        }
-
-        private void SetupDependencies(ServiceLocator services)
-        {
-            _playerData = services.Get<PlayerData>();
-            _matchmakingService = services.Get<MatchmakingService>();
-            _sceneService = services.Get<LoadSceneService>();
         }
     }
 }

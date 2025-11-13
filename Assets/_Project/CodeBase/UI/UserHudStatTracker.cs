@@ -1,6 +1,5 @@
-﻿using CodeBase.GameLogic;
-using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
+﻿using CodeBase.GameLogic.Models;
+using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace CodeBase.UI
     public class UserHudStatTracker : NetworkBehaviour
     {
         [SerializeField]
-        private RectTransform _remoteUserHudPlaceholder;
+        private UserHud _remoteUserHud;
         
         [Networked] 
         private float currentXp { get; set; }
@@ -23,42 +22,57 @@ namespace CodeBase.UI
         [Networked] 
         private float maxHealth { get; set; }
 
-        private ChangeDetector _changeDetector;
-        private UserHud _userHud;   
         private HeroesModel _heroes;
+        private UIManager _uiManager;
+        private UserHudPanel _userHudPanel;
+        private ChangeDetector _changeDetector;
         
         public override void Spawned()
         {
-            _heroes = ServiceLocator.instance.Get<HeroesModel>();
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            SetupDependencies();
             SetupProperties();
+            InitUserHud();
+            UpdateUserHud();
             
             if (HasStateAuthority)
-            { 
+            {
                 _heroes.onXpChanged += OnXpChanged; 
                 _heroes.onHealthChanged += OnHealthChanged;
             }
         }
-        
+
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (HasStateAuthority)
-            { 
+            {
                 _heroes.onXpChanged -= OnXpChanged; 
                 _heroes.onHealthChanged -= OnHealthChanged;
             }
             
-            Destroy(_userHud.gameObject);
+            if (HasInputAuthority)
+                _uiManager.Hide<UserHudPanel>();
+            else 
+                _remoteUserHud.Hide();
         }
 
         public override void Render()
         {
             CheckNetworkPropertyChanged();
         }
-
-        private void Start()
+        
+        private void InitUserHud()
         {
-            InitUserHudLocal();
+            if (HasInputAuthority)
+                _userHudPanel = _uiManager.Show<UserHudPanel>();
+            else
+                _remoteUserHud.Show();
+        }
+        
+        private void SetupDependencies()
+        {
+            _heroes = BehaviourInjector.instance.Resolve<HeroesModel>();
+            _uiManager = BehaviourInjector.instance.Resolve<UIManager>();
         }
         
         private void SetupProperties()
@@ -72,16 +86,12 @@ namespace CodeBase.UI
             }
         }
 
-        private void InitUserHudLocal()
+        private void UpdateUserHud()
         {
-            var factory = ServiceLocator.instance.Get<GameFactory>();
-            
-            _userHud = HasInputAuthority
-                ? factory.CreateClientUserHudLocal()
-                : factory.CreateRemoteUserHudLocal(_remoteUserHudPlaceholder);
-            
-            _userHud?.UpdateXpValue(currentXp, maxXp);
-            _userHud?.UpdateHealthValue(currentHealth, maxHealth);
+            _remoteUserHud?.UpdateXpValue(currentXp, maxXp);
+            _remoteUserHud?.UpdateHealthValue(currentHealth, maxHealth);
+            _userHudPanel?.UpdateXpValue(currentXp, maxXp);
+            _userHudPanel?.UpdateHealthValue(currentHealth, maxHealth);    
         }
         
         private void CheckNetworkPropertyChanged()
@@ -92,18 +102,11 @@ namespace CodeBase.UI
 
         private void UpdateProperty(string propertyName)
         {
-            switch (propertyName)
-            {
-                case nameof(currentXp):
-                    _userHud?.UpdateXpValue(currentXp, maxXp);
-                    break;
-                case nameof(currentHealth):
-                    _userHud?.UpdateHealthValue(currentHealth, maxHealth);
-                    break;
-            }
+            if (propertyName == nameof(currentXp) || propertyName == nameof(currentHealth)) 
+                UpdateUserHud();
         }
 
-        private void OnHealthChanged(uint id)
+        private void OnHealthChanged(uint id, float _)
         {
             if (Object.Id.Raw == id && _heroes.TryGetBy(id, out var model))
             {

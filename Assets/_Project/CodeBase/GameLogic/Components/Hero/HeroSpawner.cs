@@ -1,7 +1,7 @@
 ﻿using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 
 namespace CodeBase.GameLogic.Components.Hero
@@ -18,14 +18,13 @@ namespace CodeBase.GameLogic.Components.Hero
             SetupDependencies();
             TrySpawnHero();
         }
-
+        
         private void SetupDependencies()
         {
-            var services = ServiceLocator.instance;
-            _heroes = services.Get<HeroesModel>();
-            _playerData = services.Get<PlayerData>();
-            _instanceProvider = services.Get<HeroesInstanceProvider>();
-            _heroSpawnService = services.Get<HeroSpawnService>();
+            _heroes = BehaviourInjector.instance.Resolve<HeroesModel>();
+            _playerData = BehaviourInjector.instance.Resolve<PlayerData>();
+            _instanceProvider = BehaviourInjector.instance.Resolve<HeroesInstanceProvider>();
+            _heroSpawnService = BehaviourInjector.instance.Resolve<HeroSpawnService>();
         }
         
         private void TrySpawnHero()

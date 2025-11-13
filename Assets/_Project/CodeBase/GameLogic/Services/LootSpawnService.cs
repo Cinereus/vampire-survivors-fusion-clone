@@ -1,12 +1,11 @@
 ﻿using CodeBase.Configs;
 using CodeBase.Configs.Enemies;
-using CodeBase.Infrastructure.Services;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class LootSpawnService : IService
+    public class LootSpawnService
     {
         private readonly GameFactory _factory;
         private readonly NetworkProvider _network;
@@ -27,10 +26,6 @@ namespace CodeBase.GameLogic.Services
             const int FULL_PROBABILITY = 100; 
             if (FULL_PROBABILITY * Random.value < spawnProbability) 
                 _factory.CreateItem(ItemType.HealthPotion, position);
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

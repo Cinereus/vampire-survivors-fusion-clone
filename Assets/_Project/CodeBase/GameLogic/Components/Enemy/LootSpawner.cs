@@ -1,6 +1,6 @@
 ﻿using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
-using CodeBase.Infrastructure.Services;
+using CodeBase.Infrastructure;
 using Fusion;
 
 namespace CodeBase.GameLogic.Components.Enemy
@@ -12,29 +12,25 @@ namespace CodeBase.GameLogic.Components.Enemy
         
         public override void Spawned()
         {
-            _lootService = ServiceLocator.instance.Get<LootSpawnService>();
-            _enemies = ServiceLocator.instance.Get<EnemiesModel>();
+            _lootService = BehaviourInjector.instance.Resolve<LootSpawnService>();
+            _enemies = BehaviourInjector.instance.Resolve<EnemiesModel>();
             
-            if (HasStateAuthority)
-            { 
-                _enemies.onHealthChanged += OnDeath;   
-            }
+            if (HasStateAuthority) 
+                _enemies.onHealthChanged += OnDeath;
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            if (HasStateAuthority)
-            { 
+            if (HasStateAuthority) 
                 _enemies.onHealthChanged -= OnDeath;
-            }
         }
         
-        private void OnDeath(uint id)
+        private void OnDeath(uint id, float _)
         {
             if (Object.Id.Raw == id && _enemies.TryGetBy(id, out var model) && model.currentHealth <= 0)
             {
                 _lootService.SpawnXp(model.type, transform.position);
-                _lootService.SpawnHealPotion(model.lootProbability, transform.position);    
+                _lootService.SpawnHealPotion(model.lootProbability, transform.position);
             }
         }
     }

@@ -1,10 +1,9 @@
 ﻿using CodeBase.Configs;
 using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure.Services;
 
 namespace CodeBase.GameLogic.Services
 {
-    public class ItemsService : IService
+    public class ItemsService
     {
         private readonly HeroesModel _heroes;
 
@@ -12,8 +11,6 @@ namespace CodeBase.GameLogic.Services
         {
             _heroes = heroes;
         }
-        
-        public void Dispose() { }
 
         public bool TryPickUpItem(uint id, ItemType item, float count)
         {
