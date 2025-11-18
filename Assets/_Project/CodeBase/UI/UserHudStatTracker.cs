@@ -21,12 +21,12 @@ namespace CodeBase.UI
         
         [Networked] 
         private float maxHealth { get; set; }
-
-        private HeroesModel _heroes;
+        
+        private HeroModel _model;
         private UIManager _uiManager;
         private UserHudPanel _userHudPanel;
         private ChangeDetector _changeDetector;
-        
+
         public override void Spawned()
         {
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -37,8 +37,8 @@ namespace CodeBase.UI
             
             if (HasStateAuthority)
             {
-                _heroes.onXpChanged += OnXpChanged; 
-                _heroes.onHealthChanged += OnHealthChanged;
+                _model.onXpChanged += OnXpChanged; 
+                _model.onHealthChanged += OnHealthChanged;
             }
         }
 
@@ -46,8 +46,8 @@ namespace CodeBase.UI
         {
             if (HasStateAuthority)
             {
-                _heroes.onXpChanged -= OnXpChanged; 
-                _heroes.onHealthChanged -= OnHealthChanged;
+                _model.onXpChanged -= OnXpChanged; 
+                _model.onHealthChanged -= OnHealthChanged;
             }
             
             if (HasInputAuthority)
@@ -71,18 +71,18 @@ namespace CodeBase.UI
         
         private void SetupDependencies()
         {
-            _heroes = BehaviourInjector.instance.Resolve<HeroesModel>();
+            _model = BehaviourInjector.instance.Resolve<Heroes>().GetBy(Object.Id.Raw);
             _uiManager = BehaviourInjector.instance.Resolve<UIManager>();
         }
         
         private void SetupProperties()
         {
-            if (HasStateAuthority && _heroes.TryGetBy(Object.Id.Raw, out var model))
+            if (HasStateAuthority)
             {
-                currentXp = model.currentXp;
-                maxXp = model.maxXp;
-                currentHealth = model.currentHealth;
-                maxHealth = model.maxHealth;    
+                currentXp = _model.currentXp;
+                maxXp = _model.maxXp;
+                currentHealth = _model.currentHealth;
+                maxHealth = _model.maxHealth;    
             }
         }
 
@@ -102,26 +102,20 @@ namespace CodeBase.UI
 
         private void UpdateProperty(string propertyName)
         {
-            if (propertyName == nameof(currentXp) || propertyName == nameof(currentHealth)) 
+            if (propertyName is nameof(currentXp) or nameof(currentHealth)) 
                 UpdateUserHud();
         }
 
-        private void OnHealthChanged(uint id, float _)
-        {
-            if (Object.Id.Raw == id && _heroes.TryGetBy(id, out var model))
-            {
-                maxHealth = model.maxHealth;
-                currentHealth = model.currentHealth;    
-            }
+        private void OnHealthChanged()
+        { 
+            maxHealth = _model.maxHealth;
+            currentHealth = _model.currentHealth;
         }
 
-        private void OnXpChanged(uint id)
+        private void OnXpChanged()
         {
-            if (Object.Id.Raw == id && _heroes.TryGetBy(id, out var model))
-            {
-                maxXp = model.maxXp;
-                currentXp = model.currentXp;
-            }
+            maxXp = _model.maxXp;
+            currentXp = _model.currentXp;
         }
     }
 }

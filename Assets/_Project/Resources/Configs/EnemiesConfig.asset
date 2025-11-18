@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: EnemiesConfig
   m_EditorClassIdentifier: 
   enemies:
-  - id: 0
-    type: 2
+  - enemyType: 2
     maxHealth: 2
     currentHealth: 2
     damage: 2
@@ -22,8 +21,7 @@ MonoBehaviour:
     speed: 0.2
     lootProbability: 15
     spawnProbability: 50
-  - id: 0
-    type: 8
+  - enemyType: 8
     maxHealth: 15
     currentHealth: 15
     damage: 25
@@ -31,8 +29,7 @@ MonoBehaviour:
     speed: 0.04
     lootProbability: 50
     spawnProbability: 15
-  - id: 0
-    type: 22
+  - enemyType: 22
     maxHealth: 8
     currentHealth: 8
     damage: 15
@@ -40,8 +37,7 @@ MonoBehaviour:
     speed: 0.08
     lootProbability: 80
     spawnProbability: 15
-  - id: 0
-    type: 37
+  - enemyType: 37
     maxHealth: 1
     currentHealth: 1
     damage: 1
@@ -49,8 +45,7 @@ MonoBehaviour:
     speed: 0.3
     lootProbability: 15
     spawnProbability: 50
-  - id: 0
-    type: 67
+  - enemyType: 67
     maxHealth: 3
     currentHealth: 3
     damage: 2

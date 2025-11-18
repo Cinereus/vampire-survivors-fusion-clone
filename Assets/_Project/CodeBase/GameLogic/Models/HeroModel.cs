@@ -6,9 +6,8 @@ using Random = UnityEngine.Random;
 
 namespace CodeBase.GameLogic.Models
 {
-    public class HeroModel
+    public class HeroModel : EntityModel<HeroData>
     {
-        public uint id { get; set; }
         public HeroType type { get; set; }
         public float maxHealth { get; set; }
         public float currentHealth { get; set; }
@@ -19,22 +18,45 @@ namespace CodeBase.GameLogic.Models
         public float currentXp { get; set; }
         public int currentLevel { get; set; }
 
-         public event Action<uint> onXpChanged;
-         public event Action<uint> onLevelIncreased;
-         public event Action<uint> onHealthChanged;
+         public event Action onXpChanged;
+         public event Action onLevelIncreased;
+         public event Action onHealthChanged;
 
         private float _progressionCoeff;
         private float _statIncreaseCoeff;
 
-        public HeroModel(HeroData data)
+        public override void Setup(HeroData data)
         {
-            Setup(data);
+            var oldCurrentXp = currentXp;
+            var oldCurrentLevel = currentLevel;
+            var oldCurrentHealth = currentHealth;
+            
+            type = data.heroType;
+            maxHealth = data.maxHealth;
+            currentHealth = data.currentHealth;
+            speed = data.speed;
+            damage = data.damage;
+            attackCooldown = data.attackCooldown;
+            currentXp = data.currentXp;
+            maxXp = data.maxXp;
+            currentLevel = data.currentLevel;
+            _progressionCoeff = data.progressionCoeff;
+            _statIncreaseCoeff = data.statIncreaseCoeff;
+            
+            if (currentLevel != oldCurrentLevel)
+                onLevelIncreased?.Invoke();
+            
+            if (Math.Abs(currentXp - oldCurrentXp) > 0.001f)
+                onHealthChanged?.Invoke();
+            
+            if (Math.Abs(currentHealth - oldCurrentHealth) > 0.001f)
+                onXpChanged?.Invoke();
         }
 
         public void TakeDamage(float damageTaken)
         {
             currentHealth -= damageTaken;
-            onHealthChanged?.Invoke(id);
+            onHealthChanged?.Invoke();
         }
 
         public void PickUp(ItemType item, float value)
@@ -47,7 +69,7 @@ namespace CodeBase.GameLogic.Models
                     if (currentHealth >= maxHealth)
                         currentHealth = maxHealth;
 
-                    onHealthChanged?.Invoke(id);
+                    onHealthChanged?.Invoke();
                     break;
                 }
                 case ItemType.XpPage:
@@ -57,7 +79,7 @@ namespace CodeBase.GameLogic.Models
                     if (currentXp >= maxXp)
                         IncreaseLevel();
                     
-                    onXpChanged?.Invoke(id);
+                    onXpChanged?.Invoke();
                     break;
                 }
             }
@@ -89,45 +111,15 @@ namespace CodeBase.GameLogic.Models
             }
             
             currentHealth = maxHealth;
-            onHealthChanged?.Invoke(id);
-            onXpChanged?.Invoke(id);
-            onLevelIncreased?.Invoke(id);
-        }
-
-        public void Setup(HeroData data)
-        {
-            var oldCurrentXp = currentXp;
-            var oldCurrentLevel = currentLevel;
-            var oldCurrentHealth = currentHealth;
-            
-            id = data.id;
-            type = data.heroType;
-            maxHealth = data.maxHealth;
-            currentHealth = data.currentHealth;
-            speed = data.speed;
-            damage = data.damage;
-            attackCooldown = data.attackCooldown;
-            currentXp = data.currentXp;
-            maxXp = data.maxXp;
-            currentLevel = data.currentLevel;
-            _progressionCoeff = data.progressionCoeff;
-            _statIncreaseCoeff = data.statIncreaseCoeff;
-            
-            if (currentLevel != oldCurrentLevel)
-                onLevelIncreased?.Invoke(id);
-            
-            if (Math.Abs(currentXp - oldCurrentXp) > 0.001f)
-                onHealthChanged?.Invoke(id);
-            
-            if (Math.Abs(currentHealth - oldCurrentHealth) > 0.001f)
-                onXpChanged?.Invoke(id);
+            onHealthChanged?.Invoke();
+            onXpChanged?.Invoke();
+            onLevelIncreased?.Invoke();
         }
         
         public HeroData ToData()
         {
             return new HeroData
             {
-                id = id,
                 heroType = type,
                 currentHealth = currentHealth,
                 maxHealth = maxHealth,

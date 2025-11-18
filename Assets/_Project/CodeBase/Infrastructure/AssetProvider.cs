@@ -156,7 +156,7 @@ namespace CodeBase.Infrastructure
         {
             var result = Resources.Load<T>(path);
             if (!result)
-                Debug.LogError($"{nameof(AssetProvider)} Failed to load asset. Result is null!");
+                Debug.LogError($"{nameof(AssetProvider)} Failed to load asset at path {path}. Result is null!");
 
             return result;
         }

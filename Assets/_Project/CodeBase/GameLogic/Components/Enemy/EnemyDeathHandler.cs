@@ -7,28 +7,27 @@ namespace CodeBase.GameLogic.Components.Enemy
 {
     public class EnemyDeathHandler : NetworkBehaviour
     {
-        private EnemiesModel _enemies;
+        private EnemyModel _model;
         
         public override void Spawned()
         {
-            _enemies = BehaviourInjector.instance.Resolve<EnemiesModel>();
-            
-            if (HasStateAuthority) 
-                _enemies.onHealthChanged += OnHealthChanged;
+            if (HasStateAuthority)
+            {
+                _model = BehaviourInjector.instance.Resolve<Enemies>().GetBy(Object.Id.Raw);
+                _model.onHealthChanged += OnHealthChanged;
+            } 
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (HasStateAuthority) 
-                _enemies.onHealthChanged -= OnHealthChanged;
+                _model.onHealthChanged -= OnHealthChanged;
         }
 
-        private void OnHealthChanged(uint id, float currentHealth)
+        private void OnHealthChanged()
         {
-            if (Object.Id.Raw == id && currentHealth <= 0)
+            if (_model.currentHealth <= 0)
                 Runner.Despawn(Object);
         }
-
-      
     }
 }

@@ -6,8 +6,7 @@ namespace CodeBase.Configs.Enemies
     [Serializable]
     public struct EnemyData : INetworkStruct
     {
-        public uint id;
-        public EnemyType type;
+        public EnemyType enemyType;
         public float maxHealth;
         public float currentHealth;
         public float damage;

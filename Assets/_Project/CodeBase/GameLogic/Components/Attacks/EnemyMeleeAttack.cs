@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CodeBase.GameLogic.Models;
 using CodeBase.GameLogic.Services;
 using CodeBase.Infrastructure;
 using Fusion;
@@ -15,17 +16,11 @@ namespace CodeBase.GameLogic.Components.Attacks
         private readonly List<uint> _victims = new List<uint>();
         private AttackService _attackService;
         private TickTimer _cooldownTimer;
-        private uint _attackerId;
-        private float _cooldown;
-        
-        public void Initialize(uint attackerId, float cooldown)
-        {
-            _attackerId = attackerId;
-            _cooldown = cooldown;
-        }
+        private EnemyModel _model;
 
         public override void Spawned()
         {
+            _model = BehaviourInjector.instance.Resolve<Enemies>().GetBy(Object.Id.Raw);
             _attackService = BehaviourInjector.instance.Resolve<AttackService>();
             
             if (HasStateAuthority)
@@ -49,7 +44,7 @@ namespace CodeBase.GameLogic.Components.Attacks
             if (HasStateAuthority && _cooldownTimer.ExpiredOrNotRunning(Runner))
             {
                 Attack();
-                _cooldownTimer = TickTimer.CreateFromSeconds(Runner, _cooldown);
+                _cooldownTimer = TickTimer.CreateFromSeconds(Runner, _model.attackCooldown);
             }
         }
 
@@ -59,7 +54,7 @@ namespace CodeBase.GameLogic.Components.Attacks
                 return;
             
             var randomVictim = _victims[Random.Range(0, _victims.Count)];
-            _attackService.MakeAttack(_attackerId, randomVictim);
+            _attackService.MakeAttack(Object.Id.Raw, randomVictim);
         }
         
         private void OnVictimEntered(Collider2D victim)

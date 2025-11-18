@@ -6,25 +6,26 @@ namespace CodeBase.GameLogic.Components.Hero
 {
     public class HeroDeathHandler : NetworkBehaviour
     {
-        private HeroesModel _heroes;
+        private HeroModel _model;
         
         public override void Spawned()
         {
-            _heroes = BehaviourInjector.instance.Resolve<HeroesModel>();
-            
-            if (HasStateAuthority) 
-                _heroes.onHealthChanged += OnHealthChanged;
+            if (HasStateAuthority)
+            {
+                _model = BehaviourInjector.instance.Resolve<Heroes>().GetBy(Object.Id.Raw);
+                _model.onHealthChanged += OnHealthChanged;
+            }
         }
         
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (HasStateAuthority) 
-                _heroes.onHealthChanged -= OnHealthChanged;
+                _model.onHealthChanged -= OnHealthChanged;
         }
         
-        private void OnHealthChanged(uint id, float currentHealth)
+        private void OnHealthChanged()
         {
-            if (Object.Id.Raw == id && currentHealth <= 0)
+            if (_model.currentHealth <= 0)
                 Runner.Shutdown();
         }
     }

@@ -8,11 +8,11 @@ namespace CodeBase.GameLogic.Services
 {
     public class PlayersLeftService : IInitializable, IDisposable
     {
-        private readonly HeroesModel _heroes;
+        private readonly Heroes _heroes;
         private readonly NetworkRunnerCallbacks _netCallbacks;
         private readonly HeroesInstanceProvider _instanceProvider;
 
-        public PlayersLeftService(HeroesModel heroes, NetworkProvider networkProvider,
+        public PlayersLeftService(Heroes heroes, NetworkProvider networkProvider,
             HeroesInstanceProvider instanceProvider)
         {
             _heroes = heroes;
@@ -32,10 +32,13 @@ namespace CodeBase.GameLogic.Services
         
         private void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
-            if (runner.TryGetPlayerObject(player, out var netObj)) 
-                _heroes.Remove(netObj.Id.Raw);
-            
             _instanceProvider.Remove(player);
+            
+            if (runner.TryGetPlayerObject(player, out var netObj))
+            {
+                _heroes.Remove(netObj.Id.Raw);
+                runner.Despawn(netObj);
+            }
         }
     }
 }

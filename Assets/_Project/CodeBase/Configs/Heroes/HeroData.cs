@@ -6,7 +6,6 @@ namespace CodeBase.Configs.Heroes
     [Serializable]
     public struct HeroData : INetworkStruct
     {
-        public uint id;
         public HeroType heroType;
         public float maxHealth;
         public float currentHealth;

@@ -49,7 +49,7 @@ namespace CodeBase.GameLogic.Components.Attacks
         private void SetupDependencies()
         {
             _factory = BehaviourInjector.instance.Resolve<GameFactory>();
-            _model = BehaviourInjector.instance.Resolve<HeroesModel>().GetBy(Object.Id.Raw);
+            _model = BehaviourInjector.instance.Resolve<Heroes>().GetBy(Object.Id.Raw);
         }
         
         private void Attack()

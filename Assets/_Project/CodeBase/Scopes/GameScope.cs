@@ -15,8 +15,8 @@ namespace CodeBase.Scopes
         
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register<HeroesModel>(Lifetime.Scoped);
-            builder.Register<EnemiesModel>(Lifetime.Scoped);
+            builder.Register<Heroes>(Lifetime.Scoped);
+            builder.Register<Enemies>(Lifetime.Scoped);
             builder.Register<HeroesInstanceProvider>(Lifetime.Scoped);
             builder.Register<GameFactory>(Lifetime.Scoped);
             builder.Register<ItemsService>(Lifetime.Scoped);

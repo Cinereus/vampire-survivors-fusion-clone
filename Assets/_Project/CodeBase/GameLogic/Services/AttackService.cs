@@ -4,10 +4,10 @@ namespace CodeBase.GameLogic.Services
 {
     public class AttackService
     {
-        private readonly EnemiesModel _enemies;
-        private readonly HeroesModel _heroes;
+        private readonly Heroes _heroes;
+        private readonly Enemies _enemies;
 
-        public AttackService(HeroesModel heroes, EnemiesModel enemies)
+        public AttackService(Heroes heroes, Enemies enemies)
         {
             _heroes = heroes;
             _enemies = enemies;

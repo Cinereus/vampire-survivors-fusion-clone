@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 8138632223171828779}
   - component: {fileID: 1052800099718742031}
   - component: {fileID: 4455658653394081774}
+  - component: {fileID: -7489358935704306828}
   - component: {fileID: 6230528545903800959}
   - component: {fileID: 4736505459917457684}
   m_Layer: 6
@@ -144,6 +145,7 @@ MonoBehaviour:
   - {fileID: 8138632223171828779}
   - {fileID: 1052800099718742031}
   - {fileID: 4455658653394081774}
+  - {fileID: -7489358935704306828}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &7996607953443881625
 MonoBehaviour:
@@ -217,6 +219,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7e3f26ebac6473590465d84ce1d232d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-7489358935704306828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009255492215807130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff8cde5fe8d84b7bb8dfef73f23d5ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!58 &6230528545903800959

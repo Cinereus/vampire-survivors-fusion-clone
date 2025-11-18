@@ -26,7 +26,7 @@ namespace CodeBase.GameLogic.Components.Hero
         {
             if (HasStateAuthority)
             {
-                _model = BehaviourInjector.instance.Resolve<HeroesModel>().GetBy(Object.Id.Raw);
+                _model = BehaviourInjector.instance.Resolve<Heroes>().GetBy(Object.Id.Raw);
                 _model.onLevelIncreased += OnLevelIncreased;
                 speed = _model.speed;
             }
@@ -38,10 +38,9 @@ namespace CodeBase.GameLogic.Components.Hero
                 _model.onLevelIncreased -= OnLevelIncreased;
         }
 
-        private void OnLevelIncreased(uint id)
+        private void OnLevelIncreased()
         {
-            if (_model.id == id) 
-                speed = _model.speed;
+            speed = _model.speed;
         }
 
         public override void FixedUpdateNetwork()

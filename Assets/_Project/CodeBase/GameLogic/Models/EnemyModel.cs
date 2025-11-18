@@ -3,9 +3,8 @@ using CodeBase.Configs.Enemies;
 
 namespace CodeBase.GameLogic.Models
 {
-    public class EnemyModel
+    public class EnemyModel : EntityModel<EnemyData>
     {
-        public uint id { get; private set; }
         public EnemyType type { get; private set; }
         public float maxHealth { get; private set; }
         public float currentHealth { get; private set; }
@@ -14,23 +13,11 @@ namespace CodeBase.GameLogic.Models
         public float lootProbability { get; private set; }
         public float attackCooldown { get; private set; }
         
-        public event Action<uint> onHealthChanged;
-
-        public EnemyModel(EnemyData data)
-        { 
-            Setup(data);
-        }
+        public event Action onHealthChanged;
         
-        public void TakeDamage(float damageTaken)
+        public override void Setup(EnemyData data)
         {
-            currentHealth -= damageTaken;
-            onHealthChanged?.Invoke(id);
-        }
-
-        public void Setup(EnemyData data)
-        {
-            id = data.id;
-            type = data.type;
+            type = data.enemyType;
             maxHealth = data.maxHealth;
             currentHealth = data.currentHealth;
             damage = data.damage;
@@ -39,12 +26,19 @@ namespace CodeBase.GameLogic.Models
             lootProbability = data.lootProbability;
         }
 
+        public override void Dispose() {}
+        
+        public void TakeDamage(float damageTaken)
+        {
+            currentHealth -= damageTaken;
+            onHealthChanged?.Invoke();
+        }
+
         public EnemyData ToData()
         { 
             return new EnemyData 
             {
-                id = id,
-                type = type,
+                enemyType = type,
                 maxHealth = maxHealth,
                 currentHealth = currentHealth,
                 damage = damage,

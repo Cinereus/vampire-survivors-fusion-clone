@@ -5,9 +5,9 @@ namespace CodeBase.GameLogic.Services
 {
     public class ItemsService
     {
-        private readonly HeroesModel _heroes;
+        private readonly Heroes _heroes;
 
-        public ItemsService(HeroesModel heroes)
+        public ItemsService(Heroes heroes)
         {
             _heroes = heroes;
         }

@@ -14,12 +14,12 @@ namespace CodeBase.GameLogic.Components
         [SerializeField]
         private CollisionTracker _tracker;
 
-        private ItemsService _itemsService;
-
-        public ItemType itemType => item;
-        
         [Networked]
         private ItemType item { get; set; }
+        
+        public ItemType itemType => item;
+        
+        private ItemsService _itemsService;
         
         public void Initialize(ItemType type)
         {
@@ -28,10 +28,11 @@ namespace CodeBase.GameLogic.Components
 
         public override void Spawned()
         {
-            _itemsService = BehaviourInjector.instance.Resolve<ItemsService>();
-            
-            if (HasStateAuthority) 
+            if (HasStateAuthority)
+            {
+                _itemsService = BehaviourInjector.instance.Resolve<ItemsService>();
                 _tracker.onTriggerEnter += OnPicked;
+            }
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)

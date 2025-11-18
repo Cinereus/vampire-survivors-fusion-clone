@@ -286,8 +286,8 @@ GameObject:
   - component: {fileID: 6311552910584003078}
   - component: {fileID: 20997439015461343}
   - component: {fileID: -1210080914272400499}
-  - component: {fileID: -5195269624312124888}
   - component: {fileID: 641649320910572336}
+  - component: {fileID: 4798539796283506772}
   - component: {fileID: 115919818600588953}
   m_Layer: 8
   m_Name: Wizard
@@ -337,7 +337,7 @@ MonoBehaviour:
   - {fileID: 6311552910584003078}
   - {fileID: 20997439015461343}
   - {fileID: -1210080914272400499}
-  - {fileID: -5195269624312124888}
+  - {fileID: 4798539796283506772}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &3474122789502053084
 MonoBehaviour:
@@ -426,18 +426,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _remoteUserHud: {fileID: 235142299116617042}
---- !u!114 &-5195269624312124888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8738136218091356863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66d489c2d075483e8a19461e00491a5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &641649320910572336
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -484,6 +472,18 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.28, y: 0.3}
   m_EdgeRadius: 0
+--- !u!114 &4798539796283506772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8738136218091356863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913fea6cfc8249f6879d6fccbad73a57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!50 &115919818600588953
 Rigidbody2D:
   serializedVersion: 5

@@ -1,3 +1,4 @@
+using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure;
 using Fusion;
 using UnityEngine;
@@ -15,17 +16,16 @@ namespace CodeBase.GameLogic.Components.Enemy
         [Networked]
         private Vector2 moveDir { get; set; }
         
+        private EnemyModel _model;
         private HeroesInstanceProvider _instanceProvider;
-        private float _speed;
         
-        public void Initialize(float speed)
-        { 
-            _speed = speed;
-        }
-
         public override void Spawned()
         {
-            _instanceProvider = BehaviourInjector.instance.Resolve<HeroesInstanceProvider>();
+            if (HasStateAuthority)
+            {
+                _model = BehaviourInjector.instance.Resolve<Enemies>().GetBy(Object.Id.Raw);
+                _instanceProvider = BehaviourInjector.instance.Resolve<HeroesInstanceProvider>();   
+            }
         }
 
         public override void FixedUpdateNetwork()
@@ -43,7 +43,7 @@ namespace CodeBase.GameLogic.Components.Enemy
             if (HasStateAuthority)
             {
                 moveDir = GetNearestChaseTargetDir();
-                _rb.MovePosition(_rb.position + moveDir * (_speed * Runner.DeltaTime));    
+                _rb.MovePosition(_rb.position + moveDir * (_model.speed * Runner.DeltaTime));    
             }
         }
 
