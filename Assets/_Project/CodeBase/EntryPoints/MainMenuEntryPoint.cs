@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic;
+using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure;
 using CodeBase.UI;
 using Fusion;
@@ -19,6 +20,7 @@ namespace CodeBase.EntryPoints
         private readonly AssetProvider _assetProvider;
         private readonly LoadSceneService _sceneService;
         private readonly MatchmakingService _matchmakingService;
+        private readonly ISaveLoadService _saveLoad;
         private readonly IObjectResolver _resolver;
         private readonly Camera _mainCamera;
 
@@ -26,7 +28,7 @@ namespace CodeBase.EntryPoints
 
         public MainMenuEntryPoint(UIManager uiManager, AssetProvider assetProvider, PlayerData playerData,
             LoadSceneService sceneService, MatchmakingService matchmakingService, Camera mainCamera,
-            IObjectResolver resolver)
+            ISaveLoadService saveLoad,  IObjectResolver resolver)
         {
             _assetProvider = assetProvider;
             _playerData = playerData;
@@ -34,6 +36,7 @@ namespace CodeBase.EntryPoints
             _mainCamera = mainCamera;
             _sceneService = sceneService;
             _uiManager = uiManager;
+            _saveLoad = saveLoad;
             _resolver = resolver;
         }
 
@@ -46,6 +49,8 @@ namespace CodeBase.EntryPoints
 
         public void Dispose()
         {
+            _saveLoad.Save();
+            
             if (_mainMenuScreen != null)
             {
                 _mainMenuScreen.onStartAsHost -= OnStartAsHost;
@@ -68,7 +73,7 @@ namespace CodeBase.EntryPoints
             var heroNames = _assetProvider.GetConfig<HeroesConfig>().heroes
                 .Select(h => h.heroType.ToString()).ToList();
 
-            _mainMenuScreen.Initialize(heroNames);
+            _mainMenuScreen.Initialize((int) _playerData.chosenHero, heroNames);
 
             _mainMenuScreen.onStartAsHost += OnStartAsHost;
             _mainMenuScreen.onJoinRoomFromList += OnJoinRoomFromList;
@@ -86,7 +91,7 @@ namespace CodeBase.EntryPoints
             _mainMenuScreen.OnRoomListUpdated(roomList, _playerData.visitedRooms.Contains);
         }
 
-        private void OnHeroSelected(int hero) => _playerData.chosenHero = (HeroType)hero;
+        private void OnHeroSelected(int hero) => _playerData.chosenHero = (HeroType) hero;
 
         private void OnJoinRoomFromList(string roomName) => StartGame(roomName, false);
 

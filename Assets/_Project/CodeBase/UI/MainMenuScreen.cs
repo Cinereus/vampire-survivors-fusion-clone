@@ -24,10 +24,10 @@ namespace CodeBase.UI
         public event Action<string> onJoinRoomFromList;
         public event Action<int> onHeroSelected;
         
-        public void Initialize(List<string> heroNames)
+        public void Initialize(int chosenHero, List<string> heroNames)
         {
             _heroNames.AddRange(heroNames);
-            InitializeHeroDropdown();
+            InitializeHeroDropdown(chosenHero);
             InitializeRoomListPanel();
         }
 
@@ -63,14 +63,14 @@ namespace CodeBase.UI
 
         private void OnJoinRoomFromListPressed(string roomName) => onJoinRoomFromList?.Invoke(roomName);
 
-        private void InitializeHeroDropdown()
+        private void InitializeHeroDropdown(int chosenHero)
         {
             var options = new List<TMP_Dropdown.OptionData>();
             foreach (var heroName in _heroNames)
                 options.Add(new TMP_Dropdown.OptionData(heroName));
 
             _heroTypeDropdown.options = options;
-            SelectHero(_heroTypeDropdown.value);
+            _heroTypeDropdown.value = chosenHero;
             _heroTypeDropdown.onValueChanged.AddListener(SelectHero);
         }
 
