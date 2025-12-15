@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414544465920",
+    "project_id": "vampire-survivors-fusion-clone",
+    "storage_bucket": "vampire-survivors-fusion-clone.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414544465920:android:e1945093c039d0d60488e5",
+        "android_client_info": {
+          "package_name": "com.vampSurCo.vampireSurvivorsClone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBN19cpSK1fMKQHPeDmL-7Ci0MculuLyBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
