@@ -100,3 +100,15 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+
+####################################
+# Firebase / External Dependency Manager (EDM4U)
+####################################
+# Generated local maven repo
+Assets/GeneratedLocalRepo/
+Assets/GeneratedLocalRepo.meta
+
+# Generated dependency resolution files
+Assets/ExternalDependencyManager/Editor/AndroidResolverDependencies.xml
+
