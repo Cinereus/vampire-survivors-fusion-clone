@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CodeBase.Infrastructure.Services.Analytics;
 using CodeBase.UI;
 using Fusion;
 using UnityEngine;
@@ -15,13 +16,16 @@ namespace CodeBase
 
         private readonly NetworkProvider _network;
         private readonly LoadSceneService _sceneService;
+        private readonly IAnalyticsService _analytics;
         private readonly UIManager _uiManager;
         private readonly List<SessionInfo> _rooms = new List<SessionInfo>();
 
-        public MatchmakingService(NetworkProvider network, LoadSceneService sceneService, UIManager uiManager)
+        public MatchmakingService(NetworkProvider network, LoadSceneService sceneService, UIManager uiManager,
+            IAnalyticsService analytics)
         {
             _network = network;
             _sceneService = sceneService;
+            _analytics = analytics;
             _uiManager = uiManager;
         }
 
@@ -95,7 +99,9 @@ namespace CodeBase
 
         public async Task KillSession()
         {
+            var sessionName = _network.runner.SessionInfo.Name;
             await _network.runner.Shutdown();
+            _analytics.LogEvent(AnalyticsKeys.GAME_SESSION_FINISHED, (name: "sessionName", val: sessionName));
             _rooms.Clear();
         }
 
@@ -112,6 +118,14 @@ namespace CodeBase
                 Debug.LogError($"{nameof(MatchmakingService)}: Failed to start session. Error: {result.ErrorMessage}");
                 onFailed?.Invoke();
             }
+            
+            _analytics.LogEvent(AnalyticsKeys.GAME_SESSION_START, 
+                parameters: new [] 
+                { 
+                    (name: "sessionName", val: args.SessionName), 
+                    (name: "isSuccess", val: result.Ok.ToString()),
+                    (name: "isMigration", val: (args.HostMigrationToken != null).ToString()),
+                });
         }
         
         private void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> roomList)

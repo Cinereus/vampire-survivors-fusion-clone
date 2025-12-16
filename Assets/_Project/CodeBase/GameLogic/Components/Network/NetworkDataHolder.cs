@@ -20,7 +20,8 @@ namespace CodeBase.GameLogic.Components.Network
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            StopCoroutine(_activeRoutine);
+            if (HasStateAuthority && _activeRoutine != null) 
+                StopCoroutine(_activeRoutine);
         }
 
         public abstract T GetData();

@@ -2,6 +2,7 @@
 using CodeBase.GameLogic;
 using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure;
+using CodeBase.Infrastructure.Services.Analytics;
 using CodeBase.UI;
 using UnityEngine;
 using VContainer;
@@ -23,6 +24,7 @@ namespace CodeBase.Scopes
              builder.Register<MatchmakingService>(Lifetime.Singleton);
              builder.Register<PlayerData>(Lifetime.Singleton).As<ISaveLoadEntity>().AsSelf();
              builder.Register<ISaveLoadService, SaveLoadPrefsService>(Lifetime.Singleton);
+             builder.Register<IAnalyticsService, FirebaseAnalyticsService>(Lifetime.Singleton);
              builder.RegisterComponentInNewPrefab(_uiManagerPrefab, Lifetime.Singleton);
              builder.RegisterEntryPoint<BootEntryPoint>();
         }
