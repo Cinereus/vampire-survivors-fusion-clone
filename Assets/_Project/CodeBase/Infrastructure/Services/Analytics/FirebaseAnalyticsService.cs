@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using CodeBase.Infrastructure.Services.Analytics.Events;
 using Firebase.Analytics;
 using Firebase.Extensions;
 using UnityEngine;
@@ -23,17 +22,16 @@ namespace CodeBase.Infrastructure.Services.Analytics
                 });
         }
         
-        public void LogEvent(IAnalyticsEvent analyticsEvent)
+        public void LogEvent(string eventName, params (string name, string val)[] parameters)
         {
-            var parameters = analyticsEvent.parameters;
-            var firebaseParams = new List<Parameter>(parameters.Count);
+            var firebaseParams = new List<Parameter>(parameters.Length);
             foreach (var parameter in parameters) 
-                firebaseParams.Add(new Parameter(parameter.Key, parameter.Value));
+                firebaseParams.Add(new Parameter(parameter.name, parameter.val));
 
             if (!Debug.isDebugBuild)
-                FirebaseAnalytics.LogEvent(analyticsEvent.eventName, firebaseParams);
-
-            Debug.Log($"[{nameof(FirebaseAnalyticsService)}] [{analyticsEvent.eventName} params: {string.Join(",", parameters)}].");
+                FirebaseAnalytics.LogEvent(eventName, firebaseParams);
+            
+            Debug.Log($"[{nameof(FirebaseAnalyticsService)}] [{eventName} params: {string.Join(",", parameters)}].");
         }
     }
 }

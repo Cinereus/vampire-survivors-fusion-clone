@@ -1,10 +1,8 @@
-﻿using CodeBase.Infrastructure.Services.Analytics.Events;
-
-namespace CodeBase.Infrastructure.Services.Analytics
+﻿namespace CodeBase.Infrastructure.Services.Analytics
 {
     public interface IAnalyticsService
     {
         public void Initialize();
-        public void LogEvent(IAnalyticsEvent statEvent);
+        public void LogEvent(string eventName, params (string name, string val)[] parameters);
     }
 }

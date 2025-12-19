@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodeBase.Infrastructure.Services.Analytics;
-using CodeBase.Infrastructure.Services.Analytics.Events;
 using CodeBase.UI;
 using Fusion;
 using UnityEngine;
@@ -17,12 +16,12 @@ namespace CodeBase
 
         private readonly NetworkProvider _network;
         private readonly LoadSceneService _sceneService;
-        private readonly IAnalyticsService _analytics;
+        private readonly GameAnalytics _analytics;
         private readonly UIManager _uiManager;
         private readonly List<SessionInfo> _rooms = new List<SessionInfo>();
 
         public MatchmakingService(NetworkProvider network, LoadSceneService sceneService, UIManager uiManager,
-            IAnalyticsService analytics)
+            GameAnalytics analytics)
         {
             _network = network;
             _sceneService = sceneService;
@@ -102,12 +101,13 @@ namespace CodeBase
         {
             var sessionName = _network.runner.SessionInfo.Name;
             await _network.runner.Shutdown();
-            _analytics.LogEvent(new GameSessionFinishedStatEvent(sessionName));
+            _analytics.SendGameSessionFinished(sessionName);
             _rooms.Clear();
         }
 
         private async Task StartGameSession(StartGameArgs args, Action onCompleted = null, Action onFailed = null)
         {
+            var isMigration = args.HostMigrationToken != null;
             var result = await _network.runner.StartGame(args);
             if (result.Ok)
             {
@@ -119,9 +119,7 @@ namespace CodeBase
                 Debug.LogError($"{nameof(MatchmakingService)}: Failed to start session. Error: {result.ErrorMessage}");
                 onFailed?.Invoke();
             }
-
-            _analytics.LogEvent(new GameSessionStartedStatEvent(args.SessionName, result.Ok,
-                args.HostMigrationToken != null));
+            _analytics.SendGameSessionStarted(args.SessionName, result.Ok, isMigration);
         }
         
         private void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> roomList)
