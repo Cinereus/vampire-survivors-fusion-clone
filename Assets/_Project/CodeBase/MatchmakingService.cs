@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodeBase.Infrastructure.Services.Analytics;
-using CodeBase.Infrastructure.Services.Analytics.Events;
 using CodeBase.UI;
 using Fusion;
 using UnityEngine;
@@ -102,7 +101,7 @@ namespace CodeBase
         {
             var sessionName = _network.runner.SessionInfo.Name;
             await _network.runner.Shutdown();
-            _analytics.LogEvent(new GameSessionFinishedStatEvent(sessionName));
+            _analytics.LogEvent(AnalyticsKeys.GAME_SESSION_FINISHED, (name: "sessionName", val: sessionName));
             _rooms.Clear();
         }
 
@@ -119,9 +118,14 @@ namespace CodeBase
                 Debug.LogError($"{nameof(MatchmakingService)}: Failed to start session. Error: {result.ErrorMessage}");
                 onFailed?.Invoke();
             }
-
-            _analytics.LogEvent(new GameSessionStartedStatEvent(args.SessionName, result.Ok,
-                args.HostMigrationToken != null));
+            
+            _analytics.LogEvent(AnalyticsKeys.GAME_SESSION_START, 
+                parameters: new [] 
+                { 
+                    (name: "sessionName", val: args.SessionName), 
+                    (name: "isSuccess", val: result.Ok.ToString()),
+                    (name: "isMigration", val: (args.HostMigrationToken != null).ToString()),
+                });
         }
         
         private void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> roomList)

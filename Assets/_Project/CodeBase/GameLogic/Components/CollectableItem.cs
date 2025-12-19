@@ -2,7 +2,6 @@
 using CodeBase.GameLogic.Services;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services.Analytics;
-using CodeBase.Infrastructure.Services.Analytics.Events;
 using Fusion;
 using UnityEngine;
 
@@ -45,7 +44,13 @@ namespace CodeBase.GameLogic.Components
             if (HasStateAuthority) 
                 _tracker.onTriggerEnter -= OnPicked;
             
-            _analytics.LogEvent(new ItemDisappearedStatEvent(Runner.SessionInfo.Name, Object.Id.Raw, itemType));
+            _analytics.LogEvent(AnalyticsKeys.ITEM_DISAPPEARED, 
+                parameters: new []
+                {
+                    ("sessionName", Runner.SessionInfo.Name),
+                    ("netObjId", Object.Id.Raw.ToString()), 
+                    ("itemType", itemType.ToString()),
+                });
         }
 
         private void OnPicked(Collider2D picker)
@@ -53,7 +58,15 @@ namespace CodeBase.GameLogic.Components
             var id = picker.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (id.HasValue && _itemsService.TryPickUpItem(id.Value, item, _count))
             {
-                _analytics.LogEvent(new ItemPickedStatEvent(Runner.SessionInfo.Name, id.Value, Object.Id.Raw, itemType));
+                _analytics.LogEvent(AnalyticsKeys.ITEM_PICKED, 
+                    parameters: new []
+                    { 
+                        ("sessionName", Runner.SessionInfo.Name),
+                        ("pickerId", id.ToString()),
+                        ("netObjId", Object.Id.Raw.ToString()),
+                        ("itemType", itemType.ToString()),
+                    });
+                
                 Runner.Despawn(Object);
             }
         }
