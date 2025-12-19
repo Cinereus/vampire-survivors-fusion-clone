@@ -21,7 +21,7 @@ namespace CodeBase.GameLogic.Components
         public ItemType itemType => item;
         
         private ItemsService _itemsService;
-        private IAnalyticsService _analytics;
+        private GameAnalytics _analytics;
 
         public void Initialize(ItemType type)
         {
@@ -30,7 +30,7 @@ namespace CodeBase.GameLogic.Components
 
         public override void Spawned()
         {
-            _analytics = BehaviourInjector.instance.Resolve<IAnalyticsService>();
+            _analytics = BehaviourInjector.instance.Resolve<GameAnalytics>();
             
             if (HasStateAuthority)
             {
@@ -44,13 +44,7 @@ namespace CodeBase.GameLogic.Components
             if (HasStateAuthority) 
                 _tracker.onTriggerEnter -= OnPicked;
             
-            _analytics.LogEvent(AnalyticsKeys.ITEM_DISAPPEARED, 
-                parameters: new []
-                {
-                    ("sessionName", Runner.SessionInfo.Name),
-                    ("netObjId", Object.Id.Raw.ToString()), 
-                    ("itemType", itemType.ToString()),
-                });
+            _analytics.SendItemDisappear(Runner.SessionInfo.Name, Object.Id.Raw, itemType);
         }
 
         private void OnPicked(Collider2D picker)
@@ -58,15 +52,7 @@ namespace CodeBase.GameLogic.Components
             var id = picker.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (id.HasValue && _itemsService.TryPickUpItem(id.Value, item, _count))
             {
-                _analytics.LogEvent(AnalyticsKeys.ITEM_PICKED, 
-                    parameters: new []
-                    { 
-                        ("sessionName", Runner.SessionInfo.Name),
-                        ("pickerId", id.ToString()),
-                        ("netObjId", Object.Id.Raw.ToString()),
-                        ("itemType", itemType.ToString()),
-                    });
-                
+                _analytics.SendItemPicked(Runner.SessionInfo.Name, id.Value, Object.Id.Raw, itemType);
                 Runner.Despawn(Object);
             }
         }

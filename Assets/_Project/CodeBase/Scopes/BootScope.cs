@@ -21,10 +21,11 @@ namespace CodeBase.Scopes
              builder.Register<NetworkProvider>(Lifetime.Singleton);
              builder.Register<UIFactory>(Lifetime.Singleton);
              builder.Register<LoadSceneService>(Lifetime.Singleton);
-             builder.Register<MatchmakingService>(Lifetime.Singleton);
              builder.Register<PlayerData>(Lifetime.Singleton).As<ISaveLoadEntity>().AsSelf();
              builder.Register<ISaveLoadService, SaveLoadPrefsService>(Lifetime.Singleton);
              builder.Register<IAnalyticsService, FirebaseAnalyticsService>(Lifetime.Singleton);
+             builder.Register<GameAnalytics>(Lifetime.Singleton);
+             builder.Register<MatchmakingService>(Lifetime.Singleton);
              builder.RegisterComponentInNewPrefab(_uiManagerPrefab, Lifetime.Singleton);
              builder.RegisterEntryPoint<BootEntryPoint>();
         }
