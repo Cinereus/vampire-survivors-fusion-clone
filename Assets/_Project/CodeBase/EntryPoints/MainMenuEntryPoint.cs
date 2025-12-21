@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic;
 using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure;
+using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.UI;
 using Fusion;
 using UnityEngine;
@@ -13,7 +15,7 @@ using VContainer.Unity;
 
 namespace CodeBase.EntryPoints
 {
-    public class MainMenuEntryPoint : IInitializable, IDisposable
+    public class MainMenuEntryPoint : IAsyncStartable, IDisposable
     {
         private readonly UIManager _uiManager;
         private readonly PlayerData _playerData;
@@ -39,12 +41,13 @@ namespace CodeBase.EntryPoints
             _saveLoad = saveLoad;
             _resolver = resolver;
         }
-
-        public void Initialize()
+        
+        public Awaitable StartAsync(CancellationToken token)
         {
             BehaviourInjector.instance.SetupResolver(_resolver);
             InitializeMainMenuPanel();
             InitializeMatchmaking();
+            return Awaitable.EndOfFrameAsync(token);
         }
 
         public void Dispose()

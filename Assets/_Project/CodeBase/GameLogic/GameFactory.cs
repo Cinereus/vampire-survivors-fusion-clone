@@ -5,7 +5,7 @@ using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic.Components;
 using CodeBase.GameLogic.Components.Attacks;
 using CodeBase.GameLogic.Models;
-using CodeBase.Infrastructure;
+using CodeBase.Infrastructure.AssetManagement;
 using Fusion;
 using UnityEngine;
 

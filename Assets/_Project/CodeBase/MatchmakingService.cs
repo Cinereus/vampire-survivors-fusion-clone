@@ -33,6 +33,12 @@ namespace CodeBase
         {
             _network.callbacks.onSessionListUpdated += OnSessionListUpdated;
         }
+        
+        public void Dispose()
+        {
+            _network.callbacks.onSessionListUpdated -= OnSessionListUpdated;
+            _rooms.Clear();
+        }
 
         public async void StartLobbySession(Action onCompleted = null, Action onFailed = null)
         {
@@ -90,12 +96,6 @@ namespace CodeBase
         }
 
         public bool CheckRoomExists(string roomName) => _rooms.FirstOrDefault(r => r.Name == roomName) != null;
-
-        public void Dispose()
-        {
-            _network.callbacks.onSessionListUpdated -= OnSessionListUpdated;
-            _rooms.Clear();
-        }
 
         public async Task KillSession()
         {

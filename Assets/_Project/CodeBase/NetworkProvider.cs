@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CodeBase.GameLogic.Components.Network;
-using CodeBase.Infrastructure;
+using CodeBase.Infrastructure.AssetManagement;
 using Fusion;
 using UnityEngine;
 
@@ -19,21 +19,25 @@ namespace CodeBase
             }
         }
 
-        public NetworkRunnerCallbacks callbacks { get; }
-
-        private readonly GameObject _runnerPrefab;
+        public NetworkRunnerCallbacks callbacks { get; private set; }
+        
+        private readonly AssetProvider _assetProvider;
         private NetworkRunner _runner;
 
         public NetworkProvider(AssetProvider assetProvider)
         {
-            _runnerPrefab = assetProvider.GetNetworkRunnerPrefab();
-            callbacks = Object.Instantiate(assetProvider.GetNetworkRunnerCallbacksPrefab())
+            _assetProvider = assetProvider;
+        }
+
+        public void Initialize()
+        {
+            callbacks = Object.Instantiate(_assetProvider.GetNetworkCallbacks())
                 .GetComponent<NetworkRunnerCallbacks>();
         }
 
         private NetworkRunner CreateRunner()
         {
-            var newRunner = Object.Instantiate(_runnerPrefab).GetComponent<NetworkRunner>();
+            var newRunner = Object.Instantiate(_assetProvider.GetNetworkRunner()).GetComponent<NetworkRunner>();
             newRunner.AddCallbacks(callbacks);
             return newRunner;
         }
