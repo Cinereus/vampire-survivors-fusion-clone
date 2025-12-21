@@ -44,7 +44,7 @@ namespace CodeBase.GameLogic.Components
             if (HasStateAuthority) 
                 _tracker.onTriggerEnter -= OnPicked;
             
-            _analytics.SendItemDisappear(Runner.SessionInfo.Name, Object.Id.Raw, itemType);
+            _analytics.SendItemDisappear(Object.Id.Raw, itemType);
         }
 
         private void OnPicked(Collider2D picker)
@@ -52,7 +52,7 @@ namespace CodeBase.GameLogic.Components
             var id = picker.GetComponent<NetworkBehaviour>()?.Object?.Id.Raw;
             if (id.HasValue && _itemsService.TryPickUpItem(id.Value, item, _count))
             {
-                _analytics.SendItemPicked(Runner.SessionInfo.Name, id.Value, Object.Id.Raw, itemType);
+                _analytics.SendItemPicked(id.Value, Object.Id.Raw, itemType);
                 Runner.Despawn(Object);
             }
         }

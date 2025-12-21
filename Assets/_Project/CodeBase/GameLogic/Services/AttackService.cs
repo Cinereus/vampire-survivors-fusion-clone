@@ -33,6 +33,5 @@ namespace CodeBase.GameLogic.Services
             heroModel = _heroes.GetBy(id);
             return heroModel != null;
         }
-
     }
 }

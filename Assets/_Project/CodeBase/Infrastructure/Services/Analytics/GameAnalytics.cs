@@ -1,50 +1,62 @@
 ﻿using CodeBase.Configs;
 
+
 namespace CodeBase.Infrastructure.Services.Analytics
 {
     public class GameAnalytics
     {
+        private const string NONE = "None";
         private const string SESSION_NAME = "sessionName";
-        private const string NET_OBJECT_ID = "netObjId";
+        private const string NET_OBJ_ID = "netObjId";
         private const string ITEM_TYPE = "itemType";
-        
+        private const string PICKER_ID = "pickerId";
+        private const string IS_SUCCESS = "isSuccess";
+        private const string IS_MIGRATION = "isMigration";
+
+        private readonly NetworkProvider _network;
         private readonly IAnalyticsService _analytics;
         
-        public GameAnalytics(IAnalyticsService analytics) => _analytics = analytics;
+        private string sessionName => _network.runner.SessionInfo?.Name ?? NONE;
 
-        public void SendItemPicked(string sessionName, uint pickerId, uint objId, ItemType itemType)
+        public GameAnalytics(IAnalyticsService analytics, NetworkProvider network)
+        {
+            _network = network;
+            _analytics = analytics;
+        }
+
+        public void SendItemPicked(uint pickerId, uint objId, ItemType itemType)
         {
             _analytics.LogEvent(AnalyticsKeys.ITEM_PICKED, parameters: new []
             { 
                 (name: SESSION_NAME, val: sessionName),
-                (name: "pickerId", val: pickerId.ToString()),
-                (name: NET_OBJECT_ID, val: objId.ToString()),
+                (name: PICKER_ID, val: pickerId.ToString()),
+                (name: NET_OBJ_ID, val: objId.ToString()),
                 (name: ITEM_TYPE, val: itemType.ToString()),
             });
         }
         
-        public void SendItemDisappear(string sessionName, uint objId, ItemType itemType)
+        public void SendItemDisappear(uint objId, ItemType itemType)
         {
             _analytics.LogEvent(AnalyticsKeys.ITEM_DISAPPEARED,  parameters: new []
             {
                 (name: SESSION_NAME, val: sessionName),
-                (name: NET_OBJECT_ID, val: objId.ToString()),
+                (name: NET_OBJ_ID, val: objId.ToString()),
                 (name: ITEM_TYPE, val: itemType.ToString()),
             });
         }
         
-        public void SendGameSessionStarted(string sessionName, bool isSuccess, bool isMigration)
+        public void SendGameSessionStarted(bool isSuccess, bool isMigration)
         {
             _analytics.LogEvent(AnalyticsKeys.GAME_SESSION_STARTED,
                 parameters: new[]
                 {
                     (name: SESSION_NAME, val: sessionName),
-                    (name: "isSuccess", val: isSuccess.ToString()),
-                    (name: "isMigration", val: isMigration.ToString()),
+                    (name: IS_SUCCESS, val: isSuccess.ToString()),
+                    (name: IS_MIGRATION, val: isMigration.ToString()),
                 });
         }
         
-        public void SendGameSessionFinished(string sessionName) => 
+        public void SendGameSessionFinished() => 
             _analytics.LogEvent(AnalyticsKeys.GAME_SESSION_FINISHED,  (name: SESSION_NAME, val: sessionName));
     }
 }
