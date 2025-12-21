@@ -1,0 +1,143 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Game
+  m_EditorClassIdentifier: 
+  m_GroupName: Game
+  m_GUID: 6bdf6a43a34992b43a3942f3b06b5769
+  m_SerializeEntries:
+  - m_GUID: 017aa06beacb9894ba46c61d3e6c2847
+    m_Address: Ranger
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1c44dd8db3a5ac54ba405485993bc8bc
+    m_Address: HeroSpawner
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f674acfac1c10646b8fc8d6712eabba
+    m_Address: Troll
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 232c025abb38a7f4c8808bb3ec9f79f0
+    m_Address: GameOverScreen
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 24f0501a61b5c314fbab38c620749be7
+    m_Address: ProgressBar
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2e56c86c5b8bbf1479a06189f036e5df
+    m_Address: XpBook
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 493e49635a1f1eb4a8f51a235246fa11
+    m_Address: RemotePlayerUserHud
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6726868442abda841958f99d65d246a7
+    m_Address: KnightProjectile
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8a377665488fbd5458c84f5700dd3c9d
+    m_Address: DeadKnight
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8c76cec7a8351144692f88cbccaaa8b6
+    m_Address: Bat
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91646a8428d7dbb439b3a28ad8e14968
+    m_Address: EnemySpawner
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 96a99d7c9e29017488507434993f8ff3
+    m_Address: Goblin
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a363e42198e8186408aa358e62805fe9
+    m_Address: WizardProjectile
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bbf30fd1b4fed6b4c8a5ec8657749851
+    m_Address: XpPage
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c1e065861abc3de4b827871a131cd807
+    m_Address: RangerProjectile
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c21eda025b14da844b6ca9238ad352f6
+    m_Address: UserHudPanel
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e0a4f95486db1a247b58e063860cacff
+    m_Address: Knight
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e352382047134ac45a99a63d10af1994
+    m_Address: Wizard
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e579baf5789740741ab70e22d12c8dea
+    m_Address: HealthPotion
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff906fab4fdb62f4faf972992cbe53cc
+    m_Address: Skeleton
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Game
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 17616f8c64cf6e547ac70fa41cd6fdef, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: f9106f91f3588ae4ebdb683bf5daf312, type: 2}
+    - {fileID: 11400000, guid: 233f68b8043e44b49ab2c03847ad4f98, type: 2}

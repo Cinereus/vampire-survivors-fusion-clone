@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprites
+  m_EditorClassIdentifier: 
+  m_GroupName: Sprites
+  m_GUID: 43a80f862a3c5ba44b5bfa41e1cf5484
+  m_SerializeEntries:
+  - m_GUID: 2c82346916c56724f9e361fcead8f7bb
+    m_Address: Enemies
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0c06f1115e834745a0c369405660df4
+    m_Address: Heroes
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ceea44abbe7388d438ff9171d0ef98f3
+    m_Address: items
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 17616f8c64cf6e547ac70fa41cd6fdef, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 39286fabd1ad9404bad60f0bb061c14d, type: 2}
+    - {fileID: 11400000, guid: 1ea63f89a4662a24ab4c2a45da839579, type: 2}

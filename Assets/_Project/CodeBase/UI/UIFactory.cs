@@ -1,4 +1,4 @@
-﻿using CodeBase.Infrastructure;
+﻿using CodeBase.Infrastructure.AssetManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

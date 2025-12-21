@@ -33,6 +33,12 @@ namespace CodeBase
         {
             _network.callbacks.onSessionListUpdated += OnSessionListUpdated;
         }
+        
+        public void Dispose()
+        {
+            _network.callbacks.onSessionListUpdated -= OnSessionListUpdated;
+            _rooms.Clear();
+        }
 
         public async void StartLobbySession(Action onCompleted = null, Action onFailed = null)
         {
@@ -91,17 +97,10 @@ namespace CodeBase
 
         public bool CheckRoomExists(string roomName) => _rooms.FirstOrDefault(r => r.Name == roomName) != null;
 
-        public void Dispose()
-        {
-            _network.callbacks.onSessionListUpdated -= OnSessionListUpdated;
-            _rooms.Clear();
-        }
-
         public async Task KillSession()
         {
-            var sessionName = _network.runner.SessionInfo.Name;
             await _network.runner.Shutdown();
-            _analytics.SendGameSessionFinished(sessionName);
+            _analytics.SendGameSessionFinished();
             _rooms.Clear();
         }
 
@@ -119,7 +118,7 @@ namespace CodeBase
                 Debug.LogError($"{nameof(MatchmakingService)}: Failed to start session. Error: {result.ErrorMessage}");
                 onFailed?.Invoke();
             }
-            _analytics.SendGameSessionStarted(args.SessionName, result.Ok, isMigration);
+            _analytics.SendGameSessionStarted(result.Ok, isMigration);
         }
         
         private void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> roomList)
