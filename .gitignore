@@ -112,3 +112,10 @@ Assets/GeneratedLocalRepo.meta
 # Generated dependency resolution files
 Assets/ExternalDependencyManager/Editor/AndroidResolverDependencies.xml
 
+# EDM cache & gradle generated stuff
+Assets/ExternalDependencyManager/
+Assets/Plugins/Android/mainTemplate.gradle
+Assets/Plugins/Android/launcherTemplate.gradle
+Assets/Plugins/Android/baseProjectTemplate.gradle
+Assets/Plugins/Android/settingsTemplate.gradle
+Assets/Plugins/Android/gradleTemplate.properties
