@@ -3,7 +3,7 @@ using Fusion;
 
 namespace CodeBase
 {
-    public static class Exstensions
+    public static class Extensions
     {
         public static List<NetworkObject> GetActivePlayerObjects(this NetworkRunner runner)
         {
