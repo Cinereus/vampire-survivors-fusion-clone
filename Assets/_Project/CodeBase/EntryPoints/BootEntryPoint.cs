@@ -1,6 +1,7 @@
 using System.Threading;
 using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure.AssetManagement;
+using CodeBase.Infrastructure.Services.Ads;
 using CodeBase.Infrastructure.Services.Analytics;
 using UnityEngine;
 using VContainer.Unity;
@@ -13,12 +14,13 @@ namespace CodeBase.EntryPoints
         private readonly LoadSceneService _sceneService;
         private readonly AssetProvider _assetProvider;
         private readonly IAnalyticsService _analytics;
-        private readonly NetworkProvider _network;
         private readonly ISaveLoadService _saveLoad;
+        private readonly NetworkProvider _network;
+        private readonly IAdsService _ads;
 
         public BootEntryPoint(LoadSceneService sceneService, MatchmakingService matchmakingService,
             ISaveLoadService saveLoad, IAnalyticsService analytics, NetworkProvider network,
-            AssetProvider assetProvider)
+            AssetProvider assetProvider, IAdsService ads)
         {
             _matchmakingService = matchmakingService;
             _assetProvider = assetProvider;
@@ -26,12 +28,14 @@ namespace CodeBase.EntryPoints
             _analytics = analytics;
             _network = network;
             _saveLoad = saveLoad;
+            _ads = ads;
         }
 
         public async Awaitable StartAsync(CancellationToken _)
         {
             await _assetProvider.PrepareCommonAssetGroup();
             _saveLoad.Load();
+            _ads.Initialize();
             _network.Initialize();
             _analytics.Initialize();
             _matchmakingService.Initialize();
