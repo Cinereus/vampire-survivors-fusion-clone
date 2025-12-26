@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Common
   m_GUID: 9f7c3846500d2a94f9735600cbfdda47
   m_SerializeEntries:
+  - m_GUID: 5db2ac33e7f67fd43b94b0e2cfc84adc
+    m_Address: ConfirmationPanel
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Common
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bb46851c1a1a55b4eb5deb78741d4dc7
     m_Address: NetworkCallbacks
     m_ReadOnly: 0

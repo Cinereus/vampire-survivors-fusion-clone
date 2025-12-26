@@ -32,7 +32,7 @@ namespace CodeBase.EntryPoints
 
         public MainMenuEntryPoint(UIManager uiManager, AssetProvider assetProvider, PlayerData playerData,
             LoadSceneService sceneService, MatchmakingService matchmakingService, Camera mainCamera,
-            ISaveLoadService saveLoad,  IObjectResolver resolver, IAdsService ads)
+            ISaveLoadService saveLoad, IObjectResolver resolver, IAdsService ads)
         {
             _assetProvider = assetProvider;
             _playerData = playerData;
@@ -66,7 +66,7 @@ namespace CodeBase.EntryPoints
                 _uiManager.Hide<MainMenuScreen>();
             }
 
-            if (_matchmakingService != null) 
+            if (_matchmakingService != null)
                 _matchmakingService.onRoomsUpdated -= OnRoomListUpdated;
             
             if (_ads != null)
@@ -99,7 +99,7 @@ namespace CodeBase.EntryPoints
             var hasCorrectAdUnit = adUnitName == AdsUnitIds.REWARDED_GAME_SESSION_START;
             var hasCorrectReward = reward == AdsRewards.GAME_SESSION_PASS;
             var isRoomSelected = !string.IsNullOrEmpty(_mainMenuScreen.lastSelectedListRoom);
-            if (hasCorrectAdUnit && hasCorrectReward && isRoomSelected) 
+            if (hasCorrectAdUnit && hasCorrectReward && isRoomSelected)
                 StartGame(_mainMenuScreen.lastSelectedListRoom, false);
         }
         
@@ -108,7 +108,7 @@ namespace CodeBase.EntryPoints
             _mainMenuScreen.OnRoomListUpdated(roomList, _playerData.visitedRooms.Contains);
         }
 
-        private void OnHeroSelected(int hero) => _playerData.chosenHero = (HeroType) hero;
+        private void OnHeroSelected(int hero) => _playerData.chosenHero = (HeroType)hero;
 
         private void OnJoinRoomFromList(RoomListPanel.RoomInfo roomInfo)
         {
@@ -127,8 +127,11 @@ namespace CodeBase.EntryPoints
             }
         }
 
-        private void OnConfirmAdsWatching() => 
-            _ads.CanShowRewarded(AdsPlacements.LEVEL_START);
+        private void OnConfirmAdsWatching()
+        {
+            _uiManager.Hide<ConfirmationPanel>();
+            _ads.ShowRewarded(AdsPlacements.LEVEL_START);
+        }
 
         private void OnStartAsHost(string roomName)
         {
