@@ -7,6 +7,7 @@ using CodeBase.GameLogic;
 using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.AssetManagement;
+using CodeBase.Infrastructure.Services.Ads;
 using CodeBase.UI;
 using Fusion;
 using UnityEngine;
@@ -25,12 +26,13 @@ namespace CodeBase.EntryPoints
         private readonly ISaveLoadService _saveLoad;
         private readonly IObjectResolver _resolver;
         private readonly Camera _mainCamera;
+        private readonly IAdsService _ads;
 
         private MainMenuScreen _mainMenuScreen;
 
         public MainMenuEntryPoint(UIManager uiManager, AssetProvider assetProvider, PlayerData playerData,
             LoadSceneService sceneService, MatchmakingService matchmakingService, Camera mainCamera,
-            ISaveLoadService saveLoad,  IObjectResolver resolver)
+            ISaveLoadService saveLoad,  IObjectResolver resolver, IAdsService ads)
         {
             _assetProvider = assetProvider;
             _playerData = playerData;
@@ -40,11 +42,13 @@ namespace CodeBase.EntryPoints
             _uiManager = uiManager;
             _saveLoad = saveLoad;
             _resolver = resolver;
+            _ads = ads;
         }
         
         public Awaitable StartAsync(CancellationToken token)
         {
             BehaviourInjector.instance.SetupResolver(_resolver);
+            _ads.onRewarded += OnAdsRewarded;
             InitializeMainMenuPanel();
             InitializeMatchmaking();
             return Awaitable.EndOfFrameAsync(token);
@@ -62,10 +66,11 @@ namespace CodeBase.EntryPoints
                 _uiManager.Hide<MainMenuScreen>();
             }
 
-            if (_matchmakingService != null)
-            {
+            if (_matchmakingService != null) 
                 _matchmakingService.onRoomsUpdated -= OnRoomListUpdated;
-            }
+            
+            if (_ads != null)
+                _ads.onRewarded -= OnAdsRewarded;
         }
 
         private void InitializeMainMenuPanel()
@@ -89,6 +94,15 @@ namespace CodeBase.EntryPoints
             _matchmakingService.onRoomsUpdated += OnRoomListUpdated;
         }
 
+        private void OnAdsRewarded(string adUnitName, string reward, int _)
+        {
+            var hasCorrectAdUnit = adUnitName == AdsUnitIds.REWARDED_GAME_SESSION_START;
+            var hasCorrectReward = reward == AdsRewards.GAME_SESSION_PASS;
+            var isRoomSelected = !string.IsNullOrEmpty(_mainMenuScreen.lastSelectedListRoom);
+            if (hasCorrectAdUnit && hasCorrectReward && isRoomSelected) 
+                StartGame(_mainMenuScreen.lastSelectedListRoom, false);
+        }
+        
         private void OnRoomListUpdated(List<SessionInfo> roomList)
         {
             _mainMenuScreen.OnRoomListUpdated(roomList, _playerData.visitedRooms.Contains);
@@ -96,7 +110,25 @@ namespace CodeBase.EntryPoints
 
         private void OnHeroSelected(int hero) => _playerData.chosenHero = (HeroType) hero;
 
-        private void OnJoinRoomFromList(string roomName) => StartGame(roomName, false);
+        private void OnJoinRoomFromList(RoomListPanel.RoomInfo roomInfo)
+        {
+            if (!roomInfo.isVisited)
+            {
+                StartGame(roomInfo.name, false);
+                return;
+            }
+            
+            if (_ads.CanShowRewarded(AdsPlacements.LEVEL_START))
+            {
+                var adsText = "You can play in the same room only once per session. If you want to play in this room, you should watch ads. Continue?";
+                var confirmationPanel = _uiManager.Show<ConfirmationPanel>();
+                confirmationPanel.Initialize(adsText, OnConfirmAdsWatching,
+                    onNoPressed: () => _uiManager.Hide<ConfirmationPanel>());
+            }
+        }
+
+        private void OnConfirmAdsWatching() => 
+            _ads.CanShowRewarded(AdsPlacements.LEVEL_START);
 
         private void OnStartAsHost(string roomName)
         {

@@ -20,9 +20,9 @@ namespace CodeBase.UI
         private RectTransform _roomsPlaceholder;
         
         private readonly List<RoomListElement> _rooms = new List<RoomListElement>();
-        private Action<string> _onJoinPressed;
+        private Action<RoomInfo> _onJoinPressed;
 
-        public void Initialize(Action<string> onJoinPressed)
+        public void Initialize(Action<RoomInfo> onJoinPressed)
         {
             _onJoinPressed = onJoinPressed;
         }
@@ -64,6 +64,6 @@ namespace CodeBase.UI
             }
         }
 
-        private void OnJoinPressed(string roomName) => _onJoinPressed?.Invoke(roomName);
+        private void OnJoinPressed(RoomInfo roomInfo) => _onJoinPressed?.Invoke(roomInfo);
     }
 }

@@ -18,11 +18,13 @@ namespace CodeBase.UI
         [SerializeField] 
         private TMP_InputField _hostInputField;
 
-        private readonly List<string> _heroNames = new List<string>();
+        public string lastSelectedListRoom { get; private set; }
         
         public event Action<string> onStartAsHost;
-        public event Action<string> onJoinRoomFromList;
+        public event Action<RoomListPanel.RoomInfo> onJoinRoomFromList;
         public event Action<int> onHeroSelected;
+        
+        private readonly List<string> _heroNames = new List<string>();
         
         public void Initialize(int chosenHero, List<string> heroNames)
         {
@@ -61,7 +63,11 @@ namespace CodeBase.UI
             onHeroSelected?.Invoke(index);
         }
 
-        private void OnJoinRoomFromListPressed(string roomName) => onJoinRoomFromList?.Invoke(roomName);
+        private void OnJoinRoomFromListPressed(RoomListPanel.RoomInfo roomInfo)
+        {
+            lastSelectedListRoom = roomInfo.name;
+            onJoinRoomFromList?.Invoke(roomInfo);
+        }
 
         private void InitializeHeroDropdown(int chosenHero)
         {

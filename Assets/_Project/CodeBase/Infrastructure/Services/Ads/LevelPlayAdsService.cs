@@ -19,7 +19,7 @@ namespace CodeBase.Infrastructure.Services.Ads
 
         private readonly Dictionary<string, string> _placeToAdUnit = new Dictionary<string, string>
         {
-            [AdsPlacementNames.LEVEL_START] = AdsUnitIds.REWARDED_GAME_SESSION_START,
+            [AdsPlacements.LEVEL_START] = AdsUnitIds.REWARDED_GAME_SESSION_START,
         };
 
         private readonly Dictionary<string, ILevelPlayRewardedAd> _rewardedMap =
@@ -39,13 +39,15 @@ namespace CodeBase.Infrastructure.Services.Ads
 
         public bool CanShowRewarded(string placement)
         {
-            return _isInited && _placeToAdUnit.TryGetValue(placement, out var adUnit) &&
+            return _isInited && !LevelPlayRewardedAd.IsPlacementCapped(placement) &&
+                   _placeToAdUnit.TryGetValue(placement, out var adUnit) &&
                    _rewardedMap.TryGetValue(adUnit, out var rewardedAd) && rewardedAd.IsAdReady();
         }
         
         public bool CanShowInterstitial(string placement)
         {
-            return _isInited && _placeToAdUnit.TryGetValue(placement, out var adUnit) &&
+            return _isInited && !LevelPlayInterstitialAd.IsPlacementCapped(placement) &&
+                   _placeToAdUnit.TryGetValue(placement, out var adUnit) &&
                    _interstitialMap.TryGetValue(adUnit, out var interstitialAd) && interstitialAd.IsAdReady();
         }
 
@@ -57,7 +59,7 @@ namespace CodeBase.Infrastructure.Services.Ads
                 return;
             }
 
-            if (_rewardedMap.TryGetValue(adUnit, out var ad) && ad.IsAdReady())
+            if (_rewardedMap.TryGetValue(adUnit, out var ad))
             {
                 if (ad.IsAdReady())
                     ad.ShowAd(placement);
@@ -110,6 +112,7 @@ namespace CodeBase.Infrastructure.Services.Ads
         {
             Debug.Log($"[{nameof(LevelPlayAdsService)}] Ads service loaded successfully.");
             _isInited = true;
+            LevelPlay.ValidateIntegration();
             InitAds();
         }
 
@@ -141,7 +144,7 @@ namespace CodeBase.Infrastructure.Services.Ads
         private void OnRewarded(LevelPlayAdInfo adInfo, LevelPlayReward reward)
         {
             Debug.Log($"[{nameof(LevelPlayAdsService)}] OnRewarded unit: \"{adInfo.AdUnitName}\" reward: {reward.Name} amount: {reward.Amount}");
-            onRewarded?.Invoke(adInfo.AdUnitName, reward.Name, reward.Amount);
+            onRewarded?.Invoke(adInfo.AdUnitId, reward.Name, reward.Amount);
         }
 
         private void OnRewardedAdLoaded(LevelPlayAdInfo adInfo)
