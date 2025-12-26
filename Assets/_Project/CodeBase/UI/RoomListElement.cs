@@ -12,16 +12,18 @@ namespace CodeBase.UI
         [SerializeField]
         private TextMeshProUGUI _playerCount;
 
-        private Action<string> _onJoinPressed;
+        private Action<RoomListPanel.RoomInfo> _onJoinPressed;
+        private RoomListPanel.RoomInfo _roomInfo;
 
-        public void Initialize(RoomListPanel.RoomInfo roomInfo, Action<string> onJoinPressed)
+        public void Initialize(RoomListPanel.RoomInfo roomInfo, Action<RoomListPanel.RoomInfo> onJoinPressed)
         {
+            _roomInfo = roomInfo;
             _roomName.text = roomInfo.name;
             _playerCount.text = roomInfo.playerCount;
             _roomName.color = roomInfo.isVisited ? Color.red : Color.white;
-            _onJoinPressed = roomInfo.isVisited ? null : onJoinPressed;
+            _onJoinPressed = onJoinPressed;
         }
         
-        public void OnJoinPressed() => _onJoinPressed?.Invoke(_roomName.text);
+        public void OnJoinPressed() => _onJoinPressed?.Invoke(_roomInfo);
     }
 }

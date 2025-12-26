@@ -19,7 +19,7 @@ namespace CodeBase.UI
 
         public void OnQuitPressed()
         {
-            _quitButton.interactable = false;   
+            _quitButton.interactable = false; 
             GoToMainMenu();
         }
 

@@ -1,13 +1,14 @@
 ﻿using CodeBase.EntryPoints;
-using CodeBase.GameLogic;
-using CodeBase.GameLogic.Services.SaveLoad;
-using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.AssetManagement.Loaders;
+using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Services.Analytics;
+using CodeBase.GameLogic.Services.SaveLoad;
+using CodeBase.GameLogic;
+using CodeBase.Infrastructure.Services.Ads;
+using VContainer.Unity;
 using CodeBase.UI;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
 
 namespace CodeBase.Scopes
 {
@@ -24,6 +25,7 @@ namespace CodeBase.Scopes
             builder.Register<UIFactory>(Lifetime.Singleton);
             builder.Register<LoadSceneService>(Lifetime.Singleton);
             builder.Register<PlayerData>(Lifetime.Singleton).As<ISaveLoadEntity>().AsSelf();
+            builder.Register<IAdsService, LevelPlayAdsService>(Lifetime.Singleton);
             builder.Register<ISaveLoadService, SaveLoadPrefsService>(Lifetime.Singleton);
             builder.Register<IAnalyticsService, FirebaseAnalyticsService>(Lifetime.Singleton);
             builder.Register<GameAnalytics>(Lifetime.Singleton);
