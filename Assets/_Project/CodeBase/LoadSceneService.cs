@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using CodeBase.UI;
+using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
 namespace CodeBase
@@ -24,31 +24,15 @@ namespace CodeBase
                 _uiManager.HideLoadingScreen();
         }
 
-        public Task LoadSceneAsync(string sceneName, bool needShowLoadingScreen = true)
+        public async UniTask LoadSceneAsync(string sceneName, bool needShowLoading = true)
         {
-            if (needShowLoadingScreen)
+            if (needShowLoading)
                 _uiManager.ShowLoadingScreen();
             
-            var completeSource = new TaskCompletionSource<bool>();
-            var operation = SceneManager.LoadSceneAsync(sceneName);
-            if (operation != null)
-            {
-                operation.completed += _ =>
-                {
-                    completeSource.SetResult(true);
-                    
-                    if (needShowLoadingScreen)
-                        _uiManager.HideLoadingScreen();
-                };
-            }
-            else
-            {
-                completeSource.SetResult(true);
-                
-                if (needShowLoadingScreen)
-                    _uiManager.HideLoadingScreen();
-            }
-            return completeSource.Task;
+            await SceneManager.LoadSceneAsync(sceneName).ToUniTask();
+            
+            if (needShowLoading) 
+                _uiManager.HideLoadingScreen();
         }
 
         public Scene GetActiveScene() => SceneManager.GetActiveScene();

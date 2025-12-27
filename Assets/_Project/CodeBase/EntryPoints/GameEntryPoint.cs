@@ -7,6 +7,7 @@ using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.UI;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
@@ -44,7 +45,7 @@ namespace CodeBase.EntryPoints
             _matchmakingService = matchmakingService;
         }
         
-        public async Awaitable StartAsync(CancellationToken _)
+        public async UniTask StartAsync(CancellationToken _)
         {
             await _assetProvider.PrepareGameAssetGroup();
             

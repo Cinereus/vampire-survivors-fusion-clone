@@ -9,6 +9,7 @@ using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Services.Ads;
 using CodeBase.UI;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using UnityEngine;
 using VContainer;
@@ -45,13 +46,13 @@ namespace CodeBase.EntryPoints
             _ads = ads;
         }
         
-        public Awaitable StartAsync(CancellationToken token)
+        public UniTask StartAsync(CancellationToken token)
         {
             BehaviourInjector.instance.SetupResolver(_resolver);
             _ads.onRewarded += OnAdsRewarded;
             InitializeMainMenuPanel();
             InitializeMatchmaking();
-            return Awaitable.EndOfFrameAsync(token);
+            return UniTask.NextFrame();
         }
 
         public void Dispose()

@@ -6,6 +6,7 @@ using CodeBase.Configs.Enemies;
 using CodeBase.Configs.Heroes;
 using CodeBase.Infrastructure.AssetManagement.Loaders;
 using CodeBase.UI;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -26,7 +27,7 @@ namespace CodeBase.Infrastructure.AssetManagement
             _loader = loader;
         }
 
-        public async Task PrepareCommonAssetGroup()
+        public async UniTask PrepareCommonAssetGroup()
         {
             List<Object> assets = new List<Object>();
             assets.AddRange(await _loader.LoadGroupAsync<Object>(COMMON_GROUP));
@@ -36,7 +37,7 @@ namespace CodeBase.Infrastructure.AssetManagement
                 _commonAssets[asset.name] = asset;
         }
 
-        public async Task PrepareGameAssetGroup()
+        public async UniTask PrepareGameAssetGroup()
         {
             List<Object> gameAssets = await _loader.LoadGroupAsync<Object>(GAME_GROUP);
             foreach (var asset in gameAssets)

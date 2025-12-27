@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CodeBase.Infrastructure.Services.Analytics;
 using CodeBase.UI;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using UnityEngine;
 
@@ -40,7 +40,7 @@ namespace CodeBase
             _rooms.Clear();
         }
 
-        public async void StartLobbySession(Action onCompleted = null, Action onFailed = null)
+        public async UniTaskVoid StartLobbySession(Action onCompleted = null, Action onFailed = null)
         {
             _uiManager.ShowLoadingScreen();
             var result = await _network.runner.JoinSessionLobby(SessionLobby.ClientServer);
@@ -58,7 +58,7 @@ namespace CodeBase
             }
         }
 
-        public async void MigrateGameSession(HostMigrationToken token, Action<NetworkRunner> onHostMigrationResume,
+        public async UniTaskVoid MigrateGameSession(HostMigrationToken token, Action<NetworkRunner> onHostMigrationResume,
             Action onCompleted = null, Action onFailed = null)
         {
             _uiManager.ShowLoadingScreen();
@@ -77,11 +77,11 @@ namespace CodeBase
             _uiManager.HideLoadingScreen();
         }
 
-        public async void StartGameSession(string roomName, bool isHost, string scene, Action onCompleted = null,
+        public async UniTaskVoid StartGameSession(string roomName, bool isHost, string scene, Action onCompleted = null,
             Action onFailed = null)
         {
             _uiManager.ShowLoadingScreen();
-            await _sceneService.LoadSceneAsync(scene, needShowLoadingScreen: false);
+            await _sceneService.LoadSceneAsync(scene, needShowLoading: false);
             
             _network.runner.ProvideInput = true;
             var args = new StartGameArgs
@@ -97,14 +97,14 @@ namespace CodeBase
 
         public bool CheckRoomExists(string roomName) => _rooms.FirstOrDefault(r => r.Name == roomName) != null;
 
-        public async Task KillSession()
+        public async UniTask KillSession()
         {
             await _network.runner.Shutdown();
             _analytics.SendGameSessionFinished();
             _rooms.Clear();
         }
 
-        private async Task StartGameSession(StartGameArgs args, Action onCompleted = null, Action onFailed = null)
+        private async UniTask StartGameSession(StartGameArgs args, Action onCompleted = null, Action onFailed = null)
         {
             var isMigration = args.HostMigrationToken != null;
             var result = await _network.runner.StartGame(args);
