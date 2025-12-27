@@ -25,8 +25,13 @@ namespace CodeBase.GameLogic.Components.Hero
         
         private void OnHealthChanged()
         {
-            if (_model.currentHealth <= 0)
+            if (_model.currentHealth > 0) 
+                return;
+            
+            if (Runner.LocalPlayer == Object.InputAuthority)
                 Runner.Shutdown();
+            else
+                Runner.Disconnect(Object.InputAuthority);
         }
     }
 }

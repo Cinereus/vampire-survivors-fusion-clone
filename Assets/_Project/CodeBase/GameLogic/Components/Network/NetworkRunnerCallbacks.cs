@@ -13,6 +13,7 @@ namespace CodeBase.GameLogic.Components.Network
         public event Action<NetworkRunner, PlayerRef> onPlayerJoined;
         public event Action<NetworkRunner, PlayerRef> onPlayerLeft;
         public event Action<NetworkRunner, HostMigrationToken> onHostMigration;
+        public event Action<NetworkRunner, NetDisconnectReason> onDisconnectedFromServer;
         public event Action<NetworkRunner, ShutdownReason> onShutdown;
         public event Action<NetworkRunner> onSceneLoadDone;
 
@@ -39,6 +40,7 @@ namespace CodeBase.GameLogic.Components.Network
 
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
         {
+            onDisconnectedFromServer?.Invoke(runner, reason);
         }
         
         public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
