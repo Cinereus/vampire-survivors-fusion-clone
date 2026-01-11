@@ -3,7 +3,7 @@ using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Services.Ads;
 using CodeBase.Infrastructure.Services.Analytics;
-using UnityEngine;
+using Cysharp.Threading.Tasks;
 using VContainer.Unity;
 
 namespace CodeBase.EntryPoints
@@ -31,7 +31,7 @@ namespace CodeBase.EntryPoints
             _ads = ads;
         }
 
-        public async Awaitable StartAsync(CancellationToken _)
+        public async UniTask StartAsync(CancellationToken _)
         {
             await _assetProvider.PrepareCommonAssetGroup();
             _saveLoad.Load();

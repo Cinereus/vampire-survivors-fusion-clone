@@ -1,7 +1,7 @@
 ﻿using CodeBase.Configs;
+using CodeBase.Infrastructure.Services.Analytics;
 
-
-namespace CodeBase.Infrastructure.Services.Analytics
+namespace CodeBase.Infrastructure
 {
     public class GameAnalytics
     {

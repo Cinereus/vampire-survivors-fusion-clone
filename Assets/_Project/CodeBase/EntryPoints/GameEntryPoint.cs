@@ -7,7 +7,9 @@ using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.UI;
+using Cysharp.Threading.Tasks;
 using Fusion;
+using Fusion.Sockets;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -43,7 +45,7 @@ namespace CodeBase.EntryPoints
             _matchmakingService = matchmakingService;
         }
         
-        public async Awaitable StartAsync(CancellationToken _)
+        public async UniTask StartAsync(CancellationToken _)
         {
             await _assetProvider.PrepareGameAssetGroup();
             
@@ -54,6 +56,7 @@ namespace CodeBase.EntryPoints
             
             _network.callbacks.onSceneLoadDone += OnSceneLoadDone;
             _network.callbacks.onPlayerJoined += OnPlayerJoined;
+            _network.callbacks.onDisconnectedFromServer += OnDisconnectFromServer;
             _network.callbacks.onShutdown += OnShutdown;
         }
         
@@ -61,6 +64,7 @@ namespace CodeBase.EntryPoints
         {
             _network.callbacks.onSceneLoadDone -= OnSceneLoadDone;
             _network.callbacks.onPlayerJoined -= OnPlayerJoined;
+            _network.callbacks.onDisconnectedFromServer -= OnDisconnectFromServer;
             _network.callbacks.onShutdown -= OnShutdown;
             _uiManager.Hide<GameOverScreen>();
             _assetProvider.ReleaseGameAssetGroup();
@@ -77,6 +81,11 @@ namespace CodeBase.EntryPoints
             _factory.CreateEnemySpawner();
         }
 
+        private void OnDisconnectFromServer(NetworkRunner runner, NetDisconnectReason reason)
+        {
+            _uiManager.Show<GameOverScreen>().Initialize(_matchmakingService, _sceneService);
+        }
+        
         private void OnShutdown(NetworkRunner runner, ShutdownReason reason)
         {
             _uiManager.Show<GameOverScreen>().Initialize(_matchmakingService, _sceneService);

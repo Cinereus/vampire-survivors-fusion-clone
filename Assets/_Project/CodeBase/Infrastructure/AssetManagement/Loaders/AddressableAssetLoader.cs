@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -13,13 +13,13 @@ namespace CodeBase.Infrastructure.AssetManagement.Loaders
         private readonly Dictionary<string, AsyncOperationHandle> _unreleasedHandles =
             new Dictionary<string, AsyncOperationHandle>();
 
-        public async Task<List<T>> LoadGroupAsync<T>(string key) where T : class
+        public async UniTask<List<T>> LoadGroupAsync<T>(string key) where T : class
         {
             if (_unreleasedHandles.TryGetValue(key, out var cachedHandle))
                 return cachedHandle.Result as List<T>;
             
             var handle = Addressables.LoadAssetsAsync<T>(key);
-            await handle.Task;
+            await handle.ToUniTask();
             
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
@@ -30,13 +30,13 @@ namespace CodeBase.Infrastructure.AssetManagement.Loaders
             throw new Exception($"[{nameof(AddressableAssetLoader)}] Failed to load asset group: {key}");
         }
 
-        public async Task<T> LoadAsync<T>(string key) where T : class
+        public async UniTask<T> LoadAsync<T>(string key) where T : class
         {
             if (_unreleasedHandles.TryGetValue(key, out var cachedHandle))
                 return cachedHandle.Result as T;
             
             var handle = Addressables.LoadAssetAsync<T>(key);
-            await handle.Task;
+            await handle.ToUniTask();
 
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
