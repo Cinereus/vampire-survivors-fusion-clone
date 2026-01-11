@@ -46,13 +46,11 @@ namespace CodeBase.EntryPoints
             _ads = ads;
         }
         
-        public UniTask StartAsync(CancellationToken token)
+        public async UniTask StartAsync(CancellationToken token)
         {
             BehaviourInjector.instance.SetupResolver(_resolver);
-            _ads.onRewarded += OnAdsRewarded;
             InitializeMainMenuPanel();
-            InitializeMatchmaking();
-            return UniTask.NextFrame();
+            await InitializeMatchmaking();
         }
 
         public void Dispose()
@@ -69,9 +67,6 @@ namespace CodeBase.EntryPoints
 
             if (_matchmakingService != null)
                 _matchmakingService.onRoomsUpdated -= OnRoomListUpdated;
-            
-            if (_ads != null)
-                _ads.onRewarded -= OnAdsRewarded;
         }
 
         private void InitializeMainMenuPanel()
@@ -89,15 +84,15 @@ namespace CodeBase.EntryPoints
             _mainMenuScreen.onHeroSelected += OnHeroSelected;
         }
 
-        private void InitializeMatchmaking()
+        private async UniTask InitializeMatchmaking()
         {
-            _matchmakingService.StartLobbySession();
             _matchmakingService.onRoomsUpdated += OnRoomListUpdated;
+            await _matchmakingService.StartLobbySession();
         }
 
-        private void OnAdsRewarded(string adUnitName, string reward, int _)
+        private void GetReward(string adUnit, string reward)
         {
-            var hasCorrectAdUnit = adUnitName == AdsUnitIds.REWARDED_GAME_SESSION_START;
+            var hasCorrectAdUnit = adUnit == AdsUnitIds.REWARDED_GAME_SESSION_START;
             var hasCorrectReward = reward == AdsRewards.GAME_SESSION_PASS;
             var isRoomSelected = !string.IsNullOrEmpty(_mainMenuScreen.lastSelectedListRoom);
             if (hasCorrectAdUnit && hasCorrectReward && isRoomSelected)
@@ -131,7 +126,14 @@ namespace CodeBase.EntryPoints
         private void OnConfirmAdsWatching()
         {
             _uiManager.Hide<ConfirmationPanel>();
-            _ads.ShowRewarded(AdsPlacements.LEVEL_START);
+            ShowRewarded().Forget();
+        }
+
+        private async UniTaskVoid ShowRewarded()
+        {
+            var result = await _ads.ShowRewarded(AdsPlacements.LEVEL_START);
+            if (result.isSuccess)
+                GetReward(result.adUnit, result.rewardName);
         }
 
         private void OnStartAsHost(string roomName)
@@ -151,7 +153,7 @@ namespace CodeBase.EntryPoints
         {
             _playerData.visitedRooms.Add(roomName);
             _matchmakingService.StartGameSession(roomName, isHost, SceneNames.GAME,
-                onFailed: () => _sceneService.LoadScene(SceneNames.MAIN_MENU));
+                onFailed: () => _sceneService.LoadScene(SceneNames.MAIN_MENU)).Forget();
         }
     }
 }

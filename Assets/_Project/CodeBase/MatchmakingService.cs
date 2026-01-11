@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeBase.Infrastructure.Services.Analytics;
+using CodeBase.Infrastructure;
 using CodeBase.UI;
 using Cysharp.Threading.Tasks;
 using Fusion;
@@ -40,7 +40,7 @@ namespace CodeBase
             _rooms.Clear();
         }
 
-        public async UniTaskVoid StartLobbySession(Action onCompleted = null, Action onFailed = null)
+        public async UniTask StartLobbySession(Action onCompleted = null, Action onFailed = null)
         {
             _uiManager.ShowLoadingScreen();
             var result = await _network.runner.JoinSessionLobby(SessionLobby.ClientServer);

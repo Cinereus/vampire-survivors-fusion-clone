@@ -2,6 +2,6 @@
 {
     public static class AdsRewards
     {
-        public const string GAME_SESSION_PASS = "game_session_pass";
+        public const string GAME_SESSION_PASS = "Game_Session_Pass";
     }
 }
