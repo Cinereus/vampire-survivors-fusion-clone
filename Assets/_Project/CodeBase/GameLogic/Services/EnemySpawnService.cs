@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeBase.Configs.Enemies;
-using CodeBase.Infrastructure.AssetManagement;
+using CodeBase.Infrastructure.Services.Configs;
 using CodeBase.UI;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -15,12 +15,12 @@ namespace CodeBase.GameLogic.Services
         private readonly List<EnemyData> _availableEnemies = new List<EnemyData>();
 
         public EnemySpawnService(UIManager uiManager, GameFactory factory, HeroesInstanceProvider instanceProvider,
-            AssetProvider assetProvider)
+            IConfigProvider configProvider)
         {
             _factory = factory;
             _camera = uiManager.actualCamera;
             _instanceProvider = instanceProvider;
-            _availableEnemies.AddRange(assetProvider.GetConfig<EnemiesConfig>().enemies);
+            _availableEnemies.AddRange(configProvider.GetConfig<EnemiesConfig>().enemies);
         }
 
         public void SpawnEnemyWave()

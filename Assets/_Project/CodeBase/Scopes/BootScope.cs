@@ -6,6 +6,7 @@ using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.GameLogic;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services.Ads;
+using CodeBase.Infrastructure.Services.Configs;
 using VContainer.Unity;
 using CodeBase.UI;
 using UnityEngine;
@@ -22,6 +23,7 @@ namespace CodeBase.Scopes
         {
             builder.Register<IAssetLoader, AddressableAssetLoader>(Lifetime.Singleton);
             builder.Register<AssetProvider>(Lifetime.Singleton);
+            builder.Register<IConfigProvider, FirebaseConfigProvider>(Lifetime.Singleton);
             builder.Register<NetworkProvider>(Lifetime.Singleton);
             builder.Register<UIFactory>(Lifetime.Singleton);
             builder.Register<LoadSceneService>(Lifetime.Singleton);

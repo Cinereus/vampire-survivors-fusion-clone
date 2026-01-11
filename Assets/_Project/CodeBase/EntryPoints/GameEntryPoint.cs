@@ -6,6 +6,7 @@ using CodeBase.GameLogic;
 using CodeBase.GameLogic.Models;
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.AssetManagement;
+using CodeBase.Infrastructure.Services.Configs;
 using CodeBase.UI;
 using Cysharp.Threading.Tasks;
 using Fusion;
@@ -26,12 +27,14 @@ namespace CodeBase.EntryPoints
         private readonly NetworkProvider _network;
         private readonly IObjectResolver _resolver;
         private readonly AssetProvider _assetProvider;
+        private readonly IConfigProvider _configProvider;
         private readonly LoadSceneService _sceneService;
         private readonly MatchmakingService _matchmakingService;
 
         public GameEntryPoint(GameFactory factory, NetworkProvider network, UIManager uiManager,
             LoadSceneService sceneService, MatchmakingService matchmakingService, Camera mainCamera,
-            IObjectResolver resolver, AssetProvider assetProvider, Heroes heroes, Enemies enemies)
+            IObjectResolver resolver, AssetProvider assetProvider, IConfigProvider configProvider, Heroes heroes,
+            Enemies enemies)
         {
             _heroes = heroes;
             _enemies = enemies;
@@ -42,6 +45,7 @@ namespace CodeBase.EntryPoints
             _mainCamera = mainCamera;
             _sceneService = sceneService;
             _assetProvider = assetProvider;
+            _configProvider = configProvider;
             _matchmakingService = matchmakingService;
         }
         
@@ -51,8 +55,8 @@ namespace CodeBase.EntryPoints
             
             _uiManager.SetupActualCamera(_mainCamera);
             BehaviourInjector.instance.SetupResolver(_resolver);
-            _heroes.Initialize(_assetProvider.GetConfig<HeroesConfig>().heroes, data => (uint) data.heroType);
-            _enemies.Initialize(_assetProvider.GetConfig<EnemiesConfig>().enemies, data => (uint) data.enemyType);
+            _heroes.Initialize(_configProvider.GetConfig<HeroesConfig>().heroes, data => (uint) data.heroType);
+            _enemies.Initialize(_configProvider.GetConfig<EnemiesConfig>().enemies, data => (uint) data.enemyType);
             
             _network.callbacks.onSceneLoadDone += OnSceneLoadDone;
             _network.callbacks.onPlayerJoined += OnPlayerJoined;
