@@ -6,8 +6,8 @@ using CodeBase.Configs.Heroes;
 using CodeBase.GameLogic;
 using CodeBase.GameLogic.Services.SaveLoad;
 using CodeBase.Infrastructure;
-using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Services.Ads;
+using CodeBase.Infrastructure.Services.Configs;
 using CodeBase.UI;
 using Cysharp.Threading.Tasks;
 using Fusion;
@@ -21,7 +21,7 @@ namespace CodeBase.EntryPoints
     {
         private readonly UIManager _uiManager;
         private readonly PlayerData _playerData;
-        private readonly AssetProvider _assetProvider;
+        private readonly IConfigProvider _configProvider;
         private readonly LoadSceneService _sceneService;
         private readonly MatchmakingService _matchmakingService;
         private readonly ISaveLoadService _saveLoad;
@@ -31,12 +31,12 @@ namespace CodeBase.EntryPoints
 
         private MainMenuScreen _mainMenuScreen;
 
-        public MainMenuEntryPoint(UIManager uiManager, AssetProvider assetProvider, PlayerData playerData,
+        public MainMenuEntryPoint(UIManager uiManager, IConfigProvider configProvider, PlayerData playerData,
             LoadSceneService sceneService, MatchmakingService matchmakingService, Camera mainCamera,
             ISaveLoadService saveLoad, IObjectResolver resolver, IAdsService ads)
         {
-            _assetProvider = assetProvider;
             _playerData = playerData;
+            _configProvider = configProvider;
             _matchmakingService = matchmakingService;
             _mainCamera = mainCamera;
             _sceneService = sceneService;
@@ -74,7 +74,7 @@ namespace CodeBase.EntryPoints
             _uiManager.SetupActualCamera(_mainCamera);
             _mainMenuScreen = _uiManager.Show<MainMenuScreen>();
 
-            var heroNames = _assetProvider.GetConfig<HeroesConfig>().heroes
+            var heroNames = _configProvider.GetConfig<HeroesConfig>().heroes
                 .Select(h => h.heroType.ToString()).ToList();
 
             _mainMenuScreen.Initialize((int) _playerData.chosenHero, heroNames);

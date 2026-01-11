@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CodeBase.Configs.Enemies
 {
-    [CreateAssetMenu(fileName = "EnemiesConfig", menuName = "Configs/EnemiesConfig")]
-    public class EnemiesConfig : ScriptableObject
+    [Serializable]
+    public class EnemiesConfig : IConfig
     {
         public List<EnemyData> enemies;
     }

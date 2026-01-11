@@ -2,8 +2,8 @@
 {
     public enum HeroType
     {
-        Ranger,
-        Knight,
-        Wizard,
+        Ranger = 0,
+        Knight = 1,
+        Wizard = 2,
     }
 }

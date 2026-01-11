@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CodeBase.Configs.Heroes
 {
-    [CreateAssetMenu(fileName = "HeroesConfig", menuName = "Configs/HeroesConfig")]
-    public class HeroesConfig : ScriptableObject
+    [Serializable]
+    public class HeroesConfig : IConfig
     {
         public List<HeroData> heroes;
     }
