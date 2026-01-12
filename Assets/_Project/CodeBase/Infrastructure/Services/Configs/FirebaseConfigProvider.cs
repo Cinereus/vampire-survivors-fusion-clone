@@ -53,7 +53,7 @@ namespace CodeBase.Infrastructure.Services.Configs
                 Debug.Log($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(EnemiesConfig)}\nJson:\n{enemiesJson}");
                 _configs[typeof(EnemiesConfig)] = JsonUtility.FromJson<EnemiesConfig>(enemiesJson);
             }
-            catch(Exception _)
+            catch(Exception)
             {
                 Debug.LogWarning($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(EnemiesConfig)} failed. Using default values.");
                 _configs[typeof(EnemiesConfig)] = JsonUtility.FromJson<EnemiesConfig>(_enemiesDefValues.text);
@@ -68,7 +68,7 @@ namespace CodeBase.Infrastructure.Services.Configs
                 Debug.Log($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(HeroesConfig)}\nJson:\n{heroesJson}");
                 _configs[typeof(HeroesConfig)] = JsonUtility.FromJson<HeroesConfig>(heroesJson);
             }
-            catch(Exception _)
+            catch(Exception)
             {
                 Debug.LogWarning($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(HeroesConfig)} failed. Using default values.");
                 _configs[typeof(HeroesConfig)] = JsonUtility.FromJson<HeroesConfig>(_enemiesDefValues.text);
