@@ -11,107 +11,16 @@ namespace CodeBase.Infrastructure.Services.Configs
 {
     public class FirebaseConfigProvider : IConfigProvider
     {
-        private const string HEROES_CONFIG_DEF_VALUES = @"{
-              ""heroes"": [
-                {
-                  ""heroType"": 0,
-                  ""maxHealth"": 999,
-                  ""currentHealth"": 100,
-                  ""speed"": 0.5,
-                  ""damage"": 1,
-                  ""attackCooldown"": 1,
-                  ""maxXp"": 20,
-                  ""currentXp"": 0,
-                  ""currentLevel"": 0,
-                  ""progressionCoeff"": 1.5,
-                  ""statIncreaseCoeff"": 1.5
-                },
-                {
-                  ""heroType"": 1,
-                  ""maxHealth"": 120,
-                  ""currentHealth"": 120,
-                  ""speed"": 0.2,
-                  ""damage"": 3,
-                  ""attackCooldown"": 2.5,
-                  ""maxXp"": 30,
-                  ""currentXp"": 0,
-                  ""currentLevel"": 0,
-                  ""progressionCoeff"": 1.5,
-                  ""statIncreaseCoeff"": 1.2
-                },
-                {
-                  ""heroType"": 2,
-                  ""maxHealth"": 70,
-                  ""currentHealth"": 70,
-                  ""speed"": 0.3,
-                  ""damage"": 4,
-                  ""attackCooldown"": 4,
-                  ""maxXp"": 15,
-                  ""currentXp"": 0,
-                  ""currentLevel"": 0,
-                  ""progressionCoeff"": 1.5,
-                  ""statIncreaseCoeff"": 2
-                }
-              ]
-            }";
-        
-        private const string ENEMIES_CONFIG_DEF_VALUES = @"{
-              ""enemies"": [
-                {
-                  ""enemyType"": 2,
-                  ""maxHealth"": 2,
-                  ""currentHealth"": 2,
-                  ""damage"": 2,
-                  ""attackCooldown"": 1.5,
-                  ""speed"": 0.2,
-                  ""lootProbability"": 15,
-                  ""spawnProbability"": 50
-                },
-                {
-                  ""enemyType"": 22,
-                  ""maxHealth"": 8,
-                  ""currentHealth"": 8,
-                  ""damage"": 15,
-                  ""attackCooldown"": 2,
-                  ""speed"": 0.08,
-                  ""lootProbability"": 80,
-                  ""spawnProbability"": 20
-                },
-                {
-                  ""enemyType"": 67,
-                  ""maxHealth"": 3,
-                  ""currentHealth"": 3,
-                  ""damage"": 2,
-                  ""attackCooldown"": 1.5,
-                  ""speed"": 0.2,
-                  ""lootProbability"": 15,
-                  ""spawnProbability"": 50
-                },
-                {
-                  ""enemyType"": 37,
-                  ""maxHealth"": 1,
-                  ""currentHealth"": 1,
-                  ""damage"": 1,
-                  ""attackCooldown"": 1.5,
-                  ""speed"": 0.3,
-                  ""lootProbability"": 15,
-                  ""spawnProbability"": 50
-                },
-                {
-                  ""enemyType"": 8,
-                  ""maxHealth"": 15,
-                  ""currentHealth"": 15,
-                  ""damage"": 25,
-                  ""attackCooldown"": 2.5,
-                  ""speed"": 0.05,
-                  ""lootProbability"": 50,
-                  ""spawnProbability"": 15
-                }
-              ]
-            }";
-        
+        private readonly TextAsset _heroesDefValues;
+        private readonly TextAsset _enemiesDefValues;
         private readonly Dictionary<Type, IConfig> _configs = new Dictionary<Type, IConfig>();
 
+        public FirebaseConfigProvider(ConfigDefValues defValues)
+        {
+            _heroesDefValues = defValues.heroesDefValues;
+            _enemiesDefValues = defValues.enemiesDefValues;
+        }
+        
         public async UniTask Initialize()
         {
             await FirebaseInitializer.Initialize();
@@ -132,13 +41,38 @@ namespace CodeBase.Infrastructure.Services.Configs
 
         private void ParseConfigs()
         {
-            var heroesJson = FirebaseRemoteConfig.DefaultInstance.GetValue(nameof(HeroesConfig)).StringValue;
-            Debug.Log($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(HeroesConfig)}\nJson:\n{heroesJson}");
-            _configs[typeof(HeroesConfig)] = JsonUtility.FromJson<HeroesConfig>(heroesJson);
-            
-            var enemiesJson = FirebaseRemoteConfig.DefaultInstance.GetValue(nameof(EnemiesConfig)).StringValue;
-            Debug.Log($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(EnemiesConfig)}\nJson:\n{enemiesJson}");
-            _configs[typeof(EnemiesConfig)] = JsonUtility.FromJson<EnemiesConfig>(enemiesJson);
+            ParseHeroesConfig();
+            ParseEnemiesConfig();
+        }
+
+        private void ParseEnemiesConfig()
+        {
+            try
+            {
+                var enemiesJson = FirebaseRemoteConfig.DefaultInstance.GetValue(nameof(EnemiesConfig)).StringValue;
+                Debug.Log($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(EnemiesConfig)}\nJson:\n{enemiesJson}");
+                _configs[typeof(EnemiesConfig)] = JsonUtility.FromJson<EnemiesConfig>(enemiesJson);
+            }
+            catch(Exception _)
+            {
+                Debug.LogWarning($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(EnemiesConfig)} failed. Using default values.");
+                _configs[typeof(EnemiesConfig)] = JsonUtility.FromJson<EnemiesConfig>(_enemiesDefValues.text);
+            }
+        }
+
+        private void ParseHeroesConfig()
+        {
+            try
+            {
+                var heroesJson = FirebaseRemoteConfig.DefaultInstance.GetValue(nameof(HeroesConfig)).StringValue;
+                Debug.Log($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(HeroesConfig)}\nJson:\n{heroesJson}");
+                _configs[typeof(HeroesConfig)] = JsonUtility.FromJson<HeroesConfig>(heroesJson);
+            }
+            catch(Exception _)
+            {
+                Debug.LogWarning($"[{nameof(FirebaseConfigProvider)}]: Parsing {nameof(HeroesConfig)} failed. Using default values.");
+                _configs[typeof(HeroesConfig)] = JsonUtility.FromJson<HeroesConfig>(_enemiesDefValues.text);
+            }
         }
 
         private async UniTask ActivateInstance()
@@ -173,8 +107,8 @@ namespace CodeBase.Infrastructure.Services.Configs
                 .SetDefaultsAsync(
                     new Dictionary<string, object>
                     {
-                        { nameof(HeroesConfig), HEROES_CONFIG_DEF_VALUES },
-                        { nameof(EnemiesConfig), ENEMIES_CONFIG_DEF_VALUES }
+                        { nameof(HeroesConfig), _heroesDefValues.text },
+                        { nameof(EnemiesConfig), _enemiesDefValues.text }
                     })
                 .AsUniTask();
         }
