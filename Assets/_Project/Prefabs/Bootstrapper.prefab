@@ -49,3 +49,5 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _uiManagerPrefab: {fileID: 8358937677726100697, guid: 613d67ec4ca0eef4785227daf7393459, type: 3}
+  _heroesDefaultValues: {fileID: 4900000, guid: bab095e3bbc89d749b331642fa4359f3, type: 3}
+  _enemiesDefaultValues: {fileID: 4900000, guid: ea7913344b54de145abbe27bd5e3de02, type: 3}

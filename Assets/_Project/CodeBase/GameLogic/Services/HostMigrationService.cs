@@ -37,10 +37,10 @@ namespace CodeBase.GameLogic.Services
         {
             _instanceProvider.Clear();
 
-            foreach (var obj in runner.GetAllNetworkObjects())
-                runner.Despawn(obj);
+            foreach (var netObj in runner.GetAllNetworkObjects())
+                runner.Despawn(netObj);
 
-            _matchmakingService.MigrateGameSession(token, OnMigrationResume);
+            _matchmakingService.MigrateGameSession(token, OnMigrationResume).Forget();
         }
 
         private void OnMigrationResume(NetworkRunner runner)

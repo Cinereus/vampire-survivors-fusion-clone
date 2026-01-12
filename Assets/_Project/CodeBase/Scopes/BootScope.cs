@@ -1,4 +1,5 @@
-﻿using CodeBase.EntryPoints;
+﻿using CodeBase.Configs;
+using CodeBase.EntryPoints;
 using CodeBase.Infrastructure.AssetManagement.Loaders;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Services.Analytics;
@@ -18,12 +19,21 @@ namespace CodeBase.Scopes
     {
         [SerializeField] 
         private UIManager _uiManagerPrefab;
+        
+        [SerializeField]
+        private TextAsset _heroesDefaultValues;
+        
+        [SerializeField]
+        private TextAsset _enemiesDefaultValues;
 
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<IAssetLoader, AddressableAssetLoader>(Lifetime.Singleton);
             builder.Register<AssetProvider>(Lifetime.Singleton);
-            builder.Register<IConfigProvider, FirebaseConfigProvider>(Lifetime.Singleton);
+
+            builder.Register<IConfigProvider, FirebaseConfigProvider>(Lifetime.Singleton)
+                .WithParameter(new ConfigDefValues(_heroesDefaultValues, _enemiesDefaultValues));
+            
             builder.Register<NetworkProvider>(Lifetime.Singleton);
             builder.Register<UIFactory>(Lifetime.Singleton);
             builder.Register<LoadSceneService>(Lifetime.Singleton);

@@ -1,0 +1,54 @@
+{
+  "enemies": [
+    {
+      "enemyType": 2,
+      "maxHealth": 2,
+      "currentHealth": 2,
+      "damage": 2,
+      "attackCooldown": 1.5,
+      "speed": 0.2,
+      "lootProbability": 15,
+      "spawnProbability": 50
+    },
+    {
+      "enemyType": 22,
+      "maxHealth": 8,
+      "currentHealth": 8,
+      "damage": 15,
+      "attackCooldown": 2,
+      "speed": 0.08,
+      "lootProbability": 80,
+      "spawnProbability": 20
+    },
+    {
+      "enemyType": 67,
+      "maxHealth": 3,
+      "currentHealth": 3,
+      "damage": 2,
+      "attackCooldown": 1.5,
+      "speed": 0.2,
+      "lootProbability": 15,
+      "spawnProbability": 50
+    },
+    {
+      "enemyType": 37,
+      "maxHealth": 1,
+      "currentHealth": 1,
+      "damage": 1,
+      "attackCooldown": 1.5,
+      "speed": 0.3,
+      "lootProbability": 15,
+      "spawnProbability": 50
+    },
+    {
+      "enemyType": 8,
+      "maxHealth": 15,
+      "currentHealth": 15,
+      "damage": 25,
+      "attackCooldown": 2.5,
+      "speed": 0.05,
+      "lootProbability": 50,
+      "spawnProbability": 15
+    }
+  ]
+}
